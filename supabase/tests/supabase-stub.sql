@@ -6,8 +6,11 @@ create role service_role nologin bypassrls;
 create schema if not exists auth;
 
 create table auth.users (
-  id    uuid primary key,
-  email text unique
+  id                 uuid primary key,
+  email              text unique,
+  -- Supabase'de signUp options.data buraya yazılıyor; pazarlama rızası
+  -- profil oluşana kadar burada bekliyor.
+  raw_user_meta_data jsonb not null default '{}'::jsonb
 );
 
 create or replace function auth.uid() returns uuid

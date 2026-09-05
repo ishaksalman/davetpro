@@ -1008,6 +1008,37 @@ await step('salon silinince paket tüm salonlara döner', async () => {
   if (!row.business_id) throw new Error('business_id de NULL yapıldı — kolon listesi eksik')
 })
 
+console.log('\n\x1b[1m13m) Pazarlama rızası\x1b[0m')
+await sup()
+await step('rıza meta veriden profile taşınıyor', async () => {
+  const uid = '99999999-9999-9999-9999-999999999999'
+  await q(`insert into auth.users (id,email,raw_user_meta_data)
+           values ($1,'rizali@test.local','{"marketing_consent": true}'::jsonb)`, [uid])
+  await q(`insert into profiles (id,business_id,full_name,role,can_view_finance)
+           values ($1,(select business_id from profiles limit 1),'Rızalı','staff',false)`, [uid])
+  const r = (await q(`select marketing_consent_at from profiles where id=$1`, [uid])).rows[0]
+  if (!r.marketing_consent_at) throw new Error('rıza taşınmadı')
+})
+
+await step('rıza yoksa NULL kalıyor', async () => {
+  const uid = '88888888-8888-8888-8888-888888888888'
+  await q(`insert into auth.users (id,email) values ($1,'rizasiz@test.local')`, [uid])
+  await q(`insert into profiles (id,business_id,full_name,role,can_view_finance)
+           values ($1,(select business_id from profiles limit 1),'Rızasız','staff',false)`, [uid])
+  const r = (await q(`select marketing_consent_at from profiles where id=$1`, [uid])).rows[0]
+  if (r.marketing_consent_at) throw new Error('izin verilmediği hâlde damga atıldı')
+})
+
+await step('açıkça false ise izin sayılmıyor', async () => {
+  const uid = '77777777-7777-7777-7777-777777777777'
+  await q(`insert into auth.users (id,email,raw_user_meta_data)
+           values ($1,'hayir@test.local','{"marketing_consent": false}'::jsonb)`, [uid])
+  await q(`insert into profiles (id,business_id,full_name,role,can_view_finance)
+           values ($1,(select business_id from profiles limit 1),'Hayır','staff',false)`, [uid])
+  const r = (await q(`select marketing_consent_at from profiles where id=$1`, [uid])).rows[0]
+  if (r.marketing_consent_at) throw new Error('false iken damga atıldı')
+})
+
 console.log('\n' + '─'.repeat(70))
 const say = (s) => findings.filter(f => f.sev === s).length
 console.log(`\x1b[1mDenetim sonucu\x1b[0m  ${pass} kontrol geçti · ${findings.length} bulgu`)

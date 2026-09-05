@@ -46,6 +46,8 @@ export type Business = Timestamps & {
 };
 
 export type Profile = Timestamps & {
+  /** Ticari ileti için açık rızanın alındığı an; yoksa izin verilmemiş. */
+  marketing_consent_at: string | null;
   id: string;
   business_id: string;
   full_name: string;

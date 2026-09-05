@@ -26,6 +26,8 @@ const registerSchema = z.object({
     .max(120, "Ad soyad çok uzun."),
   email: z.string().trim().email("Geçerli bir e-posta adresi girin."),
   password: z.string().min(8, "Şifre en az 8 karakter olmalı."),
+  // Ticari ileti rızası: işaretlenmemiş gelir, zorunlu değildir.
+  marketingConsent: z.boolean(),
 });
 
 export async function loginAction(
@@ -53,6 +55,7 @@ export async function registerAction(
   formData: FormData,
 ): Promise<AuthState> {
   const parsed = registerSchema.safeParse({
+    marketingConsent: formData.get("marketingConsent") === "on",
     businessName: formData.get("businessName"),
     fullName: formData.get("fullName"),
     email: formData.get("email"),
@@ -62,7 +65,8 @@ export async function registerAction(
     return { error: parsed.error.issues[0].message };
   }
 
-  const { businessName, fullName, email, password } = parsed.data;
+  const { businessName, fullName, email, password, marketingConsent } =
+    parsed.data;
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -71,7 +75,13 @@ export async function registerAction(
     // E-posta doğrulaması açıksa oturum hemen açılmaz; bu bilgiler
     // /isletme-kur adımında formu önden doldurmak için saklanır.
     options: {
-      data: { full_name: fullName, business_name: businessName },
+      // Profil bu anda oluşmuyor (e-posta doğrulaması bekleniyor olabilir);
+      // rıza meta veride bekliyor, profil açılırken trigger onu taşıyor.
+      data: {
+        full_name: fullName,
+        business_name: businessName,
+        marketing_consent: marketingConsent,
+      },
       // Doğrulama bağlantısının nereye ineceği burada belirtilmezse Supabase
       // panelindeki Site URL'e düşüyor; o da kolayca localhost'ta kalıyor ve
       // müşteriye açılmayan bir bağlantı gidiyor. Davet ve şifre sıfırlama
