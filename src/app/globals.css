@@ -1,26 +1,956 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* Takvim temel stilleri — kendi override'larımız dosyanın sonunda. */
+@import "react-big-calendar/lib/css/react-big-calendar.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+/* ==========================================================================
+   Davetio teması
+   Nötr, ferah bir zemin + tek bir marka aksanı (menekşe).
+   Finans anlamları renkle ayrışır: yeşil = tahsilat, gül = gider, amber = bekleyen.
+   ========================================================================== */
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+}
+
+:root {
+  /* layout.tsx'teki next/font değişkenini shadcn tokenlarına bağla.
+     Mono yalnızca grafik ipuçlarında kullanıldığı için ayrı bir aile
+     indirilmiyor; sistem yığınına düşüyor. */
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --radius: 0.7rem;
+
+  /* Marka: koyu lacivert. Tema modundan bağımsız sabittir (giriş ekranındaki
+     hero paneli her iki temada da bu renkte kalmalı). */
+  --brand: #0b1220;
+  --brand-foreground: oklch(0.985 0.002 250);
+
+  --background: oklch(0.984 0.002 285);
+  --foreground: oklch(0.21 0.01 285);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.01 285);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.01 285);
+
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: oklch(0.965 0.004 285);
+  --secondary-foreground: oklch(0.28 0.012 285);
+  --muted: oklch(0.966 0.003 285);
+  --muted-foreground: oklch(0.53 0.013 285);
+  --accent: oklch(0.955 0.012 250);
+  --accent-foreground: oklch(0.30 0.05 250);
+  --destructive: oklch(0.58 0.21 22);
+
+  --success: oklch(0.62 0.14 163);
+  --success-foreground: oklch(0.985 0.01 163);
+  --warning: oklch(0.72 0.15 75);
+  --warning-foreground: oklch(0.25 0.05 75);
+
+  --border: oklch(0.918 0.004 285);
+  --input: oklch(0.918 0.004 285);
+  --ring: oklch(0.45 0.06 250);
+
+  --chart-1: oklch(0.62 0.15 262);
+  --chart-2: oklch(0.66 0.14 163);
+  --chart-3: oklch(0.64 0.19 15);
+  --chart-4: oklch(0.76 0.15 75);
+  --chart-5: oklch(0.62 0.13 225);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.32 0.012 285);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: oklch(0.955 0.012 250);
+  --sidebar-accent-foreground: oklch(0.30 0.05 250);
+  --sidebar-border: oklch(0.925 0.004 285);
+  --sidebar-ring: oklch(0.45 0.06 250);
+}
+
+.dark {
+  --background: oklch(0.168 0.008 285);
+  --foreground: oklch(0.97 0.002 285);
+  --card: oklch(0.214 0.009 285);
+  --card-foreground: oklch(0.97 0.002 285);
+  --popover: oklch(0.224 0.009 285);
+  --popover-foreground: oklch(0.97 0.002 285);
+
+  /* Koyu temada lacivert buton görünmez olurdu; shadcn'in yaptığı gibi
+     birincil renk açık, yazı koyu olur. Marka lacivertini hero paneli
+     bg-brand ile ayrıca taşır. */
+  --primary: oklch(0.93 0.01 250);
+  --primary-foreground: var(--brand);
+  --secondary: oklch(0.27 0.01 285);
+  --secondary-foreground: oklch(0.96 0.002 285);
+  --muted: oklch(0.26 0.009 285);
+  --muted-foreground: oklch(0.7 0.012 285);
+  --accent: oklch(0.3 0.025 250);
+  --accent-foreground: oklch(0.92 0.03 250);
+  --destructive: oklch(0.67 0.19 22);
+
+  --success: oklch(0.7 0.14 163);
+  --success-foreground: oklch(0.18 0.04 163);
+  --warning: oklch(0.79 0.15 75);
+  --warning-foreground: oklch(0.22 0.05 75);
+
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.7 0.06 250);
+
+  --chart-1: oklch(0.68 0.14 262);
+  --chart-2: oklch(0.72 0.14 163);
+  --chart-3: oklch(0.7 0.18 15);
+  --chart-4: oklch(0.8 0.15 75);
+  --chart-5: oklch(0.68 0.13 225);
+
+  --sidebar: oklch(0.19 0.009 285);
+  --sidebar-foreground: oklch(0.9 0.004 285);
+  --sidebar-primary: oklch(0.93 0.01 250);
+  --sidebar-primary-foreground: var(--brand);
+  --sidebar-accent: oklch(0.28 0.02 250);
+  --sidebar-accent-foreground: oklch(0.92 0.03 250);
+  --sidebar-border: oklch(1 0 0 / 9%);
+  --sidebar-ring: oklch(0.7 0.06 250);
+}
+
+@layer base {
+  /* Rakamlar tablolarda hizalı dursun. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   react-big-calendar — varsayılan (eski görünümlü) stilleri tema tokenlarıyla
+   değiştiriyoruz. Amaç: takvimin uygulamanın geri kalanıyla aynı dilde olması.
+   ========================================================================== */
+
+.rbc-calendar {
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--card-foreground);
+}
+
+.rbc-month-view,
+.rbc-time-view,
+.rbc-time-header-content,
+.rbc-time-content,
+.rbc-header,
+.rbc-day-bg + .rbc-day-bg,
+.rbc-month-row + .rbc-month-row,
+.rbc-timeslot-group,
+.rbc-time-content > * + * > * {
+  border-color: var(--border);
+}
+
+.rbc-month-view,
+.rbc-time-view {
+  border-radius: calc(var(--radius) - 2px);
+  overflow: hidden;
+}
+
+/* Gün başlıkları */
+.rbc-header {
+  padding: 0.625rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+}
+
+.rbc-date-cell {
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rbc-off-range-bg {
+  background: color-mix(in oklab, var(--muted) 55%, transparent);
+}
+.rbc-off-range .rbc-button-link {
+  color: var(--muted-foreground);
+  opacity: 0.6;
+}
+
+/* Bugün */
+.rbc-today {
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+}
+.rbc-now .rbc-button-link {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Organizasyon rozetleri */
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.1875rem 0.4375rem;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  color: #fff;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.12);
+}
+.rbc-event:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+.rbc-event.rbc-selected {
+  filter: brightness(0.92);
+}
+.rbc-row-segment {
+  padding: 0 0.1875rem 0.1875rem;
+}
+
+.rbc-show-more {
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  background: transparent;
+}
+
+/* Hafta / gün görünümü */
+.rbc-time-header-gutter,
+.rbc-time-gutter .rbc-label {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+.rbc-current-time-indicator {
+  background-color: var(--destructive);
+  height: 2px;
+}
+.rbc-day-slot .rbc-time-slot {
+  border-color: color-mix(in oklab, var(--border) 45%, transparent);
+}
+
+/* Boş alana tıklanabilirliği hissettir */
+.rbc-day-bg:hover,
+.rbc-day-slot .rbc-timeslot-group:hover {
+  background: color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+.rbc-overlay {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px oklch(0 0 0 / 0.12);
+  padding: 0.625rem;
+}
+.rbc-overlay-header {
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  margin: -0.625rem -0.625rem 0.5rem;
+  padding: 0.5rem 0.625rem;
+}
+
+/* --- Boş güne tıklanabilirlik ipucu ------------------------------------------
+   Ay görünümünde boş bir günün üzerine gelince ortada soluk bir "+" belirir.
+   Hangi günün boş olduğunu CalendarView, dayPropGetter ile .rbc-day-free
+   sınıfını vererek bildirir. */
+
+.rbc-month-view .rbc-day-bg {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Etkinlik satırları (.rbc-row) tüm hücre genişliğini kapladığı için altındaki
+   gün hücresinin hover'ını engelliyordu. İçerik katmanını fareye geçirgen
+   yapıp yalnızca gerçekten tıklanabilir öğelerde olayları geri açıyoruz.
+   Boş alana tıklayıp rezervasyon açma, koordinat tabanlı olduğu için etkilenmez. */
+.rbc-month-view .rbc-row-content,
+.rbc-month-view .rbc-row-content .rbc-row,
+.rbc-month-view .rbc-date-cell,
+.rbc-month-view .rbc-row-segment {
+  pointer-events: none;
+}
+
+.rbc-month-view .rbc-event,
+.rbc-month-view .rbc-show-more,
+.rbc-month-view .rbc-button-link {
+  pointer-events: auto;
+}
+
+.rbc-month-view .rbc-day-free:not(.rbc-off-range-bg)::before,
+.rbc-month-view .rbc-day-free:not(.rbc-off-range-bg)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+
+/* Yumuşak daire */
+.rbc-month-view .rbc-day-free:not(.rbc-off-range-bg)::before {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--primary) 14%, transparent);
+}
+
+/* Artı işareti — mask kullanıldığı için rengi tema tokenından gelir */
+.rbc-month-view .rbc-day-free:not(.rbc-off-range-bg)::after {
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: var(--primary);
+  --plus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E");
+  -webkit-mask: var(--plus) center / contain no-repeat;
+  mask: var(--plus) center / contain no-repeat;
+}
+
+.rbc-month-view .rbc-day-free:not(.rbc-off-range-bg):hover::before,
+.rbc-month-view .rbc-day-free:not(.rbc-off-range-bg):hover::after {
+  opacity: 1;
+}
+
+/* Hafta ve gün görünümünde de boş saat aralıkları tıklanabilir görünsün */
+.rbc-time-view .rbc-day-slot .rbc-timeslot-group {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Giriş ekranı hero başlığı — degrade metin
+   ========================================================================== */
+
+.hero-gradient-text {
+  background: linear-gradient(90deg, #6e98ff 0%, #0fbfd8 55%, #16e0b4 100%);
+  /* Prefixli sürüm listede üstü çiziliydi ama duruyor: unprefixed
+     background-clip:text Safari 18.4 ile geldi, öncesinde metin tamamen
+     görünmez oluyor. */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Birincil buton — degrade çerçeve
+   İki katmanlı arka plan: iç dolgu padding-box'a, degrade border-box'a çizilir.
+   Kenarlık şeffaf olduğu için altındaki degrade çerçeve gibi görünür.
+   ========================================================================== */
+
+.btn-gradient-border {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#111, #111) padding-box,
+    linear-gradient(90deg, #1a5cff 0%, #0fbfd8 55%, #16e0b4 100%) border-box;
+  color: #fff;
+}
+
+/* Hover'da yalnızca iç dolgu açılır; degrade çerçeve yerinde kalır.
+   (bg-* yardımcı sınıfı kullanılamaz — tüm arka planı ezip degradeyi siler.) */
+.btn-gradient-border:hover:not(:disabled) {
+  background:
+    linear-gradient(#1c1c1c, #1c1c1c) padding-box,
+    linear-gradient(90deg, #1a5cff 0%, #0fbfd8 55%, #16e0b4 100%) border-box;
+}
+
+/* ==========================================================================
+   Sözleşme belgesi — A4
+   Aynı stiller hem ekrandaki önizlemede hem yazdırmada kullanılıyor ki
+   çıktı ile önizleme arasında sürpriz olmasın.
+   ========================================================================== */
+
+.contract-sheet {
+  --sheet-pad: 16mm;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: var(--sheet-pad);
+  background: #fff;
+  color: #111827;
+  font-size: 10.5pt;
+  line-height: 1.55;
+}
+
+.contract-header {
+  display: flex;
+  /* Hizalama üst kenardan: logo yüksekliği dosyadan dosyaya değişiyor,
+     stretch bırakılırsa sağdaki blok logoya göre kayıyordu. */
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12mm;
+  padding-bottom: 6mm;
+  border-bottom: 1.5pt solid #111827;
+}
+
+/* Uzun adres sağdaki bloğu sıkıştırmasın. */
+.contract-issuer { min-width: 0; flex: 1; }
+
+.contract-logo {
+  /* Satır içi öğe olarak kalırsa taban çizgisine oturup altında boşluk
+     bırakıyor ve üst hizayı bozuyor. */
+  display: block;
+  max-height: 18mm;
+  max-width: 60mm;
+  object-fit: contain;
+}
+
+.contract-issuer-name {
+  font-size: 16pt;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.contract-issuer-meta {
+  margin-top: 2mm;
+  font-size: 9pt;
+  color: #4b5563;
+}
+
+.contract-meta { flex-shrink: 0; text-align: right; white-space: nowrap; }
+
+/* Belgenin adı: antetin altında, sayfanın ortasında. */
+.contract-doc-title {
+  margin-top: 7mm;
+  text-align: center;
+  font-size: 14pt;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  /* Başlık tek başına sayfa sonunda kalmasın. */
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.contract-meta p { display: flex; gap: 4mm; justify-content: flex-end; font-size: 9.5pt; }
+.contract-meta span { color: #6b7280; }
+
+/* Bölümler sayfa arasında bölünmesin */
+.contract-section,
+.contract-signatures {
+  margin-top: 7mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.contract-section-title {
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #374151;
+  padding-bottom: 1.5mm;
+  border-bottom: 0.5pt solid #d1d5db;
+  margin-bottom: 3mm;
+}
+
+.contract-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 8mm; }
+.contract-rows > div { display: flex; gap: 3mm; }
+.contract-rows dt { min-width: 34mm; color: #6b7280; }
+.contract-rows dd { font-weight: 500; }
+
+.contract-services { margin-top: 3mm; }
+.contract-services-label {
+  font-size: 9pt;
+  color: #6b7280;
+  margin-bottom: 1mm;
+}
+.contract-services ul {
+  margin: 0;
+  padding-left: 5mm;
+  list-style: disc;
+  columns: 2;
+  column-gap: 8mm;
+}
+.contract-services li {
+  break-inside: avoid;
+  margin-bottom: 0.8mm;
+}
+.contract-services-note { white-space: pre-line; }
+
+.contract-finance { width: 100%; border-collapse: collapse; }
+.contract-finance th,
+.contract-finance td { padding: 1.6mm 0; text-align: left; font-weight: 400; }
+.contract-finance th { color: #6b7280; }
+.contract-finance td { text-align: right; font-variant-numeric: tabular-nums; }
+.contract-finance tr + tr th,
+.contract-finance tr + tr td { border-top: 0.4pt solid #e5e7eb; }
+.contract-finance-strong th,
+.contract-finance-strong td { font-weight: 700; color: #111827; }
+
+.contract-terms { margin-top: 8mm; }
+/* Başlıklar tek başına sayfa sonunda kalmasın */
+.contract-terms-title,
+.contract-terms-heading {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.contract-terms-title {
+  font-size: 12pt;
+  font-weight: 700;
+  text-align: center;
+  margin: 4mm 0 3mm;
+}
+.contract-terms-heading {
+  font-size: 10pt;
+  font-weight: 700;
+  margin: 4mm 0 1mm;
+}
+.contract-terms-paragraph { margin-bottom: 2mm; text-align: justify; }
+
+.contract-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16mm;
+  margin-top: 14mm;
+  padding-top: 4mm;
+}
+.contract-signature-role {
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+.contract-signature-name { margin-top: 1.5mm; font-weight: 600; }
+.contract-signature-sub { font-size: 9pt; color: #4b5563; }
+.contract-signature-line {
+  margin-top: 16mm;
+  padding-top: 1.5mm;
+  border-top: 0.6pt solid #9ca3af;
+  font-size: 8.5pt;
+  color: #6b7280;
+}
+
+/* --- Yazdırma ------------------------------------------------------------- */
+
+@page {
+  size: A4;
+  /* Kenar boşluğu sayfanın kendisinde; @page margin'i 0 tutunca tarayıcının
+     eklediği üstbilgi/altbilgi alanı da küçülüyor. */
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+
+  /* Belgeyi ne içeren ne de belgenin parçası olan her şey çıktıdan düşer:
+     kenar çubuğu, sayfa başlığı, düğmeler. `display:none` kullanıldığı için
+     gizlenen kutular yer kaplamıyor — belge sayfanın tepesinden başlıyor. */
+  body :not(:has(.contract-sheet)):not(.contract-sheet):not(.contract-sheet *) {
+    display: none !important;
+  }
+
+  /* Belgenin ataları yalnızca taşıyıcı: boşluk, çerçeve ve gölgeleri kalkar,
+     yoksa ekrandaki gri zemin ve iç boşluk çıktıya taşardı. */
+  body :has(.contract-sheet) {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .contract-sheet {
+    width: auto;
+    max-width: 210mm;
+    min-height: 0;
+    margin: 0;
+    box-shadow: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Tanıtım sayfası (landing)
+   Uygulamanın geri kalanından ayrı, tema modundan bağımsız sabit bir palet.
+   Zemin nötr-soğuk kırık beyaz, mürekkep marka lacivertidir; tek aksan
+   marka degradesidir (mavi → turkuaz → nane).
+   ========================================================================== */
+
+@theme inline {
+  --color-mk-ink: var(--mk-ink);
+  --color-mk-body: var(--mk-body);
+  --color-mk-muted: var(--mk-muted);
+  --color-mk-tint: var(--mk-tint);
+  --color-mk-soft: var(--mk-soft);
+  --color-mk-line: var(--mk-line);
+  --color-mk-mint: var(--mk-mint);
+  --color-mk-accent: var(--mk-accent);
+  --color-mk-accent-ink: var(--mk-accent-ink);
+}
+
+:root {
+  --mk-ink: #0b1220;
+  --mk-body: #3d4657;
+  --mk-muted: #6b7486;
+  --mk-tint: #f4f6f9;
+  --mk-soft: #fbfcfd;
+  --mk-line: #e6eaf0;
+  --mk-mint: #16e0b4;
+  --mk-gradient: linear-gradient(90deg, #1a5cff 0%, #0fbfd8 55%, #16e0b4 100%);
+
+  /* Birincil eylem rengi: marka nanesi + üzerine lacivert yazı.
+     Nane açık olduğu için lacivert metinle kontrast ~11:1. */
+  --mk-accent: #16e0b4;
+  --mk-accent-ink: #0b1220;
+  --mk-accent-glow: rgba(22, 224, 180, 0.2);
+}
+
+/* Landing sabit palet: koyu tema açıkken de aynı görünsün. */
+.mk-scope {
+  background: #fff;
+  color: var(--mk-ink);
+  color-scheme: light;
+}
+
+/* Başlıklar — referans tasarımdaki sıkı harf aralığı ve 600 ağırlık. */
+.mk-display {
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.mk-title {
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.032em;
+  text-wrap: balance;
+}
+
+/* ==========================================================================
+   Birincil buton — dönen degrade çerçeve
+   Kenarlık iki katmanlı arka planla çiziliyor: iç dolgu padding-box'a, degrade
+   border-box'a. Degradeyi canlandırabilmek için açılar `@property` ile
+   kaydedilmiş özel değişkenler — tarayıcı ancak tipi bildirilmiş bir değeri
+   ara değerleyebiliyor, kayıtsız bir `--aci` değişkeni animasyonda zıplar.
+   Üç renk farklı hızlarda döndüğü için çerçeve sürekli değişiyor.
+   ========================================================================== */
+
+@property --mk-spin-1 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --mk-spin-2 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 120deg;
+}
+@property --mk-spin-3 {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 240deg;
+}
+
+@keyframes mk-spin-1 {
+  to {
+    --mk-spin-1: 360deg;
+  }
+}
+@keyframes mk-spin-2 {
+  to {
+    --mk-spin-2: 480deg;
+  }
+}
+@keyframes mk-spin-3 {
+  to {
+    --mk-spin-3: 600deg;
+  }
+}
+
+.mk-btn-shimmer {
+  border: 2px solid transparent;
+  color: #fff;
+  background:
+    /* İç dolgu — listede ilk sıra en üstte çizilir. */
+    linear-gradient(180deg, #1c273c, #0e1626) padding-box,
+    /* Dönen renk yayları */
+    conic-gradient(
+        from var(--mk-spin-1) at 50% 50%,
+        transparent 0deg,
+        #1a5cff 90deg,
+        transparent 180deg
+      )
+      border-box,
+    conic-gradient(
+        from var(--mk-spin-2) at 50% 50%,
+        transparent 0deg,
+        #0fbfd8 90deg,
+        transparent 180deg
+      )
+      border-box,
+    conic-gradient(
+        from var(--mk-spin-3) at 50% 50%,
+        transparent 0deg,
+        #16e0b4 90deg,
+        transparent 180deg
+      )
+      border-box,
+    /* Yaylar arasında çerçeve boş kalmasın diye sabit taban degrade. */
+    linear-gradient(90deg, #1a5cff, #0fbfd8, #16e0b4) border-box;
+  box-shadow:
+    0 8px 24px -12px rgba(15, 191, 216, 0.55),
+    0 18px 40px -20px rgba(22, 224, 180, 0.45);
+  animation:
+    mk-spin-1 4.5s linear infinite,
+    mk-spin-2 6.5s linear infinite,
+    mk-spin-3 8.5s linear infinite;
+}
+
+.mk-btn-shimmer:hover {
+  box-shadow:
+    0 10px 30px -12px rgba(15, 191, 216, 0.7),
+    0 24px 52px -20px rgba(22, 224, 180, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Dönme durur; çerçeve sabit degrade olarak kalır. */
+  .mk-btn-shimmer {
+    animation: none;
+  }
+}
+
+/* Yüzen başlık hapı — koyu zeminde ince bir ışık halkası.
+   Kaydırınca açık bölümlerin üstünde durduğu için ayrıca koyu bir düşen
+   gölge biniyor; yoksa beyaz zeminde kenarı kayboluyor. */
+.mk-nav-halo {
+  box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.04);
+}
+
+/* Hap zemini burada tanımlı: Tailwind, keyfi bir degradeye opaklık eki
+   (`bg-[linear-gradient(...)]/80`) uygulayamıyor — sınıf hiç üretilmiyor ve
+   başlık arka planı tamamen boş kalıyor. */
+.mk-nav-pill {
+  background: linear-gradient(
+    180deg,
+    rgba(24, 33, 52, 0.8) -35%,
+    rgba(11, 18, 32, 0.8) 70%
+  );
+}
+.mk-nav-pill-scrolled {
+  background: rgba(11, 18, 32, 0.92);
+}
+.mk-nav-halo-scrolled {
+  box-shadow:
+    0 0 12px 4px rgba(255, 255, 255, 0.04),
+    0 14px 40px -18px rgba(11, 18, 32, 0.55);
+}
+
+/* Degrade metin — hero'daki tek vurgulu kelime için.
+   .hero-gradient-text kendi punto/ağırlığını dayattığı için ayrı sınıf. */
+.mk-gradient-text {
+  background: var(--mk-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Degrade çerçeveli kart — bento'da öne çıkan kutu için. */
+.mk-gradient-ring {
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--mk-gradient) border-box;
+  border: 1.5px solid transparent;
+}
+
+/* Açılışta beliren bloklar — yalnızca CSS.
+   Ekranın üst kısmı (hero) bunu kullanır: JavaScript beklemediği için
+   hidrasyona kadar boş ekran kalmaz. */
+@keyframes mk-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.mk-in {
+  animation: mk-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--mk-delay, 0ms);
+}
+
+/* Kaydırınca beliren bloklar (Framer'daki reveal davranışının karşılığı).
+   Varsayılan görünür; gizleme yalnızca JavaScript blogu ekran dışında
+   bulduğunda uygulanır. Böylece JS kapalıyken sayfa eksiksiz okunur. */
+.mk-reveal {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--mk-delay, 0ms);
+}
+.mk-reveal[data-state="hidden"] {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-in {
+    animation: none;
+  }
+  .mk-reveal,
+  .mk-reveal[data-state="hidden"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Logo şeridi — sonsuz kayan bant. */
+@keyframes mk-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.mk-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: mk-marquee 34s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-marquee-track { animation: none; }
 }
