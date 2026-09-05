@@ -70,7 +70,14 @@ export async function registerAction(
     password,
     // E-posta doğrulaması açıksa oturum hemen açılmaz; bu bilgiler
     // /isletme-kur adımında formu önden doldurmak için saklanır.
-    options: { data: { full_name: fullName, business_name: businessName } },
+    options: {
+      data: { full_name: fullName, business_name: businessName },
+      // Doğrulama bağlantısının nereye ineceği burada belirtilmezse Supabase
+      // panelindeki Site URL'e düşüyor; o da kolayca localhost'ta kalıyor ve
+      // müşteriye açılmayan bir bağlantı gidiyor. Davet ve şifre sıfırlama
+      // akışları zaten adresi açıkça geçiyordu, kayıt akışı geçmiyordu.
+      emailRedirectTo: `${env.appUrl}/auth/callback`,
+    },
   });
   if (error) return { error: toTurkishError(error) };
 
