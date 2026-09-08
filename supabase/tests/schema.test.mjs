@@ -463,5 +463,67 @@ await step('anon ve authenticated fonksiyonu çağıramıyor', async () => {
   await asSuper()
 })
 
+console.log('\n\x1b[1m12) Bağlama kodları\x1b[0m')
+
+await as(U.ownerA)
+let kod
+
+await step('sahip bağlama kodu üretebiliyor', async () => {
+  const r = await db.query('select * from generate_integration_link_code(null)')
+  kod = r.rows[0].link_code
+  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(kod)) throw new Error(`kod biçimi: ${kod}`)
+  if (new Date(r.rows[0].valid_until) <= new Date()) throw new Error('süresi geçmiş kod')
+})
+
+await step('yeni kod üretmek eskisini geçersiz kılıyor', async () => {
+  const eski = kod
+  const r = await db.query('select * from generate_integration_link_code(null)')
+  kod = r.rows[0].link_code
+  if (kod === eski) throw new Error('aynı kod döndü')
+  await asSuper()
+  const tuketim = await db.query('select consume_integration_link_code($1) as r', [eski])
+  await as(U.ownerA)
+  if (tuketim.rows[0].r.ok !== false) throw new Error('eski kod hâlâ geçerli')
+})
+
+await step('kendi işletmesinde olmayan salon için kod üretilemiyor', async () => {
+  try {
+    await db.query('select * from generate_integration_link_code($1)',
+      ['00000000-0000-4000-8000-000000000000'])
+    throw new Error('yabancı salon kabul edildi')
+  } catch (e) {
+    if (!e.message.includes('bu işletmeye ait değil')) throw e
+  }
+})
+
+await asSuper()
+await step('kod tüketilince işletme bilgisi dönüyor', async () => {
+  const r = await db.query('select consume_integration_link_code($1) as r', [kod])
+  const s2 = r.rows[0].r
+  if (s2.ok !== true) throw new Error(JSON.stringify(s2))
+  if (!s2.business_id || !s2.business_name) throw new Error('işletme bilgisi eksik')
+})
+
+await step('kod TEK KULLANIMLIK', async () => {
+  const r = await db.query('select consume_integration_link_code($1) as r', [kod])
+  if (r.rows[0].r.reason !== 'already_used') throw new Error(JSON.stringify(r.rows[0].r))
+})
+
+await step('olmayan kod reddediliyor', async () => {
+  const r = await db.query("select consume_integration_link_code('ZZZZZZ') as r")
+  if (r.rows[0].r.reason !== 'not_found') throw new Error(JSON.stringify(r.rows[0].r))
+})
+
+await step('authenticated kod tüketemiyor', async () => {
+  await as(U.ownerA)
+  try {
+    await db.query("select consume_integration_link_code('ABCDEF') as r")
+    throw new Error('authenticated tüketebildi')
+  } catch (e) {
+    if (!e.message.includes('permission denied')) throw e
+  }
+  await asSuper()
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)
