@@ -5,6 +5,16 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
 import { toTurkishError } from "@/lib/errors";
+import { requireSession } from "@/lib/auth";
+import {
+  changePasswordSchema,
+  type ChangePasswordInput,
+} from "@/lib/schemas";
+import {
+  actionError,
+  validationError,
+  type ActionResult,
+} from "@/lib/action-result";
 
 export type AuthState = { error?: string; notice?: string };
 
@@ -177,6 +187,45 @@ export async function updatePasswordAction(
   if (error) return { error: toTurkishError(error) };
 
   redirect("/panel");
+}
+
+/**
+ * Oturum açmış kullanıcının kendi şifresini değiştirmesi.
+ *
+ * Supabase'in updateUser'ı mevcut şifreyi sormuyor; yalnızca oturuma bakıyor.
+ * Bu, açık bırakılmış bir bilgisayarda birinin şifreyi değiştirip hesabı ele
+ * geçirmesine yol açar. Bu yüzden yeni şifre yazılmadan önce mevcut şifre
+ * signInWithPassword ile doğrulanıyor.
+ */
+export async function changePasswordAction(
+  input: ChangePasswordInput,
+): Promise<ActionResult> {
+  const { user } = await requireSession();
+  if (!user.email) {
+    return { ok: false, error: "Hesabınıza bağlı bir e-posta adresi yok." };
+  }
+
+  const parsed = changePasswordSchema.safeParse(input);
+  if (!parsed.success) return validationError(parsed.error.issues);
+
+  const supabase = await createClient();
+
+  // Doğrulama: başarılı olursa oturum da tazelenir, aynı kullanıcı olduğu için
+  // yan etkisi yok.
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: parsed.data.currentPassword,
+  });
+  if (signInError) {
+    return { ok: false, error: "Mevcut şifreniz hatalı." };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
+  if (error) return actionError(error);
+
+  return { ok: true };
 }
 
 export async function logoutAction() {

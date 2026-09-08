@@ -367,5 +367,101 @@ await step('customer_balances çalışıyor', async () => {
   if (!r.rows.length) throw new Error('satır yok')
 })
 
+console.log('\n\x1b[1m11) Dış kaynaklı talepler (DavetMekanı)\x1b[0m')
+
+// Entegrasyon uç noktası service_role ile çağırıyor; testte superuser bağlamı.
+await asSuper()
+
+const extBizA = (await db.query('select business_id from profiles where id = $1', [U.ownerA])).rows[0].business_id
+const EXT = 'davetmekani'
+let dis1
+
+await step('dış talep müşteri ve lead oluşturuyor', async () => {
+  const r = await db.query(
+    `select upsert_external_lead($1, $2, $3, $4, $5, $6, null, 'dugun'::organization_type,
+                                 $7::date, 320, $8) as r`,
+    [extBizA, EXT, 'inq-1', 'Ayşe Yılmaz', '05321112233', 'ayse@ornek.com',
+     '2027-06-12', 'Haziran için müsaitlik sorusu.'])
+  dis1 = r.rows[0].r
+  if (dis1.created !== true) throw new Error(JSON.stringify(dis1))
+  const lead = (await db.query('select status, source, external_source, external_id from leads where id = $1', [dis1.lead_id])).rows[0]
+  if (lead.status !== 'yeni') throw new Error(`durum ${lead.status}`)
+  if (lead.source !== 'web') throw new Error(`kaynak ${lead.source}`)
+  if (lead.external_source !== EXT || lead.external_id !== 'inq-1') throw new Error('external ref yazılmadı')
+})
+
+await step('aynı external_id ikinci kez lead ÜRETMİYOR', async () => {
+  const once = (await db.query('select count(*)::int n from leads')).rows[0].n
+  const r = await db.query(
+    `select upsert_external_lead($1, $2, $3, $4, $5, null, null, 'dugun'::organization_type,
+                                 null, null, null) as r`,
+    [extBizA, EXT, 'inq-1', 'Ayşe Yılmaz', '05321112233'])
+  if (r.rows[0].r.created !== false) throw new Error('ikinci kez created:true döndü')
+  if (r.rows[0].r.lead_id !== dis1.lead_id) throw new Error('farklı lead döndü')
+  const sonra = (await db.query('select count(*)::int n from leads')).rows[0].n
+  if (sonra !== once) throw new Error(`lead sayısı ${once} → ${sonra}`)
+})
+
+// Aktarımdan sonra DavetPro tarafında yapılan çalışma korunmalı; tekrar
+// gönderim (retry ya da geçmiş backfill'in ikinci kez koşması) ezmemeli.
+// NOT: `status` elle 'teklif_verildi' yapılamıyor — DavetPro'da bu durum
+// teklif oluşturulunca kendiliğinden ilerliyor (0015). O yüzden elle
+// düzenlenebilen alanlarla sınıyoruz.
+await step('DavetPro tarafındaki düzenleme ezilmiyor', async () => {
+  await db.query(
+    `update leads set notes = 'Aradım, alan gezisi ayarlandı', next_follow_up_at = now() + interval '2 days'
+      where id = $1`, [dis1.lead_id])
+  await db.query(
+    `select upsert_external_lead($1, $2, $3, $4, $5, null, null, 'dugun'::organization_type,
+                                 null, null, 'ESKİ NOT') as r`,
+    [extBizA, EXT, 'inq-1', 'Ayşe Yılmaz', '05321112233'])
+  const lead = (await db.query('select notes, next_follow_up_at from leads where id = $1', [dis1.lead_id])).rows[0]
+  if (lead.notes !== 'Aradım, alan gezisi ayarlandı') throw new Error(`not ezildi: ${lead.notes}`)
+  if (!lead.next_follow_up_at) throw new Error('takip tarihi silindi')
+})
+
+await step('aynı telefon ikinci müşteri kaydı üretmiyor', async () => {
+  const once = (await db.query('select count(*)::int n from customers where business_id = $1', [extBizA])).rows[0].n
+  await db.query(
+    `select upsert_external_lead($1, $2, $3, $4, $5, null, null, 'nisan'::organization_type,
+                                 null, 180, null) as r`,
+    [extBizA, EXT, 'inq-2', 'Ayşe Yılmaz', '05321112233'])
+  const sonra = (await db.query('select count(*)::int n from customers where business_id = $1', [extBizA])).rows[0].n
+  if (sonra !== once) throw new Error(`müşteri sayısı ${once} → ${sonra}`)
+})
+
+await step('yarım external referans reddediliyor', async () => {
+  try {
+    await db.query(
+      `insert into leads (business_id, customer_id, organization_type, external_source)
+       select $1, id, 'dugun', 'davetmekani' from customers where business_id = $1 limit 1`, [extBizA])
+    throw new Error('kısıt engellemedi')
+  } catch (e) {
+    if (!e.message.includes('leads_external_ref_complete')) throw e
+  }
+})
+
+await step('business_id olmadan çalışmıyor', async () => {
+  try {
+    await db.query(
+      `select upsert_external_lead(null, $1, 'inq-x', 'Test', '05001112233') as r`, [EXT])
+    throw new Error('null business_id kabul edildi')
+  } catch (e) {
+    if (!e.message.includes('business_id zorunlu')) throw e
+  }
+})
+
+await step('anon ve authenticated fonksiyonu çağıramıyor', async () => {
+  await as(U.ownerA)
+  try {
+    await db.query(
+      `select upsert_external_lead($1, 'x', 'y', 'Test', '05001112233') as r`, [extBizA])
+    throw new Error('authenticated çağırabildi')
+  } catch (e) {
+    if (!e.message.includes('permission denied')) throw e
+  }
+  await asSuper()
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

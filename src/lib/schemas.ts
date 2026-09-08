@@ -58,6 +58,24 @@ const optionalUuid = z
   .transform((v) => (v && v !== "none" ? v : null))
   .refine((v) => v === null || z.string().uuid().safeParse(v).success, "Geçersiz seçim.");
 
+// --- Hesap -------------------------------------------------------------------
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Mevcut şifrenizi girin."),
+    password: z.string().min(8, "Yeni şifre en az 8 karakter olmalı."),
+    passwordAgain: z.string(),
+  })
+  .refine((v) => v.password === v.passwordAgain, {
+    message: "Yeni şifreler eşleşmiyor.",
+    path: ["passwordAgain"],
+  })
+  .refine((v) => v.password !== v.currentPassword, {
+    message: "Yeni şifre mevcut şifrenizden farklı olmalı.",
+    path: ["password"],
+  });
+export type ChangePasswordInput = z.input<typeof changePasswordSchema>;
+
 // --- Salon -------------------------------------------------------------------
 
 export const venueSchema = z.object({

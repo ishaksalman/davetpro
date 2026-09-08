@@ -9,6 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   businessSchema,
+  changePasswordSchema,
   contractTemplateSchema,
   convertLeadSchema,
   holdSchema,
@@ -154,6 +155,11 @@ const samples: [string, ZodTypeAny, unknown][] = [
     "convertLeadSchema",
     convertLeadSchema,
     { lead_id: "44444444-4444-4444-4444-444444444444", quote_id: "none", venue_id: "55555555-5555-5555-5555-555555555555", package_id: "none", event_date: "2026-09-05", start_time: "19:00", end_time: "23:00", guest_count: "450", gross_amount: "165.000", discount_amount: 0, deposit_amount: "30.000", due_date: "", notes: "" },
+  ],
+  [
+    "changePasswordSchema",
+    changePasswordSchema,
+    { currentPassword: "eskiSifre1", password: "yeniSifre1", passwordAgain: "yeniSifre1" },
   ],
   [
     "contractTemplateSchema",

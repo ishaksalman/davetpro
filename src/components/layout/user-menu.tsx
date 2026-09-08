@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import { ChevronsUpDown, KeyRound, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -16,6 +16,7 @@ import { USER_ROLE_LABELS } from "@/lib/constants";
 import { initials } from "@/lib/format";
 import type { Profile } from "@/lib/database.types";
 import { logoutAction } from "@/app/(auth)/actions";
+import { ChangePasswordDialog } from "./change-password-dialog";
 
 export function UserMenu({ profile, email }: { profile: Profile; email: string }) {
   return (
@@ -51,6 +52,15 @@ export function UserMenu({ profile, email }: { profile: Profile; email: string }
                 Ayarlar
               </Link>
             </DropdownMenuItem>
+            {/* onSelect engellenmezse menü kapanırken pencere de kapanıyor. */}
+            <ChangePasswordDialog
+              trigger={
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <KeyRound />
+                  Şifre değiştir
+                </DropdownMenuItem>
+              }
+            />
             <DropdownMenuSeparator />
             <form action={logoutAction}>
               <DropdownMenuItem asChild variant="destructive">

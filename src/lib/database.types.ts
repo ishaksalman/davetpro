@@ -381,6 +381,13 @@ export type Lead = Timestamps & {
   converted_at: string | null;
   notes: string | null;
   created_by: string | null;
+  /**
+   * Dış kaynak referansı (DavetMekanı entegrasyonu, 0024).
+   * Kendi formumuzdan gelen talepler için ikisi de null. Birlikte tekildirler
+   * ve aktarımın idempotency anahtarıdır.
+   */
+  external_source: string | null;
+  external_id: string | null;
 };
 
 export type LeadActivity = {
