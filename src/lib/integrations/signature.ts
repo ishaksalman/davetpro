@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 /**
  * DavetMekanı ↔ DavetPro istek imzalama.
  *
- * Kontrat: ~/Desktop/davetmekani/docs/DAVETPRO-ENTEGRASYON.md
+ * Kontrat: ~/Desktop/davet/davetmekani/docs/DAVETPRO-ENTEGRASYON.md
  * İki depoda da aynı şema uygulanır; birini değiştirirken diğerini unutma.
  *
  *   X-Dm-Timestamp: <unix saniye>

@@ -11,7 +11,7 @@ import { DAVETMEKANI_SOURCE, organizasyonTuru } from "@/lib/integrations/davetme
  * Idempotency `external_id` ile: aynı talep iki kez lead üretmez, ve
  * aktarımdan sonra bu tarafta yapılan çalışma ezilmez.
  *
- * Kontrat: ~/Desktop/davetmekani/docs/DAVETPRO-ENTEGRASYON.md
+ * Kontrat: ~/Desktop/davet/davetmekani/docs/DAVETPRO-ENTEGRASYON.md
  */
 
 const leadSchema = z.object({
