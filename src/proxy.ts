@@ -11,7 +11,13 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Statik dosyalar ve görseller hariç tüm rotalar
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*
+     * Statik dosyalar ve görseller hariç tüm rotalar.
+     *
+     * `api/integrations` DIŞARIDA: bu uç noktalar oturumla değil HMAC imzasıyla
+     * kimlik doğruluyor (DavetMekanı entegrasyonu). Matcher'a girerlerse
+     * oturumsuz istek /giris'e yönlendirilir ve çağıran HTML alır.
+     */
+    "/((?!api/integrations|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
