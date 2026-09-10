@@ -26,7 +26,7 @@ export const ORGANIZATION_TYPE_LABELS: Record<OrganizationType, string> = {
 };
 
 export const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
-  kesinlesti: "Kesinleşti",
+  kesinlesti: "Oluşturuldu",
   tamamlandi: "Tamamlandı",
   iptal_edildi: "İptal edildi",
 };

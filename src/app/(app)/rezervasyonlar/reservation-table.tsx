@@ -203,6 +203,20 @@ export function ReservationTable({
       );
     }
 
+    // Kayıt sırası: "en son hangi rezervasyonu girdim" sorusunun cevabı.
+    // Organizasyon tarihinden ayrı bir bilgi, bu yüzden ayrı kolon.
+    base.push({
+      accessorKey: "created_at",
+      header: "Oluşturulma",
+      // İlk tıkta en yeni kayıt üstte: "en son ne girdim" en sık sorulan soru.
+      sortDescFirst: true,
+      cell: ({ row }) => (
+        <span className="tabular whitespace-nowrap text-sm text-muted-foreground">
+          {formatDateShort(row.original.created_at)}
+        </span>
+      ),
+    });
+
     base.push({
       id: "actions",
       header: "",
