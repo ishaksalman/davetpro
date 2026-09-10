@@ -17,7 +17,13 @@ export const config = {
      * `api/integrations` DIŞARIDA: bu uç noktalar oturumla değil HMAC imzasıyla
      * kimlik doğruluyor (DavetMekanı entegrasyonu). Matcher'a girerlerse
      * oturumsuz istek /giris'e yönlendirilir ve çağıran HTML alır.
+     *
+     * `robots.txt`, `sitemap.xml` ve `opengraph-image` de DIŞARIDA: oturumsuz
+     * oldukları için /giris'e yönlendiriliyorlardı. Arama motoru kural dosyası
+     * yerine 307 alıyor, bağlantı önizlemesi de görsel yerine yönlendirme
+     * alıp boş çıkıyordu. Üçü de uzantısız rota olduğu için alttaki dosya
+     * uzantısı kuralına takılmıyorlar.
      */
-    "/((?!api/integrations|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/integrations|robots.txt|sitemap.xml|opengraph-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

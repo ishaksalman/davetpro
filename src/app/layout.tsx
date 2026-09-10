@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
+import { env } from "@/lib/env";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -11,13 +12,32 @@ const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
 });
 
+const BASLIK = "DavetPro · Düğün Salonu Yönetim Sistemi";
+const ACIKLAMA =
+  "Düğün salonları ve organizasyon mekanları için rezervasyon, tahsilat ve gelir-gider yönetimi.";
+
 export const metadata: Metadata = {
-  title: {
-    default: "DavetPro · Düğün Salonu Yönetim Sistemi",
-    template: "%s · DavetPro",
+  // Göreli adresleri mutlak hâle getiriyor. Tanımlı olmadan Open Graph görsel
+  // adresi göreli kalıyor ve WhatsApp, Instagram gibi platformlar çözemiyor.
+  metadataBase: new URL(env.appUrl),
+  title: { default: BASLIK, template: "%s · DavetPro" },
+  description: ACIKLAMA,
+  applicationName: "DavetPro",
+  // Bağlantı çoğunlukla WhatsApp ve Instagram üzerinden paylaşılıyor;
+  // önizleme olmadan sadece adres görünüyor.
+  openGraph: {
+    type: "website",
+    locale: "tr_TR",
+    siteName: "DavetPro",
+    title: BASLIK,
+    description: ACIKLAMA,
+    url: "/",
   },
-  description:
-    "Düğün salonları ve organizasyon mekanları için rezervasyon, tahsilat ve gelir-gider yönetimi.",
+  twitter: {
+    card: "summary_large_image",
+    title: BASLIK,
+    description: ACIKLAMA,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

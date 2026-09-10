@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Logo } from "@/components/brand/logo";
 
 const HIGHLIGHTS = [
@@ -5,6 +6,11 @@ const HIGHLIGHTS = [
   "Kapora ve ara ödemeleri takip edin, kalan tutar kendiliğinden çıksın",
   "Her organizasyonun kârını ayrı ayrı ölçün",
 ];
+
+/** Giriş, kayıt ve şifre sayfaları arama sonuçlarında yer almasın. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
