@@ -1,18 +1,22 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { NewPasswordForm } from "./new-password-form";
+import { SessionFromHash } from "./session-from-hash";
 
 export const metadata: Metadata = { title: "Yeni şifre" };
 
 /**
- * Sıfırlama bağlantısı /auth/callback üzerinden geçici bir oturum açar;
- * bu sayfa yalnızca o oturumla anlamlıdır.
+ * Davet ve şifre sıfırlama bağlantılarının indiği sayfa.
+ *
+ * Burada sunucu tarafında yönlendirme YAPILMIYOR: Supabase jetonları URL'in
+ * hash kısmında gönderiyor ve hash sunucuya ulaşmıyor. Oturumu göremeyip
+ * yönlendirseydik, davet edilen kullanıcı jetonu işlenmeden dışarı atılırdı.
+ * Kararı istemci veriyor.
  */
 export default async function NewPasswordPage() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) redirect("/sifre-sifirla");
+  const hasSession = Boolean(data?.claims?.sub);
 
   return (
     <div>
@@ -20,7 +24,9 @@ export default async function NewPasswordPage() {
       <p className="mt-2 text-sm text-muted-foreground">
         Belirledikten sonra doğrudan panelinize yönlendirileceksiniz.
       </p>
-      <NewPasswordForm />
+      <SessionFromHash hasSession={hasSession}>
+        <NewPasswordForm />
+      </SessionFromHash>
     </div>
   );
 }

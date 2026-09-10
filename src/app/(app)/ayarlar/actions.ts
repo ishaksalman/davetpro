@@ -70,7 +70,9 @@ export async function inviteTeamMember(input: InviteInput): Promise<ActionResult
   }
 
   const { data, error } = await admin.auth.admin.inviteUserByEmail(parsed.data.email, {
-    redirectTo: `${env.appUrl}/giris`,
+    // Davet edilen kullanıcının ilk işi şifre belirlemek; giriş ekranına
+    // göndermek onu jetonu işlenmemiş hâlde bırakıyordu.
+    redirectTo: `${env.appUrl}/sifre-yenile`,
     data: { full_name: parsed.data.full_name, business_name: business.name },
   });
 
