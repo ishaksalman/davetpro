@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/shared/combobox";
+import { CustomerFormDialog } from "../musteriler/customer-form-dialog";
 import { DatePicker } from "@/components/shared/date-picker";
 import {
   FormDialog,
@@ -68,6 +71,11 @@ export function ReservationFormDialog({
   onOpenChange?: (open: boolean) => void;
 }) {
   const isEdit = Boolean(reservation);
+
+  // Müşteri ekleme penceresi tek yerde ve denetimli: hem açılır listedeki
+  // bağlantı hem yandaki simge düğmesi bunu açıyor. Popover'ın içine ayrı bir
+  // Dialog gömmek yerine böyle daha sağlam.
+  const [customerOpen, setCustomerOpen] = useState(false);
 
   const activeVenues = venues.filter((v) => v.is_active || v.id === reservation?.venue_id);
   const activePackages = packages.filter(
@@ -176,19 +184,45 @@ export function ReservationFormDialog({
       contentClassName="sm:max-w-2xl"
     >
       <FormField form={form} name="customer_id" label="Müşteri">
-        <Combobox
-          id="customer_id"
-          options={customers.map((c) => ({
-            value: c.id,
-            label: c.full_name,
-            hint: formatPhone(c.phone),
-          }))}
-          value={form.watch("customer_id")}
-          onChange={(v) => form.setValue("customer_id", v, { shouldDirty: true })}
-          placeholder="Müşteri seçin"
-          searchPlaceholder="Ad veya telefon ara…"
-          emptyMessage="Müşteri bulunamadı. Önce Müşteriler sayfasından ekleyin."
-        />
+        <div className="flex items-center gap-2">
+          <Combobox
+            id="customer_id"
+            className="min-w-0 flex-1"
+            options={customers.map((c) => ({
+              value: c.id,
+              label: c.full_name,
+              hint: formatPhone(c.phone),
+            }))}
+            value={form.watch("customer_id")}
+            onChange={(v) => form.setValue("customer_id", v, { shouldDirty: true })}
+            placeholder="Müşteri seçin"
+            searchPlaceholder="Ad veya telefon ara…"
+            emptyMessage="Bu aramaya uyan müşteri yok."
+            footer={
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => setCustomerOpen(true)}
+              >
+                <UserPlus />
+                Yeni müşteri ekle
+              </Button>
+            }
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Yeni müşteri ekle"
+            title="Yeni müşteri ekle"
+            onClick={() => setCustomerOpen(true)}
+          >
+            <UserPlus />
+          </Button>
+        </div>
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -410,6 +444,16 @@ export function ReservationFormDialog({
           {...form.register("notes")}
         />
       </FormField>
+      {/* Rezervasyon penceresinin içinde ama form alanlarının dışında:
+          kaydedilen müşteri hemen seçili hâle geliyor. Liste sunucudan
+          tazelenip geldiğinde adı da görünüyor. */}
+      <CustomerFormDialog
+        open={customerOpen}
+        onOpenChange={setCustomerOpen}
+        onCreated={(id) =>
+          form.setValue("customer_id", id, { shouldDirty: true })
+        }
+      />
     </FormDialog>
   );
 }

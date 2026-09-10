@@ -17,10 +17,18 @@ export function CustomerFormDialog({
   customer,
   trigger,
   triggerButton,
+  open,
+  onOpenChange,
+  onCreated,
 }: {
   customer?: Customer;
   trigger?: React.ReactElement;
   triggerButton?: TriggerButton;
+  /** Tetikleyici olmadan dışarıdan açmak için (ör. rezervasyon formu). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Yeni müşteri eklendiğinde kimliğini bildirir; çağıran onu seçebilir. */
+  onCreated?: (id: string) => void;
 }) {
   const defaultValues: CustomerInput = {
     id: customer?.id,
@@ -45,7 +53,15 @@ export function CustomerFormDialog({
       title={customer ? "Müşteriyi düzenle" : "Yeni müşteri"}
       form={form}
       defaultValues={defaultValues}
-      action={saveCustomer}
+      open={open}
+      onOpenChange={onOpenChange}
+      action={async (values) => {
+        const result = await saveCustomer(values);
+        // Yeni kayıtta kimliği yukarı bildir: çağıran formda seçili hâle
+        // getirebilsin. Düzenlemede zaten seçili.
+        if (result.ok && !customer) onCreated?.(result.data.id);
+        return result;
+      }}
       successMessage={customer ? "Müşteri güncellendi." : "Müşteri eklendi."}
     >
       <FormField form={form} name="full_name" label="Ad soyad">
