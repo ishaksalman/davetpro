@@ -28,14 +28,23 @@ import { USER_ROLE_LABELS } from "@/lib/constants";
 import { initials } from "@/lib/format";
 import type { Profile, UserRole } from "@/lib/database.types";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
-import { inviteTeamMember, updateTeamMember, type InviteInput } from "./actions";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import {
+  cancelInvite,
+  inviteTeamMember,
+  updateTeamMember,
+  type InviteInput,
+} from "./actions";
 
 export function TeamManager({
   members,
+  pendingIds,
   currentUserId,
   canManage,
 }: {
   members: Profile[];
+  /** Daveti kabul etmemiş (hiç giriş yapmamış) kullanıcıların kimlikleri. */
+  pendingIds: Set<string>;
   currentUserId: string;
   canManage: boolean;
 }) {
@@ -48,6 +57,7 @@ export function TeamManager({
           <MemberRow
             key={member.id}
             member={member}
+            davetBekliyor={pendingIds.has(member.id)}
             isSelf={member.id === currentUserId}
             canManage={canManage}
           />
@@ -59,10 +69,12 @@ export function TeamManager({
 
 function MemberRow({
   member,
+  davetBekliyor,
   isSelf,
   canManage,
 }: {
   member: Profile;
+  davetBekliyor: boolean;
   isSelf: boolean;
   canManage: boolean;
 }) {
@@ -97,6 +109,11 @@ function MemberRow({
         <p className="text-xs text-muted-foreground">
           {USER_ROLE_LABELS[member.role]}
           {!member.is_active && " · Pasif"}
+          {davetBekliyor && (
+            <span className="text-amber-700 dark:text-amber-400">
+              {" · Davet bekliyor"}
+            </span>
+          )}
         </p>
       </div>
 
@@ -128,14 +145,32 @@ function MemberRow({
             </SelectContent>
           </Select>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={pending}
-            onClick={() => update({ is_active: !member.is_active })}
-          >
-            {member.is_active ? "Pasife al" : "Aktifleştir"}
-          </Button>
+          {/* Daveti kabul etmemiş kişinin sistemde bir kaydı yok; silmek
+              güvenli ve aynı adrese yeniden davet göndermenin tek yolu.
+              Giriş yapmış personel için silme yok, pasife alma var. */}
+          {davetBekliyor ? (
+            <ConfirmDialog
+              trigger={
+                <Button variant="ghost" size="sm" className="text-destructive">
+                  Daveti iptal et
+                </Button>
+              }
+              title="Daveti iptal et"
+              description="Kullanıcı tamamen silinir ve bağlantısı geçersiz olur. Aynı adrese yeniden davet gönderebilirsiniz."
+              confirmLabel="İptal et"
+              successMessage="Davet iptal edildi."
+              onConfirm={() => cancelInvite(member.id)}
+            />
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={pending}
+              onClick={() => update({ is_active: !member.is_active })}
+            >
+              {member.is_active ? "Pasife al" : "Aktifleştir"}
+            </Button>
+          )}
         </>
       )}
     </li>

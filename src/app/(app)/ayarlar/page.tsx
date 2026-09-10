@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { canSeeFinance, isAdmin, requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
@@ -42,6 +43,12 @@ export default async function SettingsPage() {
       .eq("is_default", true)
       .maybeSingle<ContractTemplate>(),
   ]);
+
+  // Daveti kabul etmemiş hesaplar: auth tarafında last_sign_in_at boş olanlar.
+  // Ekip küçük olduğu için kişi başına tek sorgu yeterli; listUsers tüm
+  // işletmelerin kullanıcılarını tarardı.
+  const members = membersResult.data ?? [];
+  const pendingIds = admin ? await bekleyenDavetler(members) : new Set<string>();
 
   return (
     <>
@@ -114,7 +121,8 @@ export default async function SettingsPage() {
               }
             />
             <TeamManager
-              members={membersResult.data ?? []}
+              members={members}
+              pendingIds={pendingIds}
               currentUserId={user.id}
               canManage={admin}
             />
@@ -138,4 +146,25 @@ function SectionTitle({
       <p className="text-sm text-muted-foreground">{description}</p>
     </header>
   );
+}
+
+/**
+ * Hiç giriş yapmamış (daveti bekleyen) kullanıcıların kimlikleri.
+ *
+ * Servis rolü gerektiriyor; anahtar tanımsızsa liste boş dönüyor ve arayüz
+ * yalnızca davet durumunu göstermiyor — sayfa çalışmaya devam ediyor.
+ */
+async function bekleyenDavetler(members: Profile[]): Promise<Set<string>> {
+  try {
+    const admin = createAdminClient();
+    const sonuclar = await Promise.all(
+      members.map(async (m) => {
+        const { data } = await admin.auth.admin.getUserById(m.id);
+        return data?.user && !data.user.last_sign_in_at ? m.id : null;
+      }),
+    );
+    return new Set(sonuclar.filter((id): id is string => id !== null));
+  } catch {
+    return new Set();
+  }
 }
