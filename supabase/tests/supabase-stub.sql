@@ -7,7 +7,10 @@ create schema if not exists auth;
 
 create table auth.users (
   id                 uuid primary key,
-  email              text unique,
+  -- Supabase'de bu kolon varchar(255); `text` yazmak fonksiyonların dönüş
+  -- tipi uyuşmazlığını testlerde gizliyordu (admin_businesses canlıda
+  -- "structure of query does not match function result type" veriyordu).
+  email              varchar(255) unique,
   -- Supabase'de signUp options.data buraya yazılıyor; pazarlama rızası
   -- profil oluşana kadar burada bekliyor.
   raw_user_meta_data jsonb not null default '{}'::jsonb
