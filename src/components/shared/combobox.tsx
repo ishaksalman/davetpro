@@ -53,7 +53,11 @@ export function Combobox({
   const selected = options.find((option) => option.value === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    // modal: açılır liste body'ye portallanıyor, yani bir pencere içindeyken
+    // Radix'in kaydırma kilidinin dışında kalıyor ve tekerlek olayları
+    // engelleniyordu — liste yalnızca çubuk sürüklenerek kayıyordu.
+    // modal, popover'a kendi kaydırma yönetimini kurduruyor.
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           id={id}

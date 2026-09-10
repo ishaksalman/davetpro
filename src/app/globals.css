@@ -488,6 +488,31 @@
     linear-gradient(90deg, #1a5cff 0%, #0fbfd8 55%, #16e0b4 100%) border-box;
 }
 
+/* Kaydırılabilir listelerde devamı olduğunu belli eden ince çubuk.
+   macOS'ta yerleşik çubuk yalnızca kaydırırken beliriyor; liste kesilmiş
+   gibi görünüp kullanıcı aşağısı olduğunu fark etmiyordu. */
+.thin-scrollbar {
+  /* scrollbar-width KULLANILMIYOR: tanımlıysa Chrome ::-webkit-scrollbar
+     stillerini yok sayıyor ve macOS'ta yüzen (overlay) çubuğa düşüyor —
+     çubuk yalnızca kaydırırken beliriyor, liste kesilmiş gibi duruyor.
+     Firefox standart özelliği kendi varsayılan genişliğiyle çiziyor. */
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+  background-color: var(--border);
+}
+.thin-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: var(--muted-foreground);
+}
+
 /* ==========================================================================
    Sözleşme belgesi — A4
    Aynı stiller hem ekrandaki önizlemede hem yazdırmada kullanılıyor ki
