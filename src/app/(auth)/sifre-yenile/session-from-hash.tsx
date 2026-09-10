@@ -25,38 +25,63 @@ export function SessionFromHash({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [hazir, setHazir] = useState(hasSession);
+  // Başlangıçta hazır değil: hash yalnızca tarayıcıda okunabildiği için
+  // kararı effect veriyor. Sunucu HTML'i de bu yüzden "doğrulanıyor" gösterir.
+  const [hazir, setHazir] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
+  const [kimlik, setKimlik] = useState<string | null>(null);
 
   useEffect(() => {
-    if (hasSession) return;
+    let iptal = false;
 
-    const params = new URLSearchParams(window.location.hash.slice(1));
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
+    async function calis() {
+      // Mikro göreve erteleniyor: effect gövdesinde eşzamanlı setState,
+      // React'te zincirleme render'a yol açıyor.
+      await Promise.resolve();
+      if (iptal) return;
 
-    if (!accessToken || !refreshToken) {
-      // Ne oturum ne jeton var: bağlantı doğrudan açılmış veya süresi dolmuş.
-      router.replace("/sifre-sifirla");
-      return;
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+
+      if (!accessToken || !refreshToken) {
+        // Jeton yok. Oturum varsa kullanıcı kendi şifresini değiştiriyordur;
+        // yoksa bağlantı doğrudan açılmış ya da süresi dolmuş.
+        if (hasSession) setHazir(true);
+        else router.replace("/sifre-sifirla");
+        return;
+      }
+
+      // Jeton varsa mevcut oturum ne olursa olsun o kazanır: bağlantı kimin
+      // adına gönderildiyse onun hesabı açılmalı. Aksi hâlde zaten giriş
+      // yapmış bir tarayıcıda davet sessizce yutuluyor ve form yanlış hesabın
+      // şifresini değiştiriyordu.
+      const supabase = createClient();
+      const sonuc = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      if (iptal) return;
+
+      if (sonuc.error) {
+        setHata(toTurkishError(sonuc.error));
+        return;
+      }
+
+      // Jetonlar adres çubuğunda ve geçmişte kalmasın.
+      window.history.replaceState(null, "", window.location.pathname);
+
+      const kullanici = await supabase.auth.getUser();
+      if (iptal) return;
+
+      // Hangi hesap için şifre belirlendiği görünsün: aynı tarayıcıda başka
+      // bir hesap açıksa kullanıcı yanlış anlamasın.
+      setKimlik(kullanici.data.user?.email ?? null);
+      setHazir(true);
+      router.refresh();
     }
 
-    let iptal = false;
-    const supabase = createClient();
-    void supabase.auth
-      .setSession({ access_token: accessToken, refresh_token: refreshToken })
-      .then((sonuc: { error: { message: string } | null }) => {
-        if (iptal) return;
-        if (sonuc.error) {
-          setHata(toTurkishError(sonuc.error));
-          return;
-        }
-        // Jetonlar adres çubuğunda ve geçmişte kalmasın.
-        window.history.replaceState(null, "", window.location.pathname);
-        setHazir(true);
-        router.refresh();
-      });
-
+    void calis();
     return () => {
       iptal = true;
     };
@@ -80,5 +105,15 @@ export function SessionFromHash({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {kimlik && (
+        <p className="mb-4 rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-muted-foreground">
+          <strong className="text-foreground">{kimlik}</strong> hesabı için şifre
+          belirliyorsunuz.
+        </p>
+      )}
+      {children}
+    </>
+  );
 }
