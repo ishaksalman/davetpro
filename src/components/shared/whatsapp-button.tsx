@@ -5,7 +5,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { whatsAppLink } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-/** Müşteriye tek tıkla WhatsApp'tan yazmak için. */
+/**
+ * Müşteriye tek tıkla WhatsApp'tan yazmak için.
+ *
+ * `label` hem erişilebilirlik adı hem de görünen metin (yalnızca size="sm").
+ * Simge biçiminde metin yok, ipucu olarak gösteriliyor.
+ */
 export function WhatsAppButton({
   phone,
   message,
@@ -34,7 +39,7 @@ export function WhatsAppButton({
     >
       <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
         <WhatsAppIcon />
-        {size !== "icon" && <span>WhatsApp</span>}
+        {size !== "icon" && <span>{label}</span>}
       </a>
     </Button>
   );

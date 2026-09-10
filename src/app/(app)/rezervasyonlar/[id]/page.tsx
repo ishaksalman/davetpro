@@ -25,6 +25,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
+import { reservationNoticeMessage } from "@/lib/reservation-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -46,7 +47,7 @@ export default async function ReservationDetailPage({
   params,
 }: PageProps<"/rezervasyonlar/[id]">) {
   const { id } = await params;
-  const { profile } = await requireSession();
+  const { profile, business } = await requireSession();
   const showFinance = canSeeFinance(profile);
 
   const supabase = await createClient();
@@ -514,10 +515,7 @@ export default async function ReservationDetailPage({
                       <Phone className="size-3.5" />
                       {formatPhone(customer.phone)}
                     </a>
-                    <WhatsAppButton
-                      phone={customer.phone}
-                      message={`Merhaba ${customer.full_name}, ${formatDate(reservation.event_date)} tarihli organizasyonunuz hakkında yazıyorum.`}
-                    />
+                    <WhatsAppButton phone={customer.phone} />
                   </div>
 
                   {customer.phone2 && (
@@ -539,6 +537,24 @@ export default async function ReservationDetailPage({
                     </a>
                   )}
                 </div>
+
+                {/* Otomatik gönderilmiyor: hazır mesajla WhatsApp açılıyor,
+                    göndermeye salon sahibi karar veriyor. */}
+                <WhatsAppButton
+                  phone={customer.phone}
+                  size="sm"
+                  // Yalnızca bu düğme: duruyorken açık yeşil zemin, üzerine
+                  // gelince tam WhatsApp yeşili. Listelerdeki simge düğmeleri
+                  // varsayılan görünümünde kalıyor.
+                  className="mt-3 w-full justify-center bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white"
+                  label="Müşteriyi bilgilendir"
+                  message={reservationNoticeMessage({
+                    reservation,
+                    customerName: customer.full_name,
+                    businessName: business.name,
+                    showFinance,
+                  })}
+                />
               </section>
             )}
 
