@@ -439,3 +439,25 @@ export const convertLeadSchema = z.object({
   notes: optionalText,
 });
 export type ConvertLeadInput = z.input<typeof convertLeadSchema>;
+
+/**
+ * Abonelik süresi uzatma (platform yönetimi).
+ *
+ * Gün sayısı üst sınırı veritabanındaki admin_extend_access() ile aynı: iki
+ * tarafta da 1–3650. Sunucu son söz sahibi, buradaki kontrol yalnızca formda
+ * anlaşılır hata verebilmek için.
+ */
+export const extendAccessSchema = z.object({
+  business_id: uuid,
+  days: z
+    .union([z.number(), z.string()])
+    .transform((v) => {
+      const n = typeof v === "number" ? v : Number(String(v).replace(/\D/g, ""));
+      return Number.isFinite(n) ? Math.trunc(n) : Number.NaN;
+    })
+    .refine((n) => Number.isFinite(n), "Gün sayısı girin.")
+    .refine((n) => n >= 1, "En az 1 gün.")
+    .refine((n) => n <= 3650, "En fazla 3650 gün."),
+  note: optionalText,
+});
+export type ExtendAccessInput = z.input<typeof extendAccessSchema>;

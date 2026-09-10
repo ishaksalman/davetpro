@@ -43,4 +43,20 @@ export const env = {
     }
     return "http://localhost:3000";
   },
+  /**
+   * Havale bilgileri. Kişisel hesap bilgisi olduğu için depoda değil, ortam
+   * değişkeninde. NEXT_PUBLIC_ DEĞİL: yalnızca abonelik sayfası sunucuda okuyor.
+   *
+   * Tanımlı değilse null döner ve sayfa boş bir kutu göstermek yerine
+   * doğrudan WhatsApp'a yönlendirir — eksik veriyi sonuç gibi sunmuyoruz.
+   */
+  get billing(): { iban: string; accountName: string | null; bank: string | null } | null {
+    const iban = process.env.BILLING_IBAN?.trim();
+    if (!iban) return null;
+    return {
+      iban,
+      accountName: process.env.BILLING_ACCOUNT_NAME?.trim() || null,
+      bank: process.env.BILLING_BANK?.trim() || null,
+    };
+  },
 };

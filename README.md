@@ -146,6 +146,27 @@ canlı yapar; ama **kaydedilen tek gerçek yine toplam tutardır**
 ve sonraki düzenlemede yeniden hesaplayabilmek için saklanır — böylece tahsilat
 ve kârlılık hesapları tek bir sayıya dayanmaya devam eder.
 
+### Deneme süresi ve abonelik
+Her işletmenin `subscriptions` tablosunda tek satırı var: `trial_ends_at`
+(kayıt + 30 gün, bir daha değişmez) ve `access_until` (kilidin tek yetkilisi).
+Durum kolonu yok, türetiliyor — `access_until > trial_ends_at` ise abone,
+değilse deneme; `access_until` geçmişse erişim yok.
+
+Tablo `businesses`'tan ayrı, çünkü oradaki UPDATE politikası kolon ayrımı
+yapmıyor: `access_until` orada olsaydı her owner kendi süresini PostgREST
+üzerinden uzatabilirdi. Ayrı tabloda `authenticated` rolüne yalnızca SELECT
+verildi; yazma `admin_extend_access()` ile ve o da çağıranın
+`platform_admins` listesinde olmasını şart koşuyor.
+
+Süre dolunca `requireSession()` kullanıcıyı `/abonelik`'e yönlendiriyor.
+**Bu bir arayüz kilidi:** kullanıcının tokenı RLS tarafında hâlâ geçerli,
+doğrudan PostgREST'e istek atan biri yazmaya devam edebilir. Gerçek kilit için
+abonelik kontrolünün yazma politikalarına girmesi gerekir.
+
+Ödeme havale ile alınıyor ve elle onaylanıyor: `/yonetim` ekranından gün
+ekleniyor. `reference_code` havale açıklamasına yazılıyor — gelen ödemeyi
+işletmeye bağlayan tek bilgi o.
+
 ### Para
 Tüm parasal alanlar `numeric(12,2)`. Arayüzde toplama işlemleri kuruş cinsinden
 tamsayı üzerinden yapılır (`sumMoney`), float birikimi oluşmaz. Gösterim
@@ -196,6 +217,12 @@ Sunucu eylemleri (`actions.ts`) her zaman aynı deseni izler:
   `getReservationRows` sunucu tarafı sayfalamaya geçirilmeli.
 - **Personel daveti** `SUPABASE_SERVICE_ROLE_KEY` gerektirir; anahtar tanımlı
   değilse arayüz açık bir hata mesajı gösterir.
+- **Abonelik kilidi arayüz seviyesinde.** Süresi dolan kullanıcı panele
+  giremiyor ama tokenı RLS tarafında geçerli kalıyor; doğrudan API isteğiyle
+  yazma mümkün. Kapatmak için `subscriptions` kontrolünün yazma politikalarına
+  eklenmesi gerekir.
+- **Plan limitleri uygulanmıyor.** Satış sayfası "1 salon, 3 kullanıcı" gibi
+  sınırlar ilan ediyor; sistem bunları denetlemiyor.
 - Sözleşme/teklif PDF çıktısı, SMS hatırlatma ve e-fatura entegrasyonu MVP
   kapsamı dışında bırakıldı.
 
@@ -221,8 +248,8 @@ where table_schema = 'public' order by table_name;
 
 ### 2. Ortam değişkenleri
 
-Barındırma sağlayıcısında (Vercel → Settings → Environment Variables) dört
-değişkeni de tanımlayın:
+Barındırma sağlayıcısında (Vercel → Settings → Environment Variables) ilk dört
+değişken zorunlu:
 
 | Değişken | Nereden |
 |---|---|
@@ -230,6 +257,13 @@ değişkeni de tanımlayın:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Aynı sayfa |
 | `SUPABASE_SERVICE_ROLE_KEY` | Aynı sayfa · **yalnızca sunucu**, asla `NEXT_PUBLIC_` yapmayın |
 | `NEXT_PUBLIC_APP_URL` | Canlı adres, ör. `https://davetpro.com` |
+| `BILLING_IBAN` | Abonelik sayfasında gösterilecek IBAN · opsiyonel |
+| `BILLING_ACCOUNT_NAME` | Havale alıcısının adı · opsiyonel |
+| `BILLING_BANK` | Banka adı · opsiyonel |
+
+`BILLING_*` tanımsızsa abonelik sayfası boş bir kutu göstermek yerine yalnızca
+WhatsApp yönlendirmesi çıkarır. `NEXT_PUBLIC_` **değildir**: yalnızca sunucuda
+okunur.
 
 `NEXT_PUBLIC_APP_URL` üretimde zorunludur: personel daveti ve şifre sıfırlama
 e-postalarındaki bağlantılar bu adresten üretilir. Tanımsızsa uygulama açık bir

@@ -525,5 +525,152 @@ await step('authenticated kod tüketemiyor', async () => {
   await asSuper()
 })
 
+console.log('\n\x1b[1m13) Abonelik ve deneme süresi\x1b[0m')
+
+// Platform yöneticisi e-posta ile tanımlanıyor; testte o adresle bir kullanıcı
+// açıp kendi işletmesini kuruyoruz.
+const U_ADMIN = '44444444-4444-4444-4444-444444444444'
+await asSuper()
+await db.query(`insert into auth.users (id, email) values ($1, 'ishakslmn@gmail.com')`, [U_ADMIN])
+await as(U_ADMIN)
+await step('platform yöneticisi işletmesi açıldı', () =>
+  db.query(`select create_business_with_owner('Platform Salonu', 'Ishak')`))
+
+await step('yeni işletmeye otomatik abonelik açılıyor', async () => {
+  await asSuper()
+  const r = await db.query(`select count(*)::int c from subscriptions`)
+  const b = await db.query(`select count(*)::int c from businesses`)
+  if (r.rows[0].c !== b.rows[0].c) {
+    throw new Error(`abonelik ${r.rows[0].c}, işletme ${b.rows[0].c}`)
+  }
+})
+
+await step('deneme süresi trial_days() kadar ve access_until ile eşit', async () => {
+  const r = await db.query(`
+    select round(extract(epoch from (trial_ends_at - created_at)) / 86400) gun,
+           (access_until = trial_ends_at) esit
+    from subscriptions limit 1`)
+  const { gun, esit } = r.rows[0]
+  if (Number(gun) !== 30) throw new Error(`deneme ${gun} gün`)
+  if (!esit) throw new Error('access_until deneme bitişinden farklı')
+})
+
+await step('referans kodları tekil', async () => {
+  const r = await db.query(`
+    select count(*)::int t, count(distinct reference_code)::int d from subscriptions`)
+  if (r.rows[0].t !== r.rows[0].d) throw new Error('mükerrer referans kodu')
+})
+
+await step('kiracı yalnızca kendi aboneliğini görüyor', async () => {
+  await as(U.ownerA)
+  const r = await db.query('select count(*)::int c from subscriptions')
+  if (r.rows[0].c !== 1) throw new Error(`${r.rows[0].c} satır görüyor`)
+})
+
+// Yönetici de tablodan TEK satır görmeli: oturum açılışı bu tabloyu
+// maybeSingle() ile okuyor, çok satır dönerse yöneticinin hesabı açılmaz.
+await step('platform yöneticisi de tablodan tek satır görüyor', async () => {
+  await as(U_ADMIN)
+  const r = await db.query('select count(*)::int c from subscriptions')
+  if (r.rows[0].c !== 1) throw new Error(`${r.rows[0].c} satır görüyor`)
+})
+
+await expectFail('kiracı kendi süresini uzatamıyor', async () => {
+  await as(U.ownerA)
+  await db.query(`update subscriptions set access_until = now() + interval '99 years'`)
+}, 'permission denied')
+
+await expectFail('kiracı abonelik satırı ekleyemiyor', async () => {
+  await as(U.ownerA)
+  await db.query(`insert into subscriptions (business_id, trial_ends_at, access_until, reference_code)
+                  values (current_business_id(), now(), now() + interval '9 years', 'DP-XXXX')`)
+}, 'permission denied')
+
+await step('is_platform_admin yalnızca listedeki e-postaya true', async () => {
+  await as(U_ADMIN)
+  const a = await db.query('select is_platform_admin() v')
+  await as(U.ownerA)
+  const b = await db.query('select is_platform_admin() v')
+  if (a.rows[0].v !== true || b.rows[0].v !== false) {
+    throw new Error(`admin=${a.rows[0].v}, kiracı=${b.rows[0].v}`)
+  }
+})
+
+await expectFail('kiracı admin_extend_access çağıramıyor', async () => {
+  await as(U.ownerA)
+  await db.query(`select admin_extend_access(current_business_id(), 30)`)
+}, 'platform yöneticisi')
+
+await expectFail('kiracı admin_businesses çağıramıyor', async () => {
+  await as(U.ownerA)
+  await db.query(`select * from admin_businesses()`)
+}, 'platform yöneticisi')
+
+await step('admin_businesses tüm işletmeleri sahibiyle listeliyor', async () => {
+  await as(U_ADMIN)
+  const r = await db.query(`select business_name, owner_email from admin_businesses()`)
+  await asSuper()
+  const toplam = (await db.query('select count(*)::int c from businesses')).rows[0].c
+  if (r.rows.length !== toplam) throw new Error(`${r.rows.length} satır, ${toplam} işletme`)
+  if (r.rows.some((x) => !x.owner_email)) throw new Error('sahip e-postası boş')
+})
+
+// Bu davranış elle uzatmanın en kolay yanlış yapılan yeri: süresi geçmiş bir
+// hesapta access_until + gün hâlâ geçmişte kalır.
+await step('süresi dolmuş hesapta eklenen gün BUGÜNDEN başlıyor', async () => {
+  await asSuper()
+  const bid = (await db.query(
+    `select business_id from subscriptions s join businesses b on b.id = s.business_id
+     where b.name = 'Gül Düğün Salonu'`)).rows[0].business_id
+  await db.query(
+    `update subscriptions set access_until = now() - interval '10 days' where business_id = $1`,
+    [bid])
+  await as(U_ADMIN)
+  await db.query(`select admin_extend_access($1, 30, 'havale 12.09')`, [bid])
+  await asSuper()
+  const r = await db.query(
+    `select round(extract(epoch from (access_until - now())) / 86400) gun, note
+     from subscriptions where business_id = $1`, [bid])
+  if (Number(r.rows[0].gun) !== 30) throw new Error(`kalan ${r.rows[0].gun} gün`)
+  if (r.rows[0].note !== 'havale 12.09') throw new Error('not yazılmadı')
+})
+
+await step('süresi devam eden hesapta mevcut bitişin üstüne ekleniyor', async () => {
+  await asSuper()
+  const bid = (await db.query(
+    `select business_id from subscriptions s join businesses b on b.id = s.business_id
+     where b.name = 'Gül Düğün Salonu'`)).rows[0].business_id
+  await as(U_ADMIN)
+  await db.query(`select admin_extend_access($1, 30)`, [bid])
+  await asSuper()
+  const r = await db.query(
+    `select round(extract(epoch from (access_until - now())) / 86400) gun, note
+     from subscriptions where business_id = $1`, [bid])
+  if (Number(r.rows[0].gun) !== 60) throw new Error(`kalan ${r.rows[0].gun} gün`)
+  // Not gönderilmediğinde eskisi korunmalı, null'a düşmemeli.
+  if (r.rows[0].note !== 'havale 12.09') throw new Error('not silindi')
+})
+
+for (const gun of [0, -5, 4000]) {
+  await expectFail(`${gun} gün reddediliyor`, async () => {
+    await as(U_ADMIN)
+    const bid = (await db.query(`select business_id from subscriptions limit 1`)).rows[0].business_id
+    await db.query(`select admin_extend_access($1, $2)`, [bid, gun])
+  })
+}
+
+await expectFail('olmayan işletme reddediliyor', async () => {
+  await as(U_ADMIN)
+  await db.query(`select admin_extend_access('00000000-0000-0000-0000-000000000000', 30)`)
+}, 'bulunamadı')
+
+await step('işletme silinince abonelik de siliniyor', async () => {
+  await asSuper()
+  const once = (await db.query('select count(*)::int c from subscriptions')).rows[0].c
+  await db.query(`delete from businesses where name = 'Platform Salonu'`)
+  const sonra = (await db.query('select count(*)::int c from subscriptions')).rows[0].c
+  if (sonra !== once - 1) throw new Error(`${once} → ${sonra}`)
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

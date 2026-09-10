@@ -20,6 +20,7 @@ import {
   customerSchema,
   expenseCategorySchema,
   expenseSchema,
+  extendAccessSchema,
   packageSchema,
   paymentSchema,
   reservationSchema,
@@ -28,6 +29,16 @@ import {
 import type { ZodTypeAny } from "zod";
 
 const samples: [string, ZodTypeAny, unknown][] = [
+  [
+    "extendAccessSchema (gün metin)",
+    extendAccessSchema,
+    { business_id: "11111111-1111-1111-1111-111111111111", days: "30", note: "" },
+  ],
+  [
+    "extendAccessSchema (gün sayı, not dolu)",
+    extendAccessSchema,
+    { business_id: "11111111-1111-1111-1111-111111111111", days: 365, note: "12 ay havale" },
+  ],
   [
     "venueSchema (boş opsiyoneller)",
     venueSchema,

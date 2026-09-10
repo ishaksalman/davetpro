@@ -463,3 +463,34 @@ export type VenueAvailability = {
   /** Komşu organizasyonla arada kalan dakika; gerçek çakışmada null. */
   gap_minutes: number | null;
 };
+
+/**
+ * İşletmenin erişim hakkı. Ödeme havale ile alınıp elle onaylandığı için burada
+ * tahsilat bilgisi yok; yalnızca "ne zamana kadar" bilgisi var.
+ */
+export type Subscription = Timestamps & {
+  business_id: string;
+  /** Kayıt anı + 30 gün. Değişmez; denemeyi ödenmiş dönemden ayırt etmeye yarar. */
+  trial_ends_at: string;
+  /** Erişimin bittiği an. Elle uzatılır. */
+  access_until: string;
+  /** Havale açıklamasına yazılan kod. */
+  reference_code: string;
+  note: string | null;
+};
+
+/** admin_businesses() RPC'sinin bir satırı. */
+export type AdminBusinessRow = {
+  business_id: string;
+  business_name: string;
+  city: string | null;
+  owner_email: string | null;
+  owner_name: string | null;
+  created_at: string;
+  trial_ends_at: string;
+  access_until: string;
+  reference_code: string;
+  note: string | null;
+  user_count: number;
+  reservation_count: number;
+};

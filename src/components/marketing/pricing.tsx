@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { PillLink } from "@/components/marketing/site-header";
 import { Reveal } from "@/components/marketing/reveal";
 import { cn } from "@/lib/utils";
+import { TRIAL_DAYS } from "@/lib/subscription";
 
 const PLANS = [
   {
@@ -57,8 +58,8 @@ export function Pricing() {
             Bir düğünün kaporasından az.
           </h2>
           <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">
-            14 gün ücretsiz deneyin, kart istemiyoruz. Aylık, KDV hariç
-            fiyatlardır; istediğiniz zaman iptal edebilirsiniz.
+            {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. Aylık, KDV
+            hariç fiyatlardır; istediğiniz zaman iptal edebilirsiniz.
           </p>
         </Reveal>
 

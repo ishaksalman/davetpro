@@ -17,6 +17,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { BrandIcon } from "@/components/brand/logo";
+import { ShieldCheck } from "lucide-react";
 import { NAV_GROUPS } from "./nav-items";
 import { UserMenu } from "./user-menu";
 import type { Business, Profile } from "@/lib/database.types";
@@ -26,11 +27,14 @@ export function AppSidebar({
   business,
   email,
   showFinance,
+  isPlatformAdmin,
 }: {
   profile: Profile;
   business: Business;
   email: string;
   showFinance: boolean;
+  /** Uygulamayı işleten taraf — kiracı rolleriyle ilgisi yok. */
+  isPlatformAdmin: boolean;
 }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
@@ -88,6 +92,29 @@ export function AppSidebar({
             </SidebarGroup>
           );
         })}
+
+        {/*
+          Kiracıya ait bir menü değil: uygulamayı işleten tarafın abonelik
+          ekranı. Yetki sunucuda da denetleniyor, buradaki gizleme yalnızca
+          görünürlük içindir.
+        */}
+        {isPlatformAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/yonetim")}>
+                    <Link href="/yonetim">
+                      <ShieldCheck />
+                      <span>Abonelikler</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t p-2">

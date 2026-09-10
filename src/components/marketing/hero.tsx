@@ -4,6 +4,7 @@ import { AppMockup } from "@/components/marketing/app-mockup";
 import { PillLink } from "@/components/marketing/site-header";
 import { FadeIn } from "@/components/marketing/reveal";
 import { ScrollScale } from "@/components/marketing/scroll-scale";
+import { TRIAL_DAYS } from "@/lib/subscription";
 
 /**
  * Hero — marka lacivertinde koyu bir bant.
@@ -44,7 +45,7 @@ export function Hero() {
 
           <FadeIn delay={180}>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-              <PillLink href="/kayit">14 gün ücretsiz deneyin</PillLink>
+              <PillLink href="/kayit">{TRIAL_DAYS} gün ücretsiz deneyin</PillLink>
               <Link
                 href="#nasil-calisir"
                 className="group inline-flex items-center gap-2 text-[0.9375rem] font-medium text-white"
