@@ -18,6 +18,45 @@ export const BILLING_WHATSAPP = "0538 927 57 28";
 
 export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
 
+export type BillingPlan = {
+  id: "aylik" | "yillik";
+  label: string;
+  /** Dönem bedeli (TL). */
+  price: number;
+  /** "ay" / "yıl" — fiyatın yanında gösterilir. */
+  period: string;
+  /** Bu ödemenin karşılığı olan gün sayısı; yönetim ekranındaki uzatma ile aynı. */
+  days: number;
+};
+
+/**
+ * Abonelik planları.
+ *
+ * Tek pakette tutuldu: salon sayısı veya kullanıcı sayısına göre kademe YOK,
+ * çünkü sistem o limitleri hiçbir yerde denetlemiyor. Denetlenmeyen bir limiti
+ * fiyat listesinde söz vermek, tutulmayacak bir söz olur.
+ *
+ * Yıllıkta 12 ay yerine 10 ay ücreti alınıyor (2 ay ücretsiz).
+ */
+export const BILLING_PLANS: BillingPlan[] = [
+  { id: "aylik", label: "Aylık", price: 500, period: "ay", days: 30 },
+  { id: "yillik", label: "Yıllık", price: 5000, period: "yıl", days: 365 },
+];
+
+/** Yıllık ödemede kalan tutar — "2 ay ücretsiz" iddiasını hesapla doğruluyor. */
+export function yearlySaving(): number {
+  const aylik = BILLING_PLANS.find((p) => p.id === "aylik");
+  const yillik = BILLING_PLANS.find((p) => p.id === "yillik");
+  if (!aylik || !yillik) return 0;
+  return aylik.price * 12 - yillik.price;
+}
+
+/** Yıllık ödemenin aya bölünmüş karşılığı. */
+export function yearlyMonthlyEquivalent(): number {
+  const yillik = BILLING_PLANS.find((p) => p.id === "yillik");
+  return yillik ? Math.round(yillik.price / 12) : 0;
+}
+
 export type SubscriptionInfo = {
   state: SubscriptionState;
   accessUntil: Date;
@@ -81,11 +120,14 @@ export function subscriptionWhatsAppMessage({
   businessName,
   referenceCode,
   email,
+  plan,
 }: {
   state: SubscriptionState;
   businessName: string;
   referenceCode: string;
   email: string | null;
+  /** Seçilen plan; verilmezse mesajda dönem belirtilmez. */
+  plan?: BillingPlan;
 }): string {
   const acilis =
     state === "sona_erdi"
@@ -96,6 +138,9 @@ export function subscriptionWhatsAppMessage({
 
   const satirlar = [acilis, "", `İşletme: ${businessName} (${referenceCode})`];
   if (email) satirlar.push(`Hesap: ${email}`);
+  // Hangi dönemi istediği mesajda yazılı olsun; yazışmada tekrar sormaya gerek
+  // kalmıyor ve süre uzatılırken kaç gün ekleneceği net.
+  if (plan) satirlar.push(`Plan: ${plan.label} (${plan.price} TL / ${plan.period})`);
   return satirlar.join("\n");
 }
 

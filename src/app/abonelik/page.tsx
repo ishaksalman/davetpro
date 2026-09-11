@@ -10,11 +10,13 @@ import { requireSessionAllowExpired } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { formatDate } from "@/lib/format";
 import {
+  BILLING_PLANS,
   BILLING_WHATSAPP,
   TRIAL_DAYS,
   subscriptionWhatsAppLink,
   type SubscriptionInfo,
 } from "@/lib/subscription";
+import { PlanCard } from "./plan-card";
 
 export const metadata: Metadata = {
   title: "Abonelik",
@@ -85,6 +87,29 @@ export default async function AbonelikPage() {
 
         <Separator className="my-6" />
 
+        <h2 className="text-sm font-semibold">Ödeme planı</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {BILLING_PLANS.map((plan) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              href={
+                subscription
+                  ? subscriptionWhatsAppLink({
+                      state: subscription.state,
+                      businessName: business.name,
+                      referenceCode: subscription.referenceCode,
+                      email: user.email,
+                      plan,
+                    })
+                  : null
+              }
+            />
+          ))}
+        </div>
+
+        <Separator className="my-6" />
+
         {havale ? (
           <div className="space-y-4">
             <h2 className="text-sm font-semibold">Havale ile ödeme</h2>
@@ -126,15 +151,16 @@ export default async function AbonelikPage() {
         )}
 
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+          {/* Plan seçmeden yazmak isteyen için: mesajda dönem geçmez. */}
           {whatsapp && (
-            <Button asChild className="sm:flex-1">
+            <Button asChild variant="outline" className="sm:flex-1">
               <a href={whatsapp} target="_blank" rel="noopener noreferrer">
-                Bilgilendir ({BILLING_WHATSAPP})
+                Soru sor ({BILLING_WHATSAPP})
               </a>
             </Button>
           )}
           {!suresiDoldu && (
-            <Button asChild variant="outline">
+            <Button asChild variant="ghost">
               <Link href="/panel">
                 <ArrowLeft className="size-4" />
                 Panele dön
