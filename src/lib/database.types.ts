@@ -491,6 +491,8 @@ export type AdminBusinessRow = {
   access_until: string;
   reference_code: string;
   note: string | null;
+  /** Yalnızca aktif salonlar; abonelik bedeli buna göre hesaplanıyor. */
+  venue_count: number;
   user_count: number;
   reservation_count: number;
 };

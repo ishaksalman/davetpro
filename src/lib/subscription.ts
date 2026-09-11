@@ -20,62 +20,40 @@ export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
 
 export type BillingPeriod = "aylik" | "yillik";
 
-export type BillingPackage = {
-  id: "tek_salon" | "coklu_salon";
-  name: string;
-  note: string;
-  features: string[];
-  /** Aylık ödeme bedeli (TL). Yıllık bedel bundan türetiliyor. */
-  monthlyPrice: number;
-  /** Öne çıkarılan paket. */
-  featured?: boolean;
-};
+/**
+ * Fiyatlandırma: TEK PAKET, tüm özellikler açık.
+ *
+ * NEDEN KADEME YOK: kademe, her yeni özellikte "bu hangi pakette" sorusunu,
+ * yükseltme yolunu, limit denetimini ve satışta bir açıklamayı beraberinde
+ * getiriyor. Bunun karşılığı ancak çok müşteride çıkar. Ayrıca bu modül
+ * ürüne özel hiçbir şey içermiyor; başka ürünlere olduğu gibi taşınabilsin
+ * diye sade tutuldu.
+ *
+ * NEDEN SALON SAYISINA GÖRE DEĞİL: ödeme havale ile alınıp elle onaylandığı
+ * için dönem ortasında salon eklenince tutarın değişmesi her seferinde
+ * yazışma demekti. Sabit rakamda herkes her dönem aynı parayı yatırıyor.
+ * Salon sayısı yine /yonetim ekranında görünüyor — Kurumsal adayını
+ * fark etmek için.
+ */
+
+/** Aylık bedel. Yıllık bundan türetilir. */
+export const MONTHLY_PRICE = 600;
 
 /**
  * Yıllık ödemede alınmayan ay sayısı. Yıllık bedel = aylık × (12 − bu sayı).
- *
- * Tek yerde: "2 ay ücretsiz" metni ile gösterilen rakamın aynı hesaptan
- * gelmesi gerekiyor, yoksa metin ile fiyat birbirini tutmaz.
+ * Tek yerde: "2 ay ücretsiz" metni ile fiyatın aynı hesaptan gelmesi gerekiyor.
  */
 export const FREE_MONTHS_YEARLY = 2;
 
-/**
- * Abonelik paketleri.
- *
- * Aynı liste hem satış sayfasında hem uygulama içindeki abonelik sayfasında
- * kullanılıyor. İki yerde ayrı yazılsaydı biri güncellenmeyip müşteriye iki
- * farklı fiyat gösterilebilirdi.
- *
- * DİKKAT: Buradaki salon/kullanıcı limitleri sistemde DENETLENMİYOR; şu an
- * yalnızca fiyat listesi metni.
- */
-export const BILLING_PACKAGES: BillingPackage[] = [
-  {
-    id: "tek_salon",
-    name: "Tek Salon",
-    monthlyPrice: 500,
-    note: "Tek salonu olan işletmeler için.",
-    features: [
-      "1 salon, 3 kullanıcı",
-      "Takvim ve rezervasyon",
-      "Tahsilat ve ödeme planı",
-      "Sözleşme ve teklif çıktısı",
-    ],
-  },
-  {
-    id: "coklu_salon",
-    name: "Çoklu Salon",
-    monthlyPrice: 1000,
-    note: "Birden fazla salon ve bahçe işletenler için.",
-    featured: true,
-    features: [
-      "Sınırsız salon, 10 kullanıcı",
-      "Tek Salon'daki her şey",
-      "Organizasyon bazlı kârlılık",
-      "Gider kategorileri ve raporlar",
-      "Rol bazlı finans kısıtı",
-    ],
-  },
+/** Pakete dahil olan her şey — satış sayfası ve abonelik sayfası aynı listeyi kullanır. */
+export const PLAN_FEATURES = [
+  "Sınırsız salon ve kullanıcı",
+  "Takvim, rezervasyon ve görüşme takibi",
+  "Tahsilat planı ve kalan tutar takibi",
+  "Teklif ve sözleşme çıktısı",
+  "Organizasyon bazlı kârlılık",
+  "Gider kategorileri ve raporlar",
+  "Rol bazlı finans kısıtı",
 ];
 
 export const PERIOD_LABELS: Record<BillingPeriod, string> = {
@@ -89,22 +67,18 @@ export const PERIOD_SUFFIX: Record<BillingPeriod, string> = {
   yillik: "/ yıl",
 };
 
-/** Seçilen dönemin bedeli. */
-export function packagePrice(pkg: BillingPackage, period: BillingPeriod): number {
-  return period === "yillik"
-    ? pkg.monthlyPrice * (12 - FREE_MONTHS_YEARLY)
-    : pkg.monthlyPrice;
+/** Yıllık bedel, aylıktan türetilir. */
+export const YEARLY_PRICE = MONTHLY_PRICE * (12 - FREE_MONTHS_YEARLY);
+
+export function priceFor(period: BillingPeriod): number {
+  return period === "yillik" ? YEARLY_PRICE : MONTHLY_PRICE;
 }
 
 /** Yıllık ödemenin aya bölünmüş karşılığı — kıyaslamayı kolaylaştırır. */
-export function monthlyEquivalent(pkg: BillingPackage): number {
-  return Math.round(packagePrice(pkg, "yillik") / 12);
-}
+export const YEARLY_MONTHLY_EQUIVALENT = Math.round(YEARLY_PRICE / 12);
 
 /** Yıllık ödemede cepte kalan tutar. */
-export function yearlySaving(pkg: BillingPackage): number {
-  return pkg.monthlyPrice * 12 - packagePrice(pkg, "yillik");
-}
+export const YEARLY_SAVING = MONTHLY_PRICE * 12 - YEARLY_PRICE;
 
 export type SubscriptionInfo = {
   state: SubscriptionState;
@@ -175,8 +149,8 @@ export function subscriptionWhatsAppMessage({
   businessName: string;
   referenceCode: string;
   email: string | null;
-  /** Seçilen paket ve dönem; verilmezse mesajda plan belirtilmez. */
-  plan?: { pkg: BillingPackage; period: BillingPeriod };
+  /** Seçilen dönem; verilmezse mesajda plan belirtilmez. */
+  plan?: { period: BillingPeriod };
 }): string {
   const acilis =
     state === "sona_erdi"
@@ -190,9 +164,8 @@ export function subscriptionWhatsAppMessage({
   // Hangi dönemi istediği mesajda yazılı olsun; yazışmada tekrar sormaya gerek
   // kalmıyor ve süre uzatılırken kaç gün ekleneceği net.
   if (plan) {
-    const bedel = packagePrice(plan.pkg, plan.period);
     satirlar.push(
-      `Plan: ${plan.pkg.name} — ${PERIOD_LABELS[plan.period]} (${bedel} TL)`,
+      `Plan: ${PERIOD_LABELS[plan.period]} (${priceFor(plan.period)} TL)`,
     );
   }
   return satirlar.join("\n");

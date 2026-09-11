@@ -606,6 +606,21 @@ await expectFail('kiracı admin_businesses çağıramıyor', async () => {
   await db.query(`select * from admin_businesses()`)
 }, 'platform yöneticisi')
 
+await step('admin_businesses salon sayısını da veriyor', async () => {
+  await asSuper()
+  const bid = (await db.query(
+    `select id from businesses where name = 'Gül Düğün Salonu'`)).rows[0].id
+  const beklenen = (await db.query(
+    `select count(*)::int c from venues where business_id = $1 and is_active`,
+    [bid])).rows[0].c
+  await as(U_ADMIN)
+  const r = await db.query(
+    `select venue_count from admin_businesses() where business_id = $1`, [bid])
+  if (r.rows[0].venue_count !== beklenen) {
+    throw new Error(`${r.rows[0].venue_count} yazıyor, ${beklenen} olmalı`)
+  }
+})
+
 await step('admin_businesses tüm işletmeleri sahibiyle listeliyor', async () => {
   await as(U_ADMIN)
   const r = await db.query(`select business_name, owner_email from admin_businesses()`)

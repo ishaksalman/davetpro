@@ -4,55 +4,37 @@ import { Reveal } from "@/components/marketing/reveal";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import {
-  BILLING_PACKAGES,
   FREE_MONTHS_YEARLY,
+  MONTHLY_PRICE,
+  PLAN_FEATURES,
   TRIAL_DAYS,
+  YEARLY_PRICE,
 } from "@/lib/subscription";
 
 /**
- * Fiyatlar BILLING_PACKAGES'tan geliyor; uygulama içindeki abonelik sayfası da
- * aynı listeyi kullanıyor. İki yerde ayrı yazılsaydı biri güncellenmeyip
- * müşteriye iki farklı rakam gösterilebilirdi — bir süre öyle oldu.
+ * Fiyatlar @/lib/subscription'dan geliyor; uygulama içindeki abonelik sayfası
+ * da aynı kaynağı kullanıyor. İki yerde ayrı yazıldığı için bir süre farklı
+ * rakamlar görünüyordu.
+ *
+ * Kademe yok, tek paket, tüm özellikler açık. Gerekçesi subscription.ts'te.
  */
-const fiyat = (id: string) => {
-  const paket = BILLING_PACKAGES.find((p) => p.id === id);
-  return paket ? formatMoney(paket.monthlyPrice) : "—";
-};
-
 const PLANS = [
   {
-    name: "Tek Salon",
-    price: fiyat("tek_salon"),
-    note: "Tek salonu olan işletmeler için.",
-    features: [
-      "1 salon, 3 kullanıcı",
-      "Takvim ve rezervasyon",
-      "Tahsilat ve ödeme planı",
-      "Sözleşme ve teklif çıktısı",
-    ],
-    cta: "Ücretsiz deneyin",
-  },
-  {
-    name: "Çoklu Salon",
-    price: fiyat("coklu_salon"),
-    note: "Birden fazla salon ve bahçe işletenler için.",
+    name: "DavetPro",
+    price: formatMoney(MONTHLY_PRICE),
+    period: "/ ay",
+    note: `Yıllık ödeyin ${formatMoney(YEARLY_PRICE)}, ${FREE_MONTHS_YEARLY} ay ücretsiz.`,
     featured: true,
-    features: [
-      "Sınırsız salon, 10 kullanıcı",
-      "Tek Salon'daki her şey",
-      "Organizasyon bazlı kârlılık",
-      "Gider kategorileri ve raporlar",
-      "Rol bazlı finans kısıtı",
-    ],
+    features: PLAN_FEATURES,
     cta: "Ücretsiz deneyin",
   },
   {
     name: "Kurumsal",
     price: "Teklif",
+    period: null,
     note: "Zincir işletmeler ve özel ihtiyaçlar için.",
     features: [
-      "Sınırsız kullanıcı",
-      "Çoklu Salon'daki her şey",
+      "DavetPro'daki her şey",
       "Veri aktarımı ve kurulum desteği",
       "Öncelikli destek hattı",
     ],
@@ -79,7 +61,7 @@ export function Pricing() {
           </p>
         </Reveal>
 
-        <div className="mt-14 grid items-start gap-4 lg:grid-cols-3">
+        <div className="mx-auto mt-14 grid max-w-3xl items-start gap-4 sm:grid-cols-2">
           {PLANS.map((plan, i) => (
             <Reveal key={plan.name} delay={i * 90}>
               <div
@@ -99,11 +81,8 @@ export function Pricing() {
                   >
                     {plan.name}
                   </h3>
-                  {plan.featured && (
-                    <span className="rounded-full bg-[linear-gradient(90deg,#1a5cff,#16e0b4)] px-2.5 py-1 text-[0.6875rem] font-medium text-white">
-                      En çok seçilen
-                    </span>
-                  )}
+                  {/* Rozet yok: tek paket varken "en çok seçilen" demek
+                      seçenek olduğunu ima eder. */}
                 </div>
 
                 <p

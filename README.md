@@ -167,6 +167,15 @@ abonelik kontrolünün yazma politikalarına girmesi gerekir.
 ekleniyor. `reference_code` havale açıklamasına yazılıyor — gelen ödemeyi
 işletmeye bağlayan tek bilgi o.
 
+**Tek paket, tüm özellikler açık** (`src/lib/subscription.ts`). Kademe yok:
+her yeni özellikte "bu hangi pakette" sorusunu, yükseltme yolunu ve limit
+denetimini beraberinde getiriyor; bunun karşılığı ancak çok müşteride çıkar.
+Salon sayısına göre de fiyatlanmıyor — ödeme elle onaylandığı için dönem
+ortasında salon eklenince tutarın değişmesi her seferinde yazışma demekti.
+Bu modül ürüne özel hiçbir şey içermiyor; başka ürünlere taşınabilsin diye
+sade tutuldu. Salon sayısı yine `/yonetim` listesinde görünüyor — büyüyen
+müşteriyi (Kurumsal adayını) fark etmek için.
+
 ### Para
 Tüm parasal alanlar `numeric(12,2)`. Arayüzde toplama işlemleri kuruş cinsinden
 tamsayı üzerinden yapılır (`sumMoney`), float birikimi oluşmaz. Gösterim
@@ -221,8 +230,6 @@ Sunucu eylemleri (`actions.ts`) her zaman aynı deseni izler:
   giremiyor ama tokenı RLS tarafında geçerli kalıyor; doğrudan API isteğiyle
   yazma mümkün. Kapatmak için `subscriptions` kontrolünün yazma politikalarına
   eklenmesi gerekir.
-- **Plan limitleri uygulanmıyor.** Satış sayfası "1 salon, 3 kullanıcı" gibi
-  sınırlar ilan ediyor; sistem bunları denetlemiyor.
 - Sözleşme/teklif PDF çıktısı, SMS hatırlatma ve e-fatura entegrasyonu MVP
   kapsamı dışında bırakıldı.
 

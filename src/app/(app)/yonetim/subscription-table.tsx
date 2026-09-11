@@ -89,11 +89,16 @@ export function SubscriptionTable({ rows }: { rows: AdminBusinessRow[] }) {
       {
         id: "kullanim",
         header: "Kullanım",
-        accessorFn: (row) => row.reservation_count,
+        // Salon sayısına göre sıralanıyor: bedel ondan hesaplandığı için
+        // listede en pahalı/en büyük müşteriyi bulmak isteniyor.
+        accessorFn: (row) => row.venue_count,
         cell: ({ row }) => (
           <span className="text-sm whitespace-nowrap text-muted-foreground">
-            {row.original.reservation_count} rezervasyon · {row.original.user_count}{" "}
-            kullanıcı
+            <span className="font-medium text-foreground">
+              {row.original.venue_count} salon
+            </span>{" "}
+            · {row.original.reservation_count} rezervasyon ·{" "}
+            {row.original.user_count} kullanıcı
           </span>
         ),
       },
