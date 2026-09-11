@@ -18,43 +18,92 @@ export const BILLING_WHATSAPP = "0538 927 57 28";
 
 export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
 
-export type BillingPlan = {
-  id: "aylik" | "yillik";
-  label: string;
-  /** Dönem bedeli (TL). */
-  price: number;
-  /** "ay" / "yıl" — fiyatın yanında gösterilir. */
-  period: string;
-  /** Bu ödemenin karşılığı olan gün sayısı; yönetim ekranındaki uzatma ile aynı. */
-  days: number;
+export type BillingPeriod = "aylik" | "yillik";
+
+export type BillingPackage = {
+  id: "tek_salon" | "coklu_salon";
+  name: string;
+  note: string;
+  features: string[];
+  /** Aylık ödeme bedeli (TL). Yıllık bedel bundan türetiliyor. */
+  monthlyPrice: number;
+  /** Öne çıkarılan paket. */
+  featured?: boolean;
 };
 
 /**
- * Abonelik planları.
+ * Yıllık ödemede alınmayan ay sayısı. Yıllık bedel = aylık × (12 − bu sayı).
  *
- * Tek pakette tutuldu: salon sayısı veya kullanıcı sayısına göre kademe YOK,
- * çünkü sistem o limitleri hiçbir yerde denetlemiyor. Denetlenmeyen bir limiti
- * fiyat listesinde söz vermek, tutulmayacak bir söz olur.
- *
- * Yıllıkta 12 ay yerine 10 ay ücreti alınıyor (2 ay ücretsiz).
+ * Tek yerde: "2 ay ücretsiz" metni ile gösterilen rakamın aynı hesaptan
+ * gelmesi gerekiyor, yoksa metin ile fiyat birbirini tutmaz.
  */
-export const BILLING_PLANS: BillingPlan[] = [
-  { id: "aylik", label: "Aylık", price: 500, period: "ay", days: 30 },
-  { id: "yillik", label: "Yıllık", price: 5000, period: "yıl", days: 365 },
+export const FREE_MONTHS_YEARLY = 2;
+
+/**
+ * Abonelik paketleri.
+ *
+ * Aynı liste hem satış sayfasında hem uygulama içindeki abonelik sayfasında
+ * kullanılıyor. İki yerde ayrı yazılsaydı biri güncellenmeyip müşteriye iki
+ * farklı fiyat gösterilebilirdi.
+ *
+ * DİKKAT: Buradaki salon/kullanıcı limitleri sistemde DENETLENMİYOR; şu an
+ * yalnızca fiyat listesi metni.
+ */
+export const BILLING_PACKAGES: BillingPackage[] = [
+  {
+    id: "tek_salon",
+    name: "Tek Salon",
+    monthlyPrice: 500,
+    note: "Tek salonu olan işletmeler için.",
+    features: [
+      "1 salon, 3 kullanıcı",
+      "Takvim ve rezervasyon",
+      "Tahsilat ve ödeme planı",
+      "Sözleşme ve teklif çıktısı",
+    ],
+  },
+  {
+    id: "coklu_salon",
+    name: "Çoklu Salon",
+    monthlyPrice: 1000,
+    note: "Birden fazla salon ve bahçe işletenler için.",
+    featured: true,
+    features: [
+      "Sınırsız salon, 10 kullanıcı",
+      "Tek Salon'daki her şey",
+      "Organizasyon bazlı kârlılık",
+      "Gider kategorileri ve raporlar",
+      "Rol bazlı finans kısıtı",
+    ],
+  },
 ];
 
-/** Yıllık ödemede kalan tutar — "2 ay ücretsiz" iddiasını hesapla doğruluyor. */
-export function yearlySaving(): number {
-  const aylik = BILLING_PLANS.find((p) => p.id === "aylik");
-  const yillik = BILLING_PLANS.find((p) => p.id === "yillik");
-  if (!aylik || !yillik) return 0;
-  return aylik.price * 12 - yillik.price;
+export const PERIOD_LABELS: Record<BillingPeriod, string> = {
+  aylik: "Aylık",
+  yillik: "Yıllık",
+};
+
+/** Fiyatın yanında görünen dönem eki. */
+export const PERIOD_SUFFIX: Record<BillingPeriod, string> = {
+  aylik: "/ ay",
+  yillik: "/ yıl",
+};
+
+/** Seçilen dönemin bedeli. */
+export function packagePrice(pkg: BillingPackage, period: BillingPeriod): number {
+  return period === "yillik"
+    ? pkg.monthlyPrice * (12 - FREE_MONTHS_YEARLY)
+    : pkg.monthlyPrice;
 }
 
-/** Yıllık ödemenin aya bölünmüş karşılığı. */
-export function yearlyMonthlyEquivalent(): number {
-  const yillik = BILLING_PLANS.find((p) => p.id === "yillik");
-  return yillik ? Math.round(yillik.price / 12) : 0;
+/** Yıllık ödemenin aya bölünmüş karşılığı — kıyaslamayı kolaylaştırır. */
+export function monthlyEquivalent(pkg: BillingPackage): number {
+  return Math.round(packagePrice(pkg, "yillik") / 12);
+}
+
+/** Yıllık ödemede cepte kalan tutar. */
+export function yearlySaving(pkg: BillingPackage): number {
+  return pkg.monthlyPrice * 12 - packagePrice(pkg, "yillik");
 }
 
 export type SubscriptionInfo = {
@@ -126,8 +175,8 @@ export function subscriptionWhatsAppMessage({
   businessName: string;
   referenceCode: string;
   email: string | null;
-  /** Seçilen plan; verilmezse mesajda dönem belirtilmez. */
-  plan?: BillingPlan;
+  /** Seçilen paket ve dönem; verilmezse mesajda plan belirtilmez. */
+  plan?: { pkg: BillingPackage; period: BillingPeriod };
 }): string {
   const acilis =
     state === "sona_erdi"
@@ -140,7 +189,12 @@ export function subscriptionWhatsAppMessage({
   if (email) satirlar.push(`Hesap: ${email}`);
   // Hangi dönemi istediği mesajda yazılı olsun; yazışmada tekrar sormaya gerek
   // kalmıyor ve süre uzatılırken kaç gün ekleneceği net.
-  if (plan) satirlar.push(`Plan: ${plan.label} (${plan.price} TL / ${plan.period})`);
+  if (plan) {
+    const bedel = packagePrice(plan.pkg, plan.period);
+    satirlar.push(
+      `Plan: ${plan.pkg.name} — ${PERIOD_LABELS[plan.period]} (${bedel} TL)`,
+    );
+  }
   return satirlar.join("\n");
 }
 

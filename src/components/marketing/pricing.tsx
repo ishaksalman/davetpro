@@ -2,12 +2,27 @@ import { Check } from "lucide-react";
 import { PillLink } from "@/components/marketing/site-header";
 import { Reveal } from "@/components/marketing/reveal";
 import { cn } from "@/lib/utils";
-import { TRIAL_DAYS } from "@/lib/subscription";
+import { formatMoney } from "@/lib/format";
+import {
+  BILLING_PACKAGES,
+  FREE_MONTHS_YEARLY,
+  TRIAL_DAYS,
+} from "@/lib/subscription";
+
+/**
+ * Fiyatlar BILLING_PACKAGES'tan geliyor; uygulama içindeki abonelik sayfası da
+ * aynı listeyi kullanıyor. İki yerde ayrı yazılsaydı biri güncellenmeyip
+ * müşteriye iki farklı rakam gösterilebilirdi — bir süre öyle oldu.
+ */
+const fiyat = (id: string) => {
+  const paket = BILLING_PACKAGES.find((p) => p.id === id);
+  return paket ? formatMoney(paket.monthlyPrice) : "—";
+};
 
 const PLANS = [
   {
     name: "Tek Salon",
-    price: "₺1.490",
+    price: fiyat("tek_salon"),
     note: "Tek salonu olan işletmeler için.",
     features: [
       "1 salon, 3 kullanıcı",
@@ -19,7 +34,7 @@ const PLANS = [
   },
   {
     name: "Çoklu Salon",
-    price: "₺2.890",
+    price: fiyat("coklu_salon"),
     note: "Birden fazla salon ve bahçe işletenler için.",
     featured: true,
     features: [
@@ -59,7 +74,8 @@ export function Pricing() {
           </h2>
           <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">
             {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. Aylık, KDV
-            hariç fiyatlardır; istediğiniz zaman iptal edebilirsiniz.
+            hariç fiyatlardır; yıllık ödemede {FREE_MONTHS_YEARLY} ay ücretsiz.
+            İstediğiniz zaman iptal edebilirsiniz.
           </p>
         </Reveal>
 

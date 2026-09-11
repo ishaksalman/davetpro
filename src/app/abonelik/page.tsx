@@ -10,13 +10,12 @@ import { requireSessionAllowExpired } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { formatDate } from "@/lib/format";
 import {
-  BILLING_PLANS,
   BILLING_WHATSAPP,
   TRIAL_DAYS,
   subscriptionWhatsAppLink,
   type SubscriptionInfo,
 } from "@/lib/subscription";
-import { PlanCard } from "./plan-card";
+import { PlanSelector } from "./plan-selector";
 
 export const metadata: Metadata = {
   title: "Abonelik",
@@ -87,26 +86,16 @@ export default async function AbonelikPage() {
 
         <Separator className="my-6" />
 
-        <h2 className="text-sm font-semibold">Ödeme planı</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {BILLING_PLANS.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              href={
-                subscription
-                  ? subscriptionWhatsAppLink({
-                      state: subscription.state,
-                      businessName: business.name,
-                      referenceCode: subscription.referenceCode,
-                      email: user.email,
-                      plan,
-                    })
-                  : null
-              }
-            />
-          ))}
-        </div>
+        {/* Abonelik okunamadıysa paket göstermiyoruz: hangi duruma göre
+            yazılacağı belli değil, uydurulmuş bir teklif olurdu. */}
+        {subscription && (
+          <PlanSelector
+            state={subscription.state}
+            businessName={business.name}
+            referenceCode={subscription.referenceCode}
+            email={user.email}
+          />
+        )}
 
         <Separator className="my-6" />
 
