@@ -20,6 +20,7 @@ import { BrandIcon } from "@/components/brand/logo";
 import { ShieldCheck } from "lucide-react";
 import { NAV_GROUPS } from "./nav-items";
 import { UserMenu } from "./user-menu";
+import type { SubscriptionInfo } from "@/lib/subscription";
 import type { Business, Profile } from "@/lib/database.types";
 
 export function AppSidebar({
@@ -28,11 +29,15 @@ export function AppSidebar({
   email,
   showFinance,
   isPlatformAdmin,
+  subscription,
+  canManageBilling,
 }: {
   profile: Profile;
   business: Business;
   email: string;
   showFinance: boolean;
+  subscription: SubscriptionInfo | null;
+  canManageBilling: boolean;
   /** Uygulamayı işleten taraf — kiracı rolleriyle ilgisi yok. */
   isPlatformAdmin: boolean;
 }) {
@@ -118,7 +123,12 @@ export function AppSidebar({
       </SidebarContent>
 
       <SidebarFooter className="border-t p-2">
-        <UserMenu profile={profile} email={email} />
+        <UserMenu
+          profile={profile}
+          email={email}
+          subscription={subscription}
+          canManageBilling={canManageBilling}
+        />
       </SidebarFooter>
     </Sidebar>
   );

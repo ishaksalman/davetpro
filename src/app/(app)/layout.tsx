@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireSession, canSeeFinance } from "@/lib/auth";
+import { requireSession, canSeeFinance, isAdmin } from "@/lib/auth";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SubscriptionNotice } from "@/components/layout/subscription-notice";
@@ -29,6 +29,8 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         email={user.email ?? ""}
         showFinance={canSeeFinance(profile)}
         isPlatformAdmin={isPlatformAdmin}
+        subscription={subscription}
+        canManageBilling={isAdmin(profile)}
       />
       <SidebarInset className="min-w-0">
         {uyari && (

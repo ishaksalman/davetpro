@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, KeyRound, LogOut, Settings } from "lucide-react";
+import { CalendarClock, ChevronsUpDown, KeyRound, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -14,11 +14,38 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { USER_ROLE_LABELS } from "@/lib/constants";
 import { initials } from "@/lib/format";
+import type { SubscriptionInfo } from "@/lib/subscription";
 import type { Profile } from "@/lib/database.types";
 import { logoutAction } from "@/app/(auth)/actions";
 import { ChangePasswordDialog } from "./change-password-dialog";
 
-export function UserMenu({ profile, email }: { profile: Profile; email: string }) {
+/**
+ * Kalan süre bu eşiğin altındaysa menüde gün sayısı da yazılıyor.
+ * Üstünde yazmıyoruz: yıllık abonelikte "3650 gün" bilgi değil gürültü.
+ */
+const GUN_GOSTERME_ESIGI = 60;
+
+export function UserMenu({
+  profile,
+  email,
+  subscription,
+  canManageBilling,
+}: {
+  profile: Profile;
+  email: string;
+  /** Okunamadıysa null — menüde abonelik satırı gösterilmez. */
+  subscription: SubscriptionInfo | null;
+  /**
+   * Abonelik yöneticinin işi; personel için hem ilgisiz hem yanıltıcı. Süre
+   * dolduğunda zaten herkes abonelik sayfasına yönlendiriliyor.
+   *
+   * Yetki sunucuda hesaplanıp geçiliyor (showFinance ile aynı desen): isAdmin()
+   * auth.ts içinde ve o modül sunucuya bağlı.
+   */
+  canManageBilling: boolean;
+}) {
+  const abonelikGoster = subscription && canManageBilling;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -52,6 +79,21 @@ export function UserMenu({ profile, email }: { profile: Profile; email: string }
                 Ayarlar
               </Link>
             </DropdownMenuItem>
+            {abonelikGoster && (
+              <DropdownMenuItem asChild>
+                <Link href="/abonelik">
+                  <CalendarClock />
+                  Abonelik
+                  {subscription.daysLeft <= GUN_GOSTERME_ESIGI && (
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {subscription.daysLeft === 0
+                        ? "bugün"
+                        : `${subscription.daysLeft} gün`}
+                    </span>
+                  )}
+                </Link>
+              </DropdownMenuItem>
+            )}
             {/* onSelect engellenmezse menü kapanırken pencere de kapanıyor. */}
             <ChangePasswordDialog
               trigger={
