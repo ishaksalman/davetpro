@@ -18,32 +18,35 @@ export const BILLING_WHATSAPP = "0538 927 57 28";
 
 export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
 
-export type BillingPeriod = "aylik" | "yillik";
-
 /**
- * Fiyatlandırma: TEK PAKET, tüm özellikler açık.
+ * Fiyatlandırma: TEK PAKET, TEK DÖNEM — yıllık.
  *
  * NEDEN KADEME YOK: kademe, her yeni özellikte "bu hangi pakette" sorusunu,
  * yükseltme yolunu, limit denetimini ve satışta bir açıklamayı beraberinde
- * getiriyor. Bunun karşılığı ancak çok müşteride çıkar. Ayrıca bu modül
- * ürüne özel hiçbir şey içermiyor; başka ürünlere olduğu gibi taşınabilsin
- * diye sade tutuldu.
+ * getiriyor. Karşılığı ancak çok müşteride çıkar. Bu modül ürüne özel hiçbir
+ * şey içermiyor; başka ürünlere olduğu gibi taşınabilsin diye sade tutuldu.
  *
- * NEDEN SALON SAYISINA GÖRE DEĞİL: ödeme havale ile alınıp elle onaylandığı
- * için dönem ortasında salon eklenince tutarın değişmesi her seferinde
- * yazışma demekti. Sabit rakamda herkes her dönem aynı parayı yatırıyor.
- * Salon sayısı yine /yonetim ekranında görünüyor — Kurumsal adayını
- * fark etmek için.
+ * NEDEN AYLIK YOK: ödeme havale ile alınıp elle onaylanıyor. Aylıkta bir
+ * müşteri için yılda on iki kez yazışıp onaylamak gerekirdi. Yıllık peşin
+ * ayrıca bırakma oranını düşürüyor. Sektördeki iki rakip de yalnızca yıllık
+ * satıyor.
+ *
+ * NEDEN SALON SAYISINA GÖRE DEĞİL: dönem ortasında salon eklenince tutarın
+ * değişmesi, elle tahsilatta her seferinde yazışma demekti. Salon sayısı yine
+ * /yonetim listesinde görünüyor — Kurumsal adayını fark etmek için.
  */
 
-/** Aylık bedel. Yıllık bundan türetilir. */
-export const MONTHLY_PRICE = 600;
+/** Yıllık abonelik bedeli. */
+export const YEARLY_PRICE = 6000;
+
+/** Bir yıllık erişimin gün karşılığı — yönetim ekranındaki uzatma ile aynı. */
+export const YEARLY_DAYS = 365;
 
 /**
- * Yıllık ödemede alınmayan ay sayısı. Yıllık bedel = aylık × (12 − bu sayı).
- * Tek yerde: "2 ay ücretsiz" metni ile fiyatın aynı hesaptan gelmesi gerekiyor.
+ * Aylığa bölünmüş karşılık. Satışta rakamı küçültmek için gösteriliyor;
+ * aylık ödeme seçeneği YOK, bu yalnızca bir kıyas.
  */
-export const FREE_MONTHS_YEARLY = 2;
+export const MONTHLY_EQUIVALENT = Math.round(YEARLY_PRICE / 12);
 
 /** Pakete dahil olan her şey — satış sayfası ve abonelik sayfası aynı listeyi kullanır. */
 export const PLAN_FEATURES = [
@@ -55,30 +58,6 @@ export const PLAN_FEATURES = [
   "Gider kategorileri ve raporlar",
   "Rol bazlı finans kısıtı",
 ];
-
-export const PERIOD_LABELS: Record<BillingPeriod, string> = {
-  aylik: "Aylık",
-  yillik: "Yıllık",
-};
-
-/** Fiyatın yanında görünen dönem eki. */
-export const PERIOD_SUFFIX: Record<BillingPeriod, string> = {
-  aylik: "/ ay",
-  yillik: "/ yıl",
-};
-
-/** Yıllık bedel, aylıktan türetilir. */
-export const YEARLY_PRICE = MONTHLY_PRICE * (12 - FREE_MONTHS_YEARLY);
-
-export function priceFor(period: BillingPeriod): number {
-  return period === "yillik" ? YEARLY_PRICE : MONTHLY_PRICE;
-}
-
-/** Yıllık ödemenin aya bölünmüş karşılığı — kıyaslamayı kolaylaştırır. */
-export const YEARLY_MONTHLY_EQUIVALENT = Math.round(YEARLY_PRICE / 12);
-
-/** Yıllık ödemede cepte kalan tutar. */
-export const YEARLY_SAVING = MONTHLY_PRICE * 12 - YEARLY_PRICE;
 
 export type SubscriptionInfo = {
   state: SubscriptionState;
@@ -143,14 +122,14 @@ export function subscriptionWhatsAppMessage({
   businessName,
   referenceCode,
   email,
-  plan,
+  withPlan,
 }: {
   state: SubscriptionState;
   businessName: string;
   referenceCode: string;
   email: string | null;
-  /** Seçilen dönem; verilmezse mesajda plan belirtilmez. */
-  plan?: { period: BillingPeriod };
+  /** true ise mesajda yıllık abonelik bedeli de yazılır. */
+  withPlan?: boolean;
 }): string {
   const acilis =
     state === "sona_erdi"
@@ -163,11 +142,7 @@ export function subscriptionWhatsAppMessage({
   if (email) satirlar.push(`Hesap: ${email}`);
   // Hangi dönemi istediği mesajda yazılı olsun; yazışmada tekrar sormaya gerek
   // kalmıyor ve süre uzatılırken kaç gün ekleneceği net.
-  if (plan) {
-    satirlar.push(
-      `Plan: ${PERIOD_LABELS[plan.period]} (${priceFor(plan.period)} TL)`,
-    );
-  }
+  if (withPlan) satirlar.push(`Plan: Yıllık (${YEARLY_PRICE} TL)`);
   return satirlar.join("\n");
 }
 

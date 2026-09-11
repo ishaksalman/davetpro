@@ -167,7 +167,9 @@ abonelik kontrolünün yazma politikalarına girmesi gerekir.
 ekleniyor. `reference_code` havale açıklamasına yazılıyor — gelen ödemeyi
 işletmeye bağlayan tek bilgi o.
 
-**Tek paket, tüm özellikler açık** (`src/lib/subscription.ts`). Kademe yok:
+**Tek paket, yalnızca yıllık** (`src/lib/subscription.ts`). Aylık seçenek yok:
+ödeme elle onaylandığı için aylıkta bir müşteri için yılda on iki kez yazışmak
+gerekirdi; yıllık peşin ayrıca bırakma oranını düşürüyor. Kademe de yok:
 her yeni özellikte "bu hangi pakette" sorusunu, yükseltme yolunu ve limit
 denetimini beraberinde getiriyor; bunun karşılığı ancak çok müşteride çıkar.
 Salon sayısına göre de fiyatlanmıyor — ödeme elle onaylandığı için dönem

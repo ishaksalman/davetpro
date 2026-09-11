@@ -7,15 +7,21 @@ import { Input } from "@/components/ui/input";
 import { FormDialog, FormField, type TriggerButton } from "@/components/shared/form-dialog";
 import { formatDate } from "@/lib/format";
 import { extendAccessSchema, type ExtendAccessInput } from "@/lib/schemas";
+import { YEARLY_DAYS } from "@/lib/subscription";
 import type { AdminBusinessRow } from "@/lib/database.types";
 import { extendAccess } from "./actions";
 
-/** Hazır süreler — elle yazmak yerine tek tık. */
+/**
+ * Hazır süreler — elle yazmak yerine tek tık.
+ *
+ * Satılan tek şey yıllık abonelik; kısa süreler jest veya telafi için
+ * (gecikmiş havale, yaşanan bir aksaklık) duruyor.
+ */
 const KISAYOLLAR = [
+  { days: 7, label: "1 hafta" },
   { days: 30, label: "1 ay" },
   { days: 90, label: "3 ay" },
-  { days: 180, label: "6 ay" },
-  { days: 365, label: "12 ay" },
+  { days: YEARLY_DAYS, label: "1 yıl" },
 ];
 
 export function ExtendAccessDialog({
@@ -29,7 +35,8 @@ export function ExtendAccessDialog({
 }) {
   const defaultValues: ExtendAccessInput = {
     business_id: row.business_id,
-    days: 30,
+    // Satılan şey yıllık abonelik; varsayılan da o olsun.
+    days: YEARLY_DAYS,
     note: "",
   };
 

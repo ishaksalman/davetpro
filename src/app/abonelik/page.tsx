@@ -15,7 +15,7 @@ import {
   subscriptionWhatsAppLink,
   type SubscriptionInfo,
 } from "@/lib/subscription";
-import { PlanSelector } from "./plan-selector";
+import { PlanCard } from "./plan-card";
 
 export const metadata: Metadata = {
   title: "Abonelik",
@@ -89,7 +89,7 @@ export default async function AbonelikPage() {
         {/* Abonelik okunamadıysa paket göstermiyoruz: hangi duruma göre
             yazılacağı belli değil, uydurulmuş bir teklif olurdu. */}
         {subscription && (
-          <PlanSelector
+          <PlanCard
             state={subscription.state}
             businessName={business.name}
             referenceCode={subscription.referenceCode}

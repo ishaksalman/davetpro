@@ -4,8 +4,7 @@ import { Reveal } from "@/components/marketing/reveal";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import {
-  FREE_MONTHS_YEARLY,
-  MONTHLY_PRICE,
+  MONTHLY_EQUIVALENT,
   PLAN_FEATURES,
   TRIAL_DAYS,
   YEARLY_PRICE,
@@ -21,9 +20,9 @@ import {
 const PLANS = [
   {
     name: "DavetPro",
-    price: formatMoney(MONTHLY_PRICE),
-    period: "/ ay",
-    note: `Yıllık ödeyin ${formatMoney(YEARLY_PRICE)}, ${FREE_MONTHS_YEARLY} ay ücretsiz.`,
+    price: formatMoney(YEARLY_PRICE),
+    period: "/ yıl",
+    note: `365 gün, tek ödeme. Ayda ${formatMoney(MONTHLY_EQUIVALENT)}'ye denk geliyor.`,
     featured: true,
     features: PLAN_FEATURES,
     cta: "Ücretsiz deneyin",
@@ -55,9 +54,8 @@ export function Pricing() {
             Bir düğünün kaporasından az.
           </h2>
           <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">
-            {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. Aylık, KDV
-            hariç fiyatlardır; yıllık ödemede {FREE_MONTHS_YEARLY} ay ücretsiz.
-            İstediğiniz zaman iptal edebilirsiniz.
+            {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. Yıllık, KDV
+            hariç fiyattır; istediğiniz zaman iptal edebilirsiniz.
           </p>
         </Reveal>
 
@@ -92,7 +90,9 @@ export function Pricing() {
                   )}
                 >
                   <span className="tabular">{plan.price}</span>
-                  {plan.price !== "Teklif" && (
+                  {/* Dönem eki plandan geliyor; sabit "/ ay" yazılıydı ve
+                      fiyat yıllığa çevrildiğinde yanlış kalıyordu. */}
+                  {plan.period && (
                     <span
                       className={cn(
                         "text-[0.875rem] font-normal",
@@ -100,7 +100,7 @@ export function Pricing() {
                       )}
                     >
                       {" "}
-                      / ay
+                      {plan.period}
                     </span>
                   )}
                 </p>
