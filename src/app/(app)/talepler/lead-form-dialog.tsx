@@ -289,13 +289,18 @@ export function LeadFormDialog({
         </FormField>
 
 
-        <FormField form={form} name="start_time" label="Başlangıç saati">
-          <Input id="start_time" type="time" {...form.register("start_time")} />
-        </FormField>
+        {/* İkisi tek hücrede: saat alanı beş karakterlik bir içerik için
+            formun yarısını kaplıyordu. Yan yana durunca hem aralık tek
+            bakışta okunuyor hem genişlik içerikle orantılı oluyor. */}
+        <div className="grid grid-cols-2 gap-3">
+          <FormField form={form} name="start_time" label="Başlangıç">
+            <Input id="start_time" type="time" {...form.register("start_time")} />
+          </FormField>
 
-        <FormField form={form} name="end_time" label="Bitiş saati">
-          <Input id="end_time" type="time" {...form.register("end_time")} />
-        </FormField>
+          <FormField form={form} name="end_time" label="Bitiş">
+            <Input id="end_time" type="time" {...form.register("end_time")} />
+          </FormField>
+        </div>
 
         {/* Saat aralığı tamamlandığı anda sonuç hemen altında çıkıyor;
             eksik saatle spekülatif sorgu atılmıyor. */}
