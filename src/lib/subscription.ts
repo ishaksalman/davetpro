@@ -51,7 +51,7 @@ export const MONTHLY_EQUIVALENT = Math.round(YEARLY_PRICE / 12);
 /** Pakete dahil olan her şey — satış sayfası ve abonelik sayfası aynı listeyi kullanır. */
 export const PLAN_FEATURES = [
   "Sınırsız salon ve kullanıcı",
-  "Takvim, rezervasyon ve görüşme takibi",
+  "Takvim, rezervasyon ve talep takibi",
   "Tahsilat planı ve kalan tutar takibi",
   "Teklif ve sözleşme çıktısı",
   "Organizasyon bazlı kârlılık",

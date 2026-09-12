@@ -15,7 +15,7 @@ import { FollowUpStrip } from "./follow-up-strip";
 import { LeadBoard } from "./lead-board";
 import { LeadFormDialog } from "./lead-form-dialog";
 
-export const metadata: Metadata = { title: "Görüşmeler" };
+export const metadata: Metadata = { title: "Talepler" };
 
 export default async function LeadsPage() {
   await requireSession();
@@ -41,7 +41,7 @@ export default async function LeadsPage() {
   return (
     <>
       <PageHeader
-        title="Görüşmeler"
+        title="Talepler"
         description={`${open.length} açık talep · ${rows.length} kayıt`}
         actions={
           <LeadFormDialog

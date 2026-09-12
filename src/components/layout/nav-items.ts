@@ -26,7 +26,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/panel", label: "Dashboard", icon: LayoutDashboard },
       { href: "/takvim", label: "Takvim", icon: CalendarDays },
-      { href: "/talepler", label: "Görüşmeler", icon: MessagesSquare },
+      { href: "/talepler", label: "Talepler", icon: MessagesSquare },
       { href: "/rezervasyonlar", label: "Rezervasyonlar", icon: Store },
       { href: "/musteriler", label: "Müşteriler", icon: Users },
     ],

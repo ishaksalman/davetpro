@@ -86,7 +86,7 @@ export default async function LeadDetailPage({
   if (leadResult.error) {
     return (
       <>
-        <PageHeader title="Talep" back={{ href: "/talepler", label: "Görüşmeler" }} />
+        <PageHeader title="Talep" back={{ href: "/talepler", label: "Talepler" }} />
         <PageBody>
           <ErrorState message={leadResult.error} />
         </PageBody>
@@ -115,7 +115,7 @@ export default async function LeadDetailPage({
             ? `${formatDateLong(lead.event_date)}${lead.venue ? ` · ${lead.venue.name}` : ""}`
             : "Tarih henüz belirsiz"
         }
-        back={{ href: "/talepler", label: "Tüm görüşmeler" }}
+        back={{ href: "/talepler", label: "Tüm talepler" }}
         actions={
           <LeadActions
             lead={lead}
