@@ -6,7 +6,7 @@ import { formatDate, formatTimeRange } from "@/lib/format";
 import { relativeDay } from "@/lib/relative-date";
 import { SCHEMA_OUTDATED_MESSAGE } from "@/lib/errors";
 import type { VenueAvailability } from "@/lib/database.types";
-import { checkAvailability } from "./actions";
+import { checkAvailability } from "@/lib/availability-actions";
 
 type Outcome =
   | { key: string; ok: true; rows: VenueAvailability[] }
@@ -26,6 +26,7 @@ export function AvailabilityCheck({
   endTime,
   venueId,
   ignoreLeadId,
+  ignoreReservationId,
   onConflictChange,
 }: {
   eventDate: string | null;
@@ -34,6 +35,8 @@ export function AvailabilityCheck({
   venueId: string | null;
   /** Düzenlenen talebin kendi opsiyonu çakışma sayılmasın. */
   ignoreLeadId?: string | null;
+  /** Düzenlenen rezervasyon kendi kendisiyle çakışıyor görünmesin. */
+  ignoreReservationId?: string | null;
   /** Seçilen salonun dolu olup olmadığını üst forma bildirir. */
   onConflictChange?: (conflict: VenueAvailability | null) => void;
 }) {
@@ -47,24 +50,25 @@ export function AvailabilityCheck({
   // yanıltıcı olur. Gün bazlı denetim sunucu tarafında zaten duruyor —
   // saatsiz kaydetmeye çalışırsanız trigger engelliyor.
   const ready = Boolean(eventDate && startTime && endTime);
-  const key = `${eventDate}|${startTime}|${endTime}|${ignoreLeadId ?? ""}`;
+  const key = `${eventDate}|${startTime}|${endTime}|${ignoreLeadId ?? ""}|${ignoreReservationId ?? ""}`;
 
   useEffect(() => {
     if (!ready) return;
     startTransition(async () => {
-      const response = await checkAvailability(
-        eventDate!,
-        startTime!,
-        endTime!,
+      const response = await checkAvailability({
+        eventDate: eventDate!,
+        startTime: startTime!,
+        endTime: endTime!,
         ignoreLeadId,
-      );
+        ignoreReservationId,
+      });
       setOutcome(
         response.error
           ? { key, ok: false, error: response.error }
           : { key, ok: true, rows: response.rows },
       );
     });
-  }, [ready, key, eventDate, startTime, endTime, ignoreLeadId]);
+  }, [ready, key, eventDate, startTime, endTime, ignoreLeadId, ignoreReservationId]);
 
   const current = outcome?.key === key ? outcome : null;
   const rows = current?.ok ? current.rows : null;

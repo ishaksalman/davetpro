@@ -687,5 +687,51 @@ await step('işletme silinince abonelik de siliniyor', async () => {
   if (sonra !== once - 1) throw new Error(`${once} → ${sonra}`)
 })
 
+console.log('\n\x1b[1m14) Müsaitlik: düzenlenen rezervasyonu atlama\x1b[0m')
+
+await as(U.ownerA)
+const MV = (await db.query(`insert into venues (name) values ('Müsaitlik Salonu') returning id`)).rows[0].id
+const MC1 = (await db.query(`insert into customers (full_name, phone) values ('Elif & Serkan','05001110001') returning id`)).rows[0].id
+const MC2 = (await db.query(`insert into customers (full_name, phone) values ('Ayşe & Can','05001110002') returning id`)).rows[0].id
+
+const MR = (await db.query(
+  `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-03-06','19:00','23:00',null,null,120000,0,null,null) id`,
+  [MC1, MV])).rows[0].id
+
+const musait = async (ignore) => (await db.query(
+  `select is_available, severity, conflict_label
+     from venue_availability('2027-03-06','19:00','23:00', null, $1) where venue_id = $2`,
+  [ignore, MV])).rows[0]
+
+await step('kendi kaydı hariç tutulmazsa ÇAKIŞMA görünüyor', async () => {
+  const r = await musait(null)
+  if (r.is_available !== false || r.severity !== 'engel') {
+    throw new Error(JSON.stringify(r))
+  }
+})
+
+await step('kendi kaydı hariç tutulunca müsait görünüyor', async () => {
+  const r = await musait(MR)
+  if (r.is_available !== true || r.severity !== null) throw new Error(JSON.stringify(r))
+})
+
+// Hariç tutma yalnızca O kaydı atlamalı; başkasının kaydını gizlememeli.
+//
+// Komşu 10:00-13:00 seçildi: mevcut 19:00 kaydına 6 saat uzak olduğu için
+// veritabanı eklemeye izin veriyor. Sorgu ise 13:30-17:00 — komşuya 30 dakika
+// kalıyor, yani asgari 60 dakikanın altında.
+await step('kendini atlamak BAŞKA rezervasyonu gizlemiyor', async () => {
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-03-06','10:00','13:00',null,null,50000,0,null,null)`,
+    [MC2, MV])
+  const r = (await db.query(
+    `select is_available, severity, conflict_label
+       from venue_availability('2027-03-06','13:30','17:00', null, $1) where venue_id = $2`,
+    [MR, MV])).rows[0]
+  if (r.is_available !== false || r.conflict_label !== 'Ayşe & Can') {
+    throw new Error(JSON.stringify(r))
+  }
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

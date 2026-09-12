@@ -21,7 +21,7 @@ import { formatDate, formatMoney, toNumber } from "@/lib/format";
 import { convertLeadSchema, type ConvertLeadInput } from "@/lib/schemas";
 import type { Package, Quote, Venue, VenueHold } from "@/lib/database.types";
 import type { LeadRow } from "@/lib/leads";
-import { AvailabilityCheck } from "../availability-check";
+import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { convertLead } from "../actions";
 
 /**

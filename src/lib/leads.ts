@@ -285,20 +285,33 @@ function leadEndsAt(date: string, start: string, end: string): string {
  * Salon müsaitliği. Kaynak yine rezervasyonlar ve aktif opsiyonlar; ayrı bir
  * müsaitlik defteri tutulmuyor.
  */
-export async function getVenueAvailability(
-  eventDate: string,
+export type AvailabilityQuery = {
+  eventDate: string;
   /** Boşsa günün tamamı kontrol edilir. */
-  startTime: string | null,
-  endTime: string | null,
+  startTime: string | null;
+  endTime: string | null;
   /** Düzenlenen talebin kendi opsiyonu "dolu" görünmesin. */
-  ignoreLeadId?: string | null,
-): Promise<{ rows: VenueAvailability[]; error: string | null }> {
+  ignoreLeadId?: string | null;
+  /** Düzenlenen rezervasyon kendi kendisiyle çakışıyor görünmesin. */
+  ignoreReservationId?: string | null;
+};
+
+// Konumsal parametre yerine nesne: beş parametrenin dördü opsiyonel ve
+// üçü aynı tipte, sırayı karıştırmak sessizce yanlış sonuç verirdi.
+export async function getVenueAvailability({
+  eventDate,
+  startTime,
+  endTime,
+  ignoreLeadId,
+  ignoreReservationId,
+}: AvailabilityQuery): Promise<{ rows: VenueAvailability[]; error: string | null }> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("venue_availability", {
     p_event_date: eventDate,
     p_start_time: startTime || null,
     p_end_time: endTime || null,
     p_ignore_lead_id: ignoreLeadId ?? null,
+    p_ignore_reservation_id: ignoreReservationId ?? null,
   });
 
   // Ham PostgREST metni kullanıcıya gösterilmez; hata yutulmaz da.

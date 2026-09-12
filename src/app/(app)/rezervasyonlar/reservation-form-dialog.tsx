@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { Combobox } from "@/components/shared/combobox";
 import { CustomerFormDialog } from "../musteriler/customer-form-dialog";
 import { DatePicker } from "@/components/shared/date-picker";
@@ -37,6 +38,7 @@ import type {
   Reservation,
   ReservationPricing,
   Venue,
+  VenueAvailability,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
 
@@ -85,7 +87,13 @@ export function ReservationFormDialog({
   const defaultValues: FormValues = {
     id: reservation?.id,
     customer_id: reservation?.customer_id ?? "",
-    venue_id: reservation?.venue_id ?? defaults?.venue_id ?? activeVenues[0]?.id ?? "",
+    // Salon yalnızca TEK salon varsa otomatik seçiliyor. Birden fazlaysa
+    // seçilmiş gelmesi, kullanıcının farkında olmadan yanlış salona kayıt
+    // açmasına yol açıyordu — üstelik müsaitlik de o salona göre sorgulanır.
+    venue_id:
+      reservation?.venue_id ??
+      defaults?.venue_id ??
+      (activeVenues.length === 1 ? activeVenues[0].id : ""),
     package_id: reservation?.package_id ?? "none",
     organization_type: reservation?.organization_type ?? "dugun",
     // Durum formda seçilmiyor: satış hattı Talepler'de, rezervasyon
@@ -124,6 +132,17 @@ export function ReservationFormDialog({
   // engelliyor. Düzenlemede mevcut paket, kuralı bozsa bile listede kalır ki
   // kayıt açılır açılmaz sessizce değişmesin.
   const selectedVenue = form.watch("venue_id");
+  const eventDate = form.watch("event_date");
+  const startTime = form.watch("start_time");
+  const endTime = form.watch("end_time");
+
+  // Asıl engel veritabanı trigger'ında; bu, kullanıcıyı formu göndermeden önce
+  // durdurup nedeni göstermek için.
+  const [conflict, setConflict] = useState<VenueAvailability | null>(null);
+  const handleConflict = useCallback(
+    (next: VenueAvailability | null) => setConflict(next),
+    [],
+  );
   const selectablePackages = activePackages.filter(
     (p) =>
       !p.venue_id ||
@@ -181,6 +200,16 @@ export function ReservationFormDialog({
       defaultValues={defaultValues}
       action={saveReservation}
       successMessage={isEdit ? "Rezervasyon güncellendi." : "Rezervasyon oluşturuldu."}
+      submitBlockedReason={
+        // Kart neyi söylüyorsa düğmenin yanında da o yazsın.
+        conflict
+          ? conflict.gap_minutes !== null
+            ? "İki organizasyon arasında en az 1 saat olmalı."
+            : conflict.conflict_kind === "opsiyon"
+              ? "Seçilen salon ve saat opsiyonlu. Farklı bir tarih veya salon seçin."
+              : "Seçilen salon ve saatte kesin rezervasyon var. Farklı bir tarih veya salon seçin."
+          : null
+      }
       contentClassName="sm:max-w-2xl"
     >
       <FormField form={form} name="customer_id" label="Müşteri">
@@ -289,6 +318,19 @@ export function ReservationFormDialog({
           <FormField form={form} name="end_time" label="Bitiş">
             <Input id="end_time" type="time" {...form.register("end_time")} />
           </FormField>
+        </div>
+
+        {/* Saat aralığı tamamlandığı anda sonuç hemen altında çıkıyor;
+            eksik saatle spekülatif sorgu atılmıyor. */}
+        <div className="sm:col-span-2">
+          <AvailabilityCheck
+            eventDate={eventDate || null}
+            startTime={startTime || null}
+            endTime={endTime || null}
+            venueId={selectedVenue || null}
+            ignoreReservationId={reservation?.id ?? null}
+            onConflictChange={handleConflict}
+          />
         </div>
       </div>
 

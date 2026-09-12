@@ -403,13 +403,3 @@ export async function convertLead(
 }
 
 /** Talep formundaki ve dönüştürme ekranındaki müsaitlik rozeti için. */
-export async function checkAvailability(
-  eventDate: string,
-  startTime: string | null,
-  endTime: string | null,
-  ignoreLeadId?: string | null,
-) {
-  await requireSession();
-  const { getVenueAvailability } = await import("@/lib/leads");
-  return getVenueAvailability(eventDate, startTime, endTime, ignoreLeadId);
-}

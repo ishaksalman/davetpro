@@ -34,7 +34,7 @@ import type {
   Venue,
   VenueAvailability,
 } from "@/lib/database.types";
-import { AvailabilityCheck } from "./availability-check";
+import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { findCustomerByPhone, saveLead } from "./actions";
 
 export function LeadFormDialog({
