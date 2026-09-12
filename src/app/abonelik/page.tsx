@@ -10,7 +10,6 @@ import { requireSessionAllowExpired } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { formatDate } from "@/lib/format";
 import {
-  BILLING_WHATSAPP,
   TRIAL_DAYS,
   subscriptionWhatsAppLink,
   type SubscriptionInfo,
@@ -140,11 +139,19 @@ export default async function AbonelikPage() {
         )}
 
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-          {/* Plan seçmeden yazmak isteyen için: mesajda dönem geçmez. */}
+          {/*
+            Plan bilgisi geçmeden yazmak isteyen için.
+            Renkler rezervasyon ekranındaki bilgilendirme düğmesiyle aynı:
+            duruyorken açık yeşil zemin, üzerine gelince tam WhatsApp yeşili.
+          */}
           {whatsapp && (
-            <Button asChild variant="outline" className="sm:flex-1">
+            <Button
+              asChild
+              variant="ghost"
+              className="sm:flex-1 bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white"
+            >
               <a href={whatsapp} target="_blank" rel="noopener noreferrer">
-                Soru sor ({BILLING_WHATSAPP})
+                Soru sor
               </a>
             </Button>
           )}
