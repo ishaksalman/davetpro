@@ -43,13 +43,18 @@ export default async function LeadsPage() {
       <PageHeader
         title="Talepler"
         description={`${open.length} açık talep · ${rows.length} kayıt`}
+        // Salon yokken gizleniyor: form salon seçimi istiyor, açılsa da
+        // kaydedilemezdi. Boş durum zaten kullanıcıyı salon eklemeye
+        // yönlendiriyor. Rezervasyon ekranında da aynı kural işliyor.
         actions={
-          <LeadFormDialog
-            venues={lookups.venues}
-            packages={lookups.packages}
-            members={members}
-            triggerButton={{ label: "Yeni talep", icon: "plus" }}
-          />
+          hasVenue && (
+            <LeadFormDialog
+              venues={lookups.venues}
+              packages={lookups.packages}
+              members={members}
+              triggerButton={{ label: "Yeni talep", icon: "plus" }}
+            />
+          )
         }
       />
       <PageBody>
@@ -68,6 +73,19 @@ export default async function LeadsPage() {
           />
         ) : (
           <>
+            {/*
+              Salon pasife alınmış ama talepler duruyorsa liste gösterilmeye
+              devam ediyor — veri gizlenmez. Ama "Yeni talep" düğmesi yok ve
+              sebebi görünmüyordu.
+            */}
+            {!hasVenue && (
+              <Notice>
+                Yeni talep eklemek için en az bir aktif salon gerekir.{" "}
+                <Link href="/salonlar" className="underline underline-offset-2">
+                  Salonlar
+                </Link>
+              </Notice>
+            )}
             {truncated && (
               <Notice>
                 Liste üst sınıra ulaştı; bazı talepler gösterilmiyor olabilir.
