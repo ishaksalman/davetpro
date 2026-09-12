@@ -43,11 +43,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       />
       <SidebarInset className="min-w-0">
         {uyari && (
-          <SubscriptionNotice
-            subscription={uyari}
-            businessName={business.name}
-            email={user.email}
-          />
+          <SubscriptionNotice subscription={uyari} />
         )}
         {children}
       </SidebarInset>
