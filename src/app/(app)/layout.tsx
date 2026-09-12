@@ -17,9 +17,18 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   const { user, profile, business, subscription, isPlatformAdmin } =
     await requireSession();
 
-  // Platform yöneticisine gösterilmiyor: onun erişimi zaten kilitlenmiyor.
+  /*
+   * Şerit deneme süresi BOYUNCA görünüyor; ödeme yapmış abonede yalnızca
+   * bitime az kaldığında. Deneme kullanıcısı ürünü değerlendiriyor, ne kadar
+   * vakti kaldığını her ekranda bilmesi gerekiyor.
+   *
+   * Platform yöneticisine gösterilmiyor: onun erişimi zaten kilitlenmiyor.
+   */
   const uyari =
-    subscription?.isWarning && !isPlatformAdmin ? subscription : null;
+    subscription && !isPlatformAdmin &&
+    (subscription.state === "deneme" || subscription.isWarning)
+      ? subscription
+      : null;
 
   return (
     <SidebarProvider>
