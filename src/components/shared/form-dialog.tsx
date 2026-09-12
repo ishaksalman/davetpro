@@ -1,6 +1,13 @@
 "use client";
 
-import { isValidElement, useEffect, useState, useTransition } from "react";
+import {
+  createContext,
+  isValidElement,
+  useContext,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import {
   type DefaultValues,
   type FieldValues,
@@ -23,6 +30,21 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
 import type { ActionResult } from "@/lib/action-result";
 import { cn } from "@/lib/utils";
+
+/**
+ * Alan adı -> etiket eşlemesi.
+ *
+ * Doğrulama başarısız olduğunda düğmenin yanında hangi alanların eksik
+ * olduğunu yazabilmek için gerekiyor: hata nesnesi yalnızca alan ADINI
+ * biliyor, kullanıcıya "venue_id" demek anlamsız.
+ */
+const FieldLabels = createContext<Map<string, string> | null>(null);
+
+/**
+ * Doğrulama özetinin tutulduğu hata yolu. `root` altında: react-hook-form
+ * root hatalarını alan hatası saymıyor, form.reset ile de temizleniyor.
+ */
+const VALIDATION_SUMMARY = "root.validationSummary" as never;
 
 /**
  * Pencereyi açan butonun tarifi — JSX değil, düz veri.
@@ -48,7 +70,10 @@ const TRIGGER_ICONS = { plus: Plus, pencil: Pencil } as const;
 export function renderTriggerButton(config: TriggerButton) {
   const Icon = config.icon ? TRIGGER_ICONS[config.icon] : null;
   return (
-    <Button variant={config.variant ?? "default"} size={config.size ?? "default"}>
+    <Button
+      variant={config.variant ?? "default"}
+      size={config.size ?? "default"}
+    >
       {Icon && <Icon />}
       {config.labelHiddenOnMobile ? (
         <span className="hidden sm:inline">{config.label}</span>
@@ -117,6 +142,9 @@ export function FormDialog<TValues extends FieldValues>({
   };
   const [pending, startTransition] = useTransition();
   const guard = useSubmitGuard();
+  // Etiket haritası: ref DEĞİL, çünkü render sırasında (Provider değeri
+  // olarak) okunuyor. Lazy useState kalıcı ve render'da okunması güvenli.
+  const [fieldLabels] = useState(() => new Map<string, string>());
 
   // Pencere her açıldığında formu temiz bir başlangıç durumuna getir.
   // Kilit de burada açılır: yarıda kapatılan bir gönderim formu kilitlemesin.
@@ -130,6 +158,7 @@ export function FormDialog<TValues extends FieldValues>({
 
   const runSubmit = form.handleSubmit(
     (values) => {
+      form.clearErrors(VALIDATION_SUMMARY);
       startTransition(async () => {
         try {
           const result = await action(values as TValues);
@@ -147,7 +176,37 @@ export function FormDialog<TValues extends FieldValues>({
       });
     },
     // Doğrulama başarısızsa kilit açılmalı, yoksa form kalıcı kilitlenir.
-    () => guard.end(),
+    (errors) => {
+      guard.end();
+
+      const names = Object.keys(errors).filter((name) => name !== "root");
+      const labels = names
+        .map((name) => fieldLabels.get(name))
+        .filter((label): label is string => Boolean(label));
+
+      /*
+       * Özet formun kendi hata durumunda tutuluyor, ayrı bir state'te değil:
+       * pencere açılırken zaten form.reset(defaultValues) çalışıyor ve onu da
+       * temizliyor. Ayrı state olsaydı aynı temizliği effect içinde yapmak
+       * gerekirdi; effect içinde setState zincirleme render tetikliyor.
+       */
+      form.setError(VALIDATION_SUMMARY, {
+        message:
+          labels.length > 0
+            ? `Eksik veya hatalı: ${labels.join(", ")}`
+            : "Formda eksik veya hatalı alanlar var.",
+      });
+
+      // Özet düğmenin yanında duruyor ama asıl düzeltme alanın kendisinde;
+      // ilk hatalı alanı görünür yapmazsak kullanıcı onu aramak zorunda.
+      // Alan id'leri form alan adlarıyla aynı (FormField htmlFor={name}).
+      const first = names[0];
+      if (first) {
+        document
+          .getElementById(first)
+          ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    },
   );
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -158,6 +217,10 @@ export function FormDialog<TValues extends FieldValues>({
   }
 
   const rootError = form.formState.errors.root?.message;
+  const invalidSummary = getErrorMessage(
+    form.formState.errors,
+    VALIDATION_SUMMARY,
+  );
 
   // Slot tek bir element bekler; geçersiz bir tetikleyici çökme yerine
   // sessizce yok sayılır.
@@ -168,7 +231,10 @@ export function FormDialog<TValues extends FieldValues>({
     <Dialog open={open} onOpenChange={setOpen}>
       {triggerNode && <DialogTrigger asChild>{triggerNode}</DialogTrigger>}
       <DialogContent
-        className={cn("max-h-[90svh] gap-0 overflow-y-auto sm:max-w-lg", contentClassName)}
+        className={cn(
+          "max-h-[90svh] gap-0 overflow-y-auto sm:max-w-lg",
+          contentClassName,
+        )}
       >
         <DialogHeader className="pb-4">
           <DialogTitle>{title}</DialogTitle>
@@ -176,39 +242,46 @@ export function FormDialog<TValues extends FieldValues>({
         </DialogHeader>
 
         <form onSubmit={submit} className="space-y-4" noValidate>
-          {rootError && (
-            <p
-              role="alert"
-              className="rounded-lg bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
-            >
-              {rootError}
-            </p>
-          )}
-
-          {children}
-
-          <DialogFooter className="flex-col items-stretch gap-2 pt-2 sm:flex-row sm:items-center sm:justify-end">
-            {submitBlockedReason && (
+          <FieldLabels.Provider value={fieldLabels}>
+            {rootError && (
               <p
                 role="alert"
-                className="mr-auto text-sm text-destructive sm:max-w-xs"
+                className="rounded-lg bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
               >
-                {submitBlockedReason}
+                {rootError}
               </p>
             )}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={pending}
-            >
-              Vazgeç
-            </Button>
-            <Button type="submit" disabled={pending || Boolean(submitBlockedReason)}>
-              {pending && <Loader2 className="animate-spin" />}
-              {submitLabel}
-            </Button>
-          </DialogFooter>
+
+            {children}
+
+            <DialogFooter className="flex-col items-stretch gap-2 pt-2 sm:flex-row sm:items-center sm:justify-end">
+              {/* Çakışma varsa gönderim zaten hiç doğrulanmıyor; ikisi aynı
+                anda oluşamaz. Çakışma önce gelir. */}
+              {(submitBlockedReason ?? invalidSummary) && (
+                <p
+                  role="alert"
+                  className="mr-auto text-sm text-destructive sm:max-w-sm"
+                >
+                  {submitBlockedReason ?? invalidSummary}
+                </p>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={pending}
+              >
+                Vazgeç
+              </Button>
+              <Button
+                type="submit"
+                disabled={pending || Boolean(submitBlockedReason)}
+              >
+                {pending && <Loader2 className="animate-spin" />}
+                {submitLabel}
+              </Button>
+            </DialogFooter>
+          </FieldLabels.Provider>
         </form>
       </DialogContent>
     </Dialog>
@@ -232,6 +305,16 @@ export function FormField<TValues extends FieldValues>({
   children: React.ReactNode;
 }) {
   const error = getErrorMessage(form.formState.errors, name);
+
+  // Etiketi üst forma bildir: doğrulama özeti alan adını değil bunu yazıyor.
+  const labels = useContext(FieldLabels);
+  useEffect(() => {
+    if (!labels) return;
+    labels.set(name, label);
+    return () => {
+      labels.delete(name);
+    };
+  }, [labels, name, label]);
 
   return (
     <Field data-invalid={error ? true : undefined} className={className}>
