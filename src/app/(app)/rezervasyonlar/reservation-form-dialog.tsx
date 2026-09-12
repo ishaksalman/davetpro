@@ -270,27 +270,26 @@ export function ReservationFormDialog({
         </FormField>
       </div>
 
-      <FormField form={form} name="event_date" label="Tarih">
-        <DatePicker
-          id="event_date"
-          value={form.watch("event_date")}
-          onChange={(v) => form.setValue("event_date", v ?? "", { shouldDirty: true })}
-        />
-      </FormField>
-
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField form={form} name="start_time" label="Başlangıç">
-          <Input id="start_time" type="time" {...form.register("start_time")} />
+        <FormField form={form} name="event_date" label="Tarih">
+          <DatePicker
+            id="event_date"
+            value={form.watch("event_date")}
+            onChange={(v) => form.setValue("event_date", v ?? "", { shouldDirty: true })}
+          />
         </FormField>
 
-        <FormField
-          form={form}
-          name="end_time"
-          label="Bitiş"
-          description="Gece yarısını aşabilir."
-        >
-          <Input id="end_time" type="time" {...form.register("end_time")} />
-        </FormField>
+        {/* Saatler tek hücrede: beş karakterlik içerik formun yarısını
+            kaplamasın, aralık da tek bakışta okunsun. */}
+        <div className="grid grid-cols-2 gap-3">
+          <FormField form={form} name="start_time" label="Başlangıç">
+            <Input id="start_time" type="time" {...form.register("start_time")} />
+          </FormField>
+
+          <FormField form={form} name="end_time" label="Bitiş">
+            <Input id="end_time" type="time" {...form.register("end_time")} />
+          </FormField>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
