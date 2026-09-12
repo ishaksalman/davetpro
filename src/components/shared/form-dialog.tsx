@@ -9,6 +9,7 @@ import {
   useTransition,
 } from "react";
 import {
+  useWatch,
   type DefaultValues,
   type FieldValues,
   type Path,
@@ -39,12 +40,6 @@ import { cn } from "@/lib/utils";
  * biliyor, kullanıcıya "venue_id" demek anlamsız.
  */
 const FieldLabels = createContext<Map<string, string> | null>(null);
-
-/**
- * Doğrulama özetinin tutulduğu hata yolu. `root` altında: react-hook-form
- * root hatalarını alan hatası saymıyor, form.reset ile de temizleniyor.
- */
-const VALIDATION_SUMMARY = "root.validationSummary" as never;
 
 /**
  * Pencereyi açan butonun tarifi — JSX değil, düz veri.
@@ -158,7 +153,6 @@ export function FormDialog<TValues extends FieldValues>({
 
   const runSubmit = form.handleSubmit(
     (values) => {
-      form.clearErrors(VALIDATION_SUMMARY);
       startTransition(async () => {
         try {
           const result = await action(values as TValues);
@@ -179,28 +173,17 @@ export function FormDialog<TValues extends FieldValues>({
     (errors) => {
       guard.end();
 
-      const names = Object.keys(errors).filter((name) => name !== "root");
-      const labels = names
-        .map((name) => fieldLabels.get(name))
-        .filter((label): label is string => Boolean(label));
-
       /*
-       * Özet formun kendi hata durumunda tutuluyor, ayrı bir state'te değil:
-       * pencere açılırken zaten form.reset(defaultValues) çalışıyor ve onu da
-       * temizliyor. Ayrı state olsaydı aynı temizliği effect içinde yapmak
-       * gerekirdi; effect içinde setState zincirleme render tetikliyor.
+       * Özet burada SAKLANMIYOR, aşağıda mevcut hatalardan türetiliyor:
+       * saklansaydı kullanıcı alanı düzelttikten sonra da eski metin
+       * ekranda kalırdı.
+       *
+       * Burada yalnızca kaydırma var, çünkü bu bir eylem: özet sorunun ne
+       * olduğunu söylüyor ama düzeltme alanın kendisinde; kaydırmazsak
+       * kullanıcı onu aramak zorunda. Alan id'leri form alan adlarıyla aynı
+       * (FormField htmlFor={name}).
        */
-      form.setError(VALIDATION_SUMMARY, {
-        message:
-          labels.length > 0
-            ? `Eksik veya hatalı: ${labels.join(", ")}`
-            : "Formda eksik veya hatalı alanlar var.",
-      });
-
-      // Özet düğmenin yanında duruyor ama asıl düzeltme alanın kendisinde;
-      // ilk hatalı alanı görünür yapmazsak kullanıcı onu aramak zorunda.
-      // Alan id'leri form alan adlarıyla aynı (FormField htmlFor={name}).
-      const first = names[0];
+      const first = Object.keys(errors).find((name) => name !== "root");
       if (first) {
         document
           .getElementById(first)
@@ -217,10 +200,21 @@ export function FormDialog<TValues extends FieldValues>({
   }
 
   const rootError = form.formState.errors.root?.message;
-  const invalidSummary = getErrorMessage(
-    form.formState.errors,
-    VALIDATION_SUMMARY,
+
+  // Gönderim denendikten sonra hâlâ hatalı olan alanların etiketleri.
+  // Türetilmiş olduğu için alan düzeltilince kendiliğinden güncelleniyor.
+  const invalidNames = Object.keys(form.formState.errors).filter(
+    (name) => name !== "root",
   );
+  const invalidLabels = invalidNames
+    .map((name) => fieldLabels.get(name))
+    .filter((label): label is string => Boolean(label));
+  const invalidSummary =
+    !form.formState.isSubmitted || invalidNames.length === 0
+      ? null
+      : invalidLabels.length > 0
+        ? `Eksik veya hatalı: ${invalidLabels.join(", ")}`
+        : "Formda eksik veya hatalı alanlar var.";
 
   // Slot tek bir element bekler; geçersiz bir tetikleyici çökme yerine
   // sessizce yok sayılır.
@@ -305,6 +299,24 @@ export function FormField<TValues extends FieldValues>({
   children: React.ReactNode;
 }) {
   const error = getErrorMessage(form.formState.errors, name);
+
+  /*
+   * Değer değişince hatayı temizle.
+   *
+   * react-hook-form yalnızca register() ile bağlanmış alanlarda gönderim
+   * sonrası kendiliğinden yeniden doğruluyor. Combobox, Select ve DatePicker
+   * değeri setValue ile yazdığı için bu alanlarda hata, kullanıcı seçimi
+   * düzelttikten sonra bile ekranda kalıyordu.
+   *
+   * Yalnızca gönderim denendikten sonra çalışıyor: form ilk açıldığında
+   * dokunulmamış alanları kırmızıya boyamak istemiyoruz.
+   */
+  const value = useWatch({ control: form.control, name });
+  const submitted = form.formState.isSubmitted;
+  useEffect(() => {
+    if (!submitted) return;
+    void form.trigger(name);
+  }, [value, submitted, name, form]);
 
   // Etiketi üst forma bildir: doğrulama özeti alan adını değil bunu yazıyor.
   const labels = useContext(FieldLabels);
