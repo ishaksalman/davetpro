@@ -45,7 +45,23 @@ export default async function AbonelikPage() {
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col justify-center gap-8 px-6 py-12">
-      <Logo />
+      <div className="flex items-center justify-between gap-4">
+        <Link href="/" aria-label="DavetPro ana sayfa" className="flex shrink-0">
+          <Logo />
+        </Link>
+        {/*
+          Süresi dolmuş hesapta yok: /panel zaten buraya geri yönlendirir,
+          çalışmayan bir çıkış göstermenin anlamı yok.
+        */}
+        {!suresiDoldu && (
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/panel">
+              <ArrowLeft className="size-4" />
+              Panele dön
+            </Link>
+          </Button>
+        )}
+      </div>
 
       <div className="rounded-xl border bg-card p-6 shadow-sm sm:p-8">
         <div className="flex items-start gap-3">
@@ -139,7 +155,7 @@ export default async function AbonelikPage() {
           </div>
         )}
 
-        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+        <div className="mt-6">
           {/*
             Plan bilgisi geçmeden yazmak isteyen için.
             Renkler rezervasyon ekranındaki bilgilendirme düğmesiyle aynı:
@@ -149,20 +165,12 @@ export default async function AbonelikPage() {
             <Button
               asChild
               variant="ghost"
-              className="sm:flex-1 bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white"
+              className="w-full bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white sm:w-auto"
             >
               <a href={whatsapp} target="_blank" rel="noopener noreferrer">
                 <WhatsAppIcon />
                 Soru sor
               </a>
-            </Button>
-          )}
-          {!suresiDoldu && (
-            <Button asChild variant="ghost">
-              <Link href="/panel">
-                <ArrowLeft className="size-4" />
-                Panele dön
-              </Link>
             </Button>
           )}
         </div>
