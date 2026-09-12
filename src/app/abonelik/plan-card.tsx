@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WhatsAppIcon } from "@/components/shared/whatsapp-icon";
 import { formatMoney } from "@/lib/format";
 import {
   MONTHLY_EQUIVALENT,
@@ -65,6 +66,7 @@ export function PlanCard({
         {href && (
           <Button asChild className="mt-5 w-full">
             <a href={href} target="_blank" rel="noopener noreferrer">
+              <WhatsAppIcon />
               Abone olmak istiyorum
             </a>
           </Button>

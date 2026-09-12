@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WhatsAppIcon } from "@/components/shared/whatsapp-icon";
 import { formatDate } from "@/lib/format";
 import {
   TRIAL_DAYS,
@@ -62,6 +63,7 @@ export function SubscriptionNotice({
           {whatsapp && (
             <Button asChild size="sm">
               <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                <WhatsAppIcon />
                 Süreyi uzat
               </a>
             </Button>

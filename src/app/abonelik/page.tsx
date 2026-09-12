@@ -4,6 +4,7 @@ import { AlertTriangle, ArrowLeft, CalendarClock } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { Logo } from "@/components/brand/logo";
 import { CopyValue } from "@/components/shared/copy-value";
+import { WhatsAppIcon } from "@/components/shared/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { requireSessionAllowExpired } from "@/lib/auth";
@@ -151,6 +152,7 @@ export default async function AbonelikPage() {
               className="sm:flex-1 bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white"
             >
               <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                <WhatsAppIcon />
                 Soru sor
               </a>
             </Button>
