@@ -32,6 +32,7 @@ export const CONTRACT_VARIABLES: { key: string; label: string }[] = [
   { key: "venue_name", label: "Salon" },
   { key: "package_name", label: "Paket" },
   { key: "included_services", label: "Pakete dahil hizmetler" },
+  { key: "extra_services", label: "Ek hizmetler (tutarlı liste)" },
   { key: "guest_count", label: "Kişi sayısı" },
   { key: "notes", label: "Rezervasyon notları" },
   { key: "total_price", label: "Toplam bedel" },
@@ -92,6 +93,12 @@ export function buildContractSnapshot({
       guest_count: reservation.guest_count,
       package_name: reservation.package?.name ?? null,
       included_services: reservation.package?.included_services ?? [],
+      // Sözleşmede tutarıyla birlikte yazılıyor: pakete dahil olmayan
+      // hizmetlerin bedeli tarafların üzerinde anlaştığı metinde görünmeli.
+      extra_services: reservation.items.map((i) => ({
+        name: i.name,
+        amount: i.amount,
+      })),
       notes: reservation.notes,
     },
     finance: {
@@ -142,6 +149,14 @@ export function contractVariableValues(
     package_name: o.package_name ?? "Paketsiz",
     included_services: o.included_services.length
       ? o.included_services.join(", ")
+      : EMPTY,
+    // ?? []: 0030 öncesinde kaydedilmiş sözleşmelerin anlık kopyasında bu
+    // alan yok. Anlık kopya JSON olarak saklandığı için tip güvencesi
+    // geçmiş kayıtlar için geçerli değil.
+    extra_services: (o.extra_services ?? []).length
+      ? (o.extra_services ?? [])
+          .map((i) => `${i.name} (${formatMoney(i.amount)})`)
+          .join(", ")
       : EMPTY,
     guest_count: o.guest_count ? `${formatNumber(o.guest_count)} kişi` : EMPTY,
     notes: o.notes?.trim() || EMPTY,

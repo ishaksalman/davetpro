@@ -314,6 +314,11 @@ export type ContractSnapshot = {
     package_name: string | null;
     /** Paketin kapsadığı hizmetler; sözleşmede madde madde yazılır. */
     included_services: string[];
+    /**
+     * Pakete dahil OLMAYAN, ayrıca ücretlendirilen hizmetler. Anlık kopya:
+     * sözleşme imzalandıktan sonra kalem değişse bile metin değişmemeli.
+     */
+    extra_services: { name: string; amount: number }[];
     notes: string | null;
   };
   finance: {

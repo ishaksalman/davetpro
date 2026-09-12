@@ -349,9 +349,33 @@ export default async function ReservationDetailPage({
                 </p>
 
                 <dl className="mt-4 space-y-2.5 text-sm">
-                  <Row label="Anlaşılan fiyat">
-                    <Money value={reservation.pricing?.gross_amount ?? 0} tone="muted" />
-                  </Row>
+                  {/* Ek hizmet varsa döküm gösteriliyor; yoksa tek satır
+                      yeterli ve fazladan satır gürültü olurdu. */}
+                  {(reservation.pricing?.extras_amount ?? 0) > 0 ? (
+                    <>
+                      <Row label="Paket / anlaşılan fiyat">
+                        <Money
+                          value={reservation.pricing?.package_amount ?? 0}
+                          tone="muted"
+                        />
+                      </Row>
+                      {reservation.items.map((item) => (
+                        <Row key={item.id} label={`+ ${item.name}`}>
+                          <Money value={item.amount} tone="muted" />
+                        </Row>
+                      ))}
+                      <Row label="Toplam bedel">
+                        <Money
+                          value={reservation.pricing?.gross_amount ?? 0}
+                          tone="muted"
+                        />
+                      </Row>
+                    </>
+                  ) : (
+                    <Row label="Anlaşılan fiyat">
+                      <Money value={reservation.pricing?.gross_amount ?? 0} tone="muted" />
+                    </Row>
+                  )}
                   {reservation.unit_price && reservation.guest_count ? (
                     <Row label="Kişi başı">
                       <span className="tabular text-muted-foreground">
