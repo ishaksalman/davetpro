@@ -159,6 +159,25 @@ export function ReservationFormDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVenue]);
 
+  /*
+   * Kalan ödeme tarihi organizasyon tarihini izliyor.
+   *
+   * Gerekçesi: panelde yaklaşan ödemeler listesi `bakiye > 0 && due_date`
+   * ile süzülüyor; tarih boş bırakılan bir rezervasyon, kalan tutarı ne
+   * olursa olsun o listeye HİÇ girmiyor. Boş bırakmak sessizce hatırlatmayı
+   * kapatıyordu.
+   *
+   * Yalnızca YENİ kayıtta ve kullanıcı alana dokunmadığı sürece: mevcut bir
+   * rezervasyonun kayıtlı tarihini ya da elle girilmiş bir tarihi ezmiyor.
+   * Bakiyesi peşin kapananlar için alan temizlenebilir durumda kalıyor.
+   */
+  const dueDateTouched = Boolean(form.formState.dirtyFields.due_date);
+  useEffect(() => {
+    if (isEdit || dueDateTouched) return;
+    form.setValue("due_date", eventDate || undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventDate, isEdit, dueDateTouched]);
+
   // Kişi başı modda toplam, birim fiyat × kişi sayısından canlı türetilir.
   // Kaydedilen yine tek bir tutardır (gross_amount) — muhasebe tarafı sade kalır.
   useEffect(() => {
@@ -464,7 +483,7 @@ export function ReservationFormDialog({
             form={form}
             name="due_date"
             label="Kalan ödeme tarihi"
-            description="Yaklaşan ödemeler listesinde bu tarihe göre hatırlatılır."
+            description="Organizasyon tarihiyle aynı geliyor; farklıysa değiştirin. Boş bırakılırsa yaklaşan ödemeler listesinde hatırlatılmaz."
           >
             <DatePicker
               id="due_date"
