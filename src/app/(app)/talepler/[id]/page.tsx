@@ -150,9 +150,6 @@ export default async function LeadDetailPage({
                 <Detail label="Tarih">
                   {lead.event_date ? formatDate(lead.event_date) : "Belirsiz"}
                 </Detail>
-                <Detail label="Alternatif tarih">
-                  {lead.alt_event_date ? formatDate(lead.alt_event_date) : "—"}
-                </Detail>
                 <Detail label="Saat">
                   {lead.start_time && lead.end_time
                     ? formatTimeRange(lead.start_time, lead.end_time)

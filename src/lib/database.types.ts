@@ -368,6 +368,10 @@ export type Lead = Timestamps & {
   status: LeadStatus;
   source: LeadSource;
   event_date: string | null;
+  /**
+   * Arayüzde KULLANILMIYOR. Kolon veritabanında duruyor: alanı geri açmak
+   * istenirse veri kaybı olmasın diye düşürülmedi.
+   */
   alt_event_date: string | null;
   start_time: string | null;
   end_time: string | null;

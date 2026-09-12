@@ -135,12 +135,12 @@ const samples: [string, ZodTypeAny, unknown][] = [
   [
     "leadSchema (yalnızca zorunlu alanlar)",
     leadSchema,
-    { customer_id: "none", full_name: "Reyhan & Ömer", phone: "05551234567", phone2: "", email: "", organization_type: "dugun", source: "whatsapp", venue_id: "none", package_id: "none", event_date: "", alt_event_date: "", start_time: "", end_time: "", guest_count: "", assigned_to: "none", next_follow_up_at: "", notes: "" },
+    { customer_id: "none", full_name: "Reyhan & Ömer", phone: "05551234567", phone2: "", email: "", organization_type: "dugun", source: "whatsapp", venue_id: "none", package_id: "none", event_date: "", start_time: "", end_time: "", guest_count: "", assigned_to: "none", next_follow_up_at: "", notes: "" },
   ],
   [
     "leadSchema (tüm alanlar dolu)",
     leadSchema,
-    { customer_id: "44444444-4444-4444-4444-444444444444", full_name: "Selin & Kaan", phone: "0532 111 22 33", phone2: "05439998877", email: "a@b.com", organization_type: "nisan", source: "instagram", venue_id: "55555555-5555-5555-5555-555555555555", package_id: "66666666-6666-6666-6666-666666666666", event_date: "2026-09-05", alt_event_date: "2026-09-12", start_time: "19:00", end_time: "23:00", guest_count: "450", assigned_to: "77777777-7777-7777-7777-777777777777", next_follow_up_at: "2026-09-03T14:00", notes: "Kır düğünü" },
+    { customer_id: "44444444-4444-4444-4444-444444444444", full_name: "Selin & Kaan", phone: "0532 111 22 33", phone2: "05439998877", email: "a@b.com", organization_type: "nisan", source: "instagram", venue_id: "55555555-5555-5555-5555-555555555555", package_id: "66666666-6666-6666-6666-666666666666", event_date: "2026-09-05", start_time: "19:00", end_time: "23:00", guest_count: "450", assigned_to: "77777777-7777-7777-7777-777777777777", next_follow_up_at: "2026-09-03T14:00", notes: "Kır düğünü" },
   ],
   [
     "leadActivitySchema",

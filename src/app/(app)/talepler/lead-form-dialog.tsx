@@ -74,7 +74,6 @@ export function LeadFormDialog({
     venue_id: lead?.venue_id ?? "none",
     package_id: lead?.package_id ?? "none",
     event_date: lead?.event_date ?? "",
-    alt_event_date: lead?.alt_event_date ?? "",
     start_time: lead?.start_time?.slice(0, 5) ?? "",
     end_time: lead?.end_time?.slice(0, 5) ?? "",
     guest_count: lead?.guest_count ?? "",
@@ -286,14 +285,6 @@ export function LeadFormDialog({
             id="event_date"
             value={form.watch("event_date") ?? ""}
             onChange={(v) => form.setValue("event_date", v, { shouldDirty: true })}
-          />
-        </FormField>
-
-        <FormField form={form} name="alt_event_date" label="Alternatif tarih">
-          <DatePicker
-            id="alt_event_date"
-            value={form.watch("alt_event_date") ?? ""}
-            onChange={(v) => form.setValue("alt_event_date", v, { shouldDirty: true })}
           />
         </FormField>
 

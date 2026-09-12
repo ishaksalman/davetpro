@@ -349,7 +349,6 @@ export const leadSchema = z
     venue_id: optionalUuid,
     package_id: optionalUuid,
     event_date: optionalIsoDate,
-    alt_event_date: optionalIsoDate,
     start_time: optionalTime,
     end_time: optionalTime,
     guest_count: optionalPositiveInt,

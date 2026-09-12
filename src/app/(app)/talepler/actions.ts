@@ -97,7 +97,6 @@ export async function saveLead(
     venue_id: v.venue_id,
     package_id: v.package_id,
     event_date: v.event_date,
-    alt_event_date: v.alt_event_date,
     start_time: v.start_time,
     end_time: v.end_time,
     guest_count: v.guest_count,
