@@ -53,6 +53,31 @@ export function toTurkishError(error: unknown): string {
     return SCHEMA_OUTDATED_MESSAGE;
   }
 
+  /*
+   * Ağ ve geçit hataları.
+   *
+   * Bunlar veriyle ilgili değil: istek veritabanına hiç ulaşmamış ya da yanıt
+   * beklenirken bağlantı kopmuş olabilir. Ham "Gateway Timeout" metni hem
+   * İngilizce hem de kullanıcıya ne yapacağını söylemiyordu.
+   *
+   * "Kaydedilmedi" DEMİYORUZ: zaman aşımında işlem sunucuda tamamlanmış ama
+   * yanıt dönmemiş olabilir. Emin olmadığımız şeyi kesinmiş gibi söylemek,
+   * kullanıcının aynı kaydı ikinci kez oluşturmasına yol açar.
+   */
+  if (
+    err.code === "57014" ||
+    /gateway timeout|bad gateway|service unavailable|gateway time-out/i.test(message) ||
+    /fetch failed|failed to fetch|networkerror|network request failed/i.test(message) ||
+    /etimedout|econnreset|econnrefused|socket hang up/i.test(message) ||
+    message.includes("statement timeout") ||
+    message.includes("canceling statement")
+  ) {
+    return (
+      "Sunucuya ulaşılamadı; işlem tamamlanmamış olabilir. " +
+      "Listeyi yenileyip kaydın işlenip işlenmediğine bakın, sonra tekrar deneyin."
+    );
+  }
+
   // Trigger'lardan gelen mesajlar zaten Türkçe
   if (/[çğıöşüÇĞİÖŞÜ]/.test(message) || message.includes("₺")) return message;
 

@@ -44,3 +44,27 @@ test("yetki hatası çevrilir", () => {
     "Bu işlem için yetkiniz yok.",
   );
 });
+
+test("geçit ve ağ hataları Türkçe ve eyleme dönük mesaja çevrilir", () => {
+  const ornekler = [
+    { message: "Gateway Timeout" },
+    { message: "504 Gateway Time-out" },
+    { message: "Bad Gateway" },
+    { message: "Service Unavailable" },
+    { message: "TypeError: fetch failed" },
+    { message: "read ECONNRESET" },
+    { message: "socket hang up" },
+    { message: "canceling statement due to statement timeout", code: "57014" },
+  ];
+  for (const ornek of ornekler) {
+    const sonuc = toTurkishError(ornek);
+    assert.match(sonuc, /Sunucuya ulaşılamadı/, `çevrilmedi: ${ornek.message}`);
+    // Kesinlik iddia etmemeli: işlem sunucuda tamamlanmış olabilir.
+    assert.doesNotMatch(sonuc, /kaydedilmedi|kaydedilemedi/i);
+  }
+});
+
+test("Türkçe trigger mesajı geçit kontrolüne takılmaz", () => {
+  const message = "Bu salonda 10:00 - 13:00 arası bir organizasyon var.";
+  assert.equal(toTurkishError({ message }), message);
+});
