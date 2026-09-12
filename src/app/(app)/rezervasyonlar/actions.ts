@@ -43,7 +43,10 @@ export async function saveReservation(
     p_end_time: v.end_time,
     p_guest_count: v.guest_count,
     p_notes: v.notes,
-    p_gross_amount: v.gross_amount,
+    // p_gross_amount, veritabanı tarafında PAKET tutarı olarak okunuyor;
+    // brütü kalemleri ekleyerek orada hesaplıyor (0030).
+    p_gross_amount: v.package_amount,
+    p_items: v.items,
     p_discount_amount: v.discount_amount,
     p_due_date: v.due_date,
     p_unit_price: v.pricing_type === "kisi_basi" ? (v.unit_price ?? null) : null,

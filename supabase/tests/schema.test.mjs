@@ -226,8 +226,13 @@ await step('ödeme iptal edilebilir ve bakiye güncellenir', async () => {
 await expectFail('iptal edilmiş kayıt tekrar değiştirilemez',
   () => db.query(`update payments set description = 'x' where reservation_id = $1 and voided_at is not null`, [resA]),
   'İptal edilmiş')
+// package_amount da güncelleniyor: 0030'dan beri brüt = paket + kalemler
+// kısıtı var, yalnızca brütü değiştirmek o kısıta takılıp asıl sınanan
+// korumaya hiç ulaşmıyordu.
 await expectFail('net satış, tahsil edilenin altına indirilemez',
-  () => db.query(`update reservation_pricing set gross_amount = 10000 where reservation_id = $1`, [resA]),
+  () => db.query(
+    `update reservation_pricing set package_amount = 10000, gross_amount = 10000
+      where reservation_id = $1`, [resA]),
   'altına indirilemez')
 
 console.log('\n\x1b[1m7) Kârlılık\x1b[0m')
@@ -320,6 +325,7 @@ const VIEW_COLUMNS = {
     'event_date', 'status', 'organization_type', 'gross_amount', 'discount_amount',
     'net_amount', 'due_date', 'collected_amount', 'balance_amount',
     'expense_amount', 'profit_amount', 'profit_margin', 'unit_price',
+    'package_amount', 'extras_amount',
   ],
   customer_balances: [
     'customer_id', 'business_id', 'reservation_count', 'total_sales',
@@ -731,6 +737,86 @@ await step('kendini atlamak BAŞKA rezervasyonu gizlemiyor', async () => {
   if (r.is_available !== false || r.conflict_label !== 'Ayşe & Can') {
     throw new Error(JSON.stringify(r))
   }
+})
+
+console.log('\n\x1b[1m15) Rezervasyon ek hizmet kalemleri\x1b[0m')
+
+await as(U.ownerA)
+const KV = (await db.query(`insert into venues (name) values ('Kalem Salonu') returning id`)).rows[0].id
+const KC = (await db.query(`insert into customers (full_name, phone) values ('Kalem Müşteri','05002220001') returning id`)).rows[0].id
+
+const kaydet = (id, paket, kalemler) => db.query(
+  `select save_reservation($1,$2,$3,null,'dugun','kesinlesti','2027-06-12','19:00','23:00',
+          null,null,$4,0,null,null,$5::jsonb) id`,
+  [id, KC, KV, paket, kalemler === null ? null : JSON.stringify(kalemler)])
+
+const fiyat = (id) => db.query(
+  `select package_amount, extras_amount, gross_amount, net_amount
+     from reservation_pricing where reservation_id = $1`, [id]).then(r => r.rows[0])
+
+let KR
+await step('kalemler kaydediliyor ve brüt paket + kalemler oluyor', async () => {
+  KR = (await kaydet(null, 100000, [
+    { name: 'Dış çekim', amount: 12000 },
+    { name: 'Havai fişek', amount: 8000 },
+  ])).rows[0].id
+  const f = await fiyat(KR)
+  if (Number(f.package_amount) !== 100000 || Number(f.extras_amount) !== 20000
+      || Number(f.gross_amount) !== 120000) {
+    throw new Error(JSON.stringify(f))
+  }
+})
+
+await step('kalem silinince brüt düşüyor', async () => {
+  await db.query(`delete from reservation_items where reservation_id = $1 and name = 'Havai fişek'`, [KR])
+  const f = await fiyat(KR)
+  if (Number(f.extras_amount) !== 12000 || Number(f.gross_amount) !== 112000) {
+    throw new Error(JSON.stringify(f))
+  }
+})
+
+await step('kalem tutarı değişince brüt güncelleniyor', async () => {
+  await db.query(`update reservation_items set amount = 15000 where reservation_id = $1`, [KR])
+  const f = await fiyat(KR)
+  if (Number(f.gross_amount) !== 115000) throw new Error(JSON.stringify(f))
+})
+
+await step('yeniden kaydetmek kalemleri baştan yazıyor', async () => {
+  await kaydet(KR, 100000, [{ name: 'Dış çekim', amount: 5000 }])
+  const say = (await db.query(
+    `select count(*)::int c from reservation_items where reservation_id = $1`, [KR])).rows[0].c
+  const f = await fiyat(KR)
+  if (say !== 1 || Number(f.gross_amount) !== 105000) {
+    throw new Error(`${say} kalem, ${JSON.stringify(f)}`)
+  }
+})
+
+// convert_lead kalem göndermeden çağırıyor; oradaki davranış değişmemeli.
+await step('kalem gönderilmezse mevcut kalemlere dokunulmuyor', async () => {
+  await kaydet(KR, 100000, null)
+  const say = (await db.query(
+    `select count(*)::int c from reservation_items where reservation_id = $1`, [KR])).rows[0].c
+  const f = await fiyat(KR)
+  if (say !== 1 || Number(f.gross_amount) !== 105000) {
+    throw new Error(`${say} kalem, ${JSON.stringify(f)}`)
+  }
+})
+
+await step('adı boş kalem yok sayılıyor', async () => {
+  await kaydet(KR, 100000, [{ name: '  ', amount: 9999 }, { name: 'Dış çekim', amount: 5000 }])
+  const f = await fiyat(KR)
+  if (Number(f.gross_amount) !== 105000) throw new Error(JSON.stringify(f))
+})
+
+await expectFail('brüt, paket + kalemlerden farklı yazılamıyor', () =>
+  db.query(`update reservation_pricing set gross_amount = 999999 where reservation_id = $1`, [KR]),
+  'pricing_gross_is_package_plus_extras')
+
+await step('rezervasyon silinince kalemler de siliniyor', async () => {
+  const once = (await db.query('select count(*)::int c from reservation_items')).rows[0].c
+  await db.query('delete from reservations where id = $1', [KR])
+  const sonra = (await db.query('select count(*)::int c from reservation_items')).rows[0].c
+  if (sonra !== once - 1) throw new Error(`${once} -> ${sonra}`)
 })
 
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)

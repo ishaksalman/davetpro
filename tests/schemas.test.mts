@@ -84,7 +84,8 @@ const samples: [string, ZodTypeAny, unknown][] = [
       guest_count: "",
       notes: "",
       pricing_type: "sabit",
-      gross_amount: "120.000",
+      package_amount: "120.000",
+      items: [],
       discount_amount: "",
       due_date: undefined,
       deposit_amount: 0,
@@ -105,7 +106,8 @@ const samples: [string, ZodTypeAny, unknown][] = [
       guest_count: "300",
       notes: "Yemekli menü",
       pricing_type: "sabit",
-      gross_amount: 120000,
+      package_amount: 120000,
+      items: [{ name: "Dış çekim", amount: "12.000" }],
       discount_amount: 20000,
       due_date: "2026-09-01",
       deposit_amount: "30.000",
@@ -218,8 +220,9 @@ test("indirim toplam fiyatı aşamaz", () => {
     event_date: "2026-09-12", start_time: "19:00", end_time: "23:00",
     guest_count: "", notes: "", due_date: undefined, deposit_amount: 0,
     pricing_type: "sabit" as const,
+    items: [],
   };
-  const result = reservationSchema.safeParse({ ...base, gross_amount: 1000, discount_amount: 2000 });
+  const result = reservationSchema.safeParse({ ...base, package_amount: 1000, discount_amount: 2000 });
   assert.ok(!result.success);
   assert.match(result.error.issues[0].message, /İndirim/);
 });
@@ -231,7 +234,7 @@ test("kapora net satışı aşamaz", () => {
     package_id: "none", organization_type: "dugun", status: "kesinlesti",
     event_date: "2026-09-12", start_time: "19:00", end_time: "23:00",
     guest_count: "", notes: "", due_date: undefined, pricing_type: "sabit",
-    gross_amount: 10000, discount_amount: 0, deposit_amount: 50000,
+    package_amount: 10000, items: [], discount_amount: 0, deposit_amount: 50000,
   });
   assert.ok(!result.success);
   assert.match(result.error.issues[0].message, /Kapora/);
@@ -245,7 +248,7 @@ test("kişi başı: birim fiyat zorunlu", () => {
     event_date: "2026-09-12", start_time: "19:00", end_time: "23:00",
     guest_count: "400", notes: "", due_date: undefined,
     pricing_type: "kisi_basi", unit_price: 0,
-    gross_amount: 0, discount_amount: 0, deposit_amount: 0,
+    package_amount: 0, items: [], discount_amount: 0, deposit_amount: 0,
   });
   assert.ok(!r.success);
   assert.match(r.error.issues[0].message, /Kişi başı fiyat/);
@@ -259,7 +262,7 @@ test("kişi başı: kişi sayısı zorunlu", () => {
     event_date: "2026-09-12", start_time: "19:00", end_time: "23:00",
     guest_count: "", notes: "", due_date: undefined,
     pricing_type: "kisi_basi", unit_price: 850,
-    gross_amount: 0, discount_amount: 0, deposit_amount: 0,
+    package_amount: 0, items: [], discount_amount: 0, deposit_amount: 0,
   });
   assert.ok(!r.success);
   assert.match(r.error.issues[0].message, /kişi sayısı/i);
@@ -273,10 +276,39 @@ test("kişi başı: geçerli girdi kabul edilir ve idempotent", () => {
     event_date: "2026-09-12", start_time: "19:00", end_time: "23:00",
     guest_count: "400", notes: "", due_date: undefined,
     pricing_type: "kisi_basi" as const, unit_price: "850",
-    gross_amount: 340000, discount_amount: 0, deposit_amount: 0,
+    package_amount: 340000, items: [], discount_amount: 0, deposit_amount: 0,
   };
   const first = reservationSchema.parse(input);
   assert.equal(first.unit_price, 850);
   assert.equal(first.guest_count, 400);
   assert.ok(reservationSchema.safeParse(first).success, "ikinci geçiş başarısız");
+});
+
+test("indirim, ek hizmetler dahil toplamı aşamaz", () => {
+  const base = {
+    customer_id: "22222222-2222-2222-2222-222222222222",
+    venue_id: "33333333-3333-3333-3333-333333333333",
+    package_id: "none", organization_type: "dugun", status: "kesinlesti",
+    event_date: "2026-09-12", start_time: "19:00", end_time: "23:00",
+    guest_count: "", notes: "", due_date: undefined, deposit_amount: 0,
+    pricing_type: "sabit" as const,
+  };
+
+  // Paket 1.000, ek hizmet 2.000 -> toplam 3.000; 2.500 indirim geçerli.
+  const gecerli = reservationSchema.safeParse({
+    ...base,
+    package_amount: 1000,
+    items: [{ name: "Dış çekim", amount: 2000 }],
+    discount_amount: 2500,
+  });
+  assert.ok(gecerli.success);
+
+  // Aynı indirim, ek hizmet olmadan toplamı aşıyor.
+  const gecersiz = reservationSchema.safeParse({
+    ...base,
+    package_amount: 1000,
+    items: [],
+    discount_amount: 2500,
+  });
+  assert.ok(!gecersiz.success);
 });

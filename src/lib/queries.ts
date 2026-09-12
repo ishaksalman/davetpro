@@ -2,6 +2,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { toTurkishError } from "@/lib/errors";
 import type {
+  ReservationItem,
   Customer,
   Package,
   Reservation,
@@ -18,6 +19,12 @@ import type {
  */
 export type ReservationRow = Reservation & {
   pricing?: ReservationPricing | null;
+  /**
+   * Ek hizmet satırları. Düzenleme formu bunları geri yüklüyor; yüklenmezse
+   * kaydetmek mevcut kalemleri silerdi. Finans yetkisi yoksa RLS boş döner —
+   * o kullanıcı zaten fiyat da yazamıyor (save_reservation kontrol ediyor).
+   */
+  items: ReservationItem[];
   customer: { id: string; full_name: string; phone: string } | null;
   venue: { id: string; name: string; color: string } | null;
   package: { id: string; name: string; included_services: string[] } | null;
@@ -110,6 +117,28 @@ export async function getReservationRows(
   const financials = new Map(
     financialsResult.rows.map((f) => [f.reservation_id, f] as const),
   );
+
+  // Kalemler tek sorguda: satır başına ayrı sorgu listeyi N+1'e çevirirdi.
+  const reservationIds = (reservationsResult.data ?? []).map((r) => r.id);
+  const itemsResult = reservationIds.length
+    ? await supabase
+        .from("reservation_items")
+        .select("*")
+        .in("reservation_id", reservationIds)
+        .order("sort_order")
+        .returns<ReservationItem[]>()
+    : { data: [], error: null };
+
+  if (itemsResult.error) {
+    return { rows: [], error: toTurkishError(itemsResult.error), truncated: false };
+  }
+
+  const itemsByReservation = new Map<string, ReservationItem[]>();
+  for (const item of itemsResult.data ?? []) {
+    const list = itemsByReservation.get(item.reservation_id) ?? [];
+    list.push(item);
+    itemsByReservation.set(item.reservation_id, list);
+  }
   const customers = new Map(resolvedLookups.customers.map((c) => [c.id, c] as const));
   const venues = new Map(resolvedLookups.venues.map((v) => [v.id, v] as const));
   const packages = new Map(resolvedLookups.packages.map((p) => [p.id, p] as const));
@@ -138,6 +167,8 @@ export async function getReservationRows(
         ? {
             reservation_id: reservation.id,
             business_id: reservation.business_id,
+            package_amount: f.package_amount,
+            extras_amount: f.extras_amount,
             gross_amount: f.gross_amount,
             discount_amount: f.discount_amount,
             net_amount: f.net_amount,
@@ -147,6 +178,7 @@ export async function getReservationRows(
             updated_at: reservation.updated_at,
           }
         : null,
+      items: itemsByReservation.get(reservation.id) ?? [],
       net_amount: f?.net_amount ?? 0,
       collected_amount: f?.collected_amount ?? 0,
       balance_amount: f?.balance_amount ?? 0,

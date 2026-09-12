@@ -27,7 +27,11 @@ export const moneyField = z
   .union([z.number(), z.string()])
   .transform((v) => {
     if (typeof v === "number") return v;
-    const cleaned = v.trim().replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
+    const cleaned = v
+      .trim()
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".");
     return cleaned === "" ? 0 : Number(cleaned);
   })
   .refine((n) => Number.isFinite(n) && n >= 0, "Geçerli bir tutar girin.")
@@ -44,19 +48,29 @@ const optionalPositiveInt = z
     return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
   });
 
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Geçerli bir tarih seçin.");
+const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Geçerli bir tarih seçin.");
 const optionalIsoDate = z
   .string()
   .nullish()
   .transform((v) => (v ? v : null))
-  .refine((v) => v === null || /^\d{4}-\d{2}-\d{2}$/.test(v), "Geçerli bir tarih seçin.");
-const time = z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Geçerli bir saat girin.");
+  .refine(
+    (v) => v === null || /^\d{4}-\d{2}-\d{2}$/.test(v),
+    "Geçerli bir tarih seçin.",
+  );
+const time = z
+  .string()
+  .regex(/^\d{2}:\d{2}(:\d{2})?$/, "Geçerli bir saat girin.");
 const uuid = z.string().uuid("Geçersiz seçim.");
 const optionalUuid = z
   .string()
   .nullish()
   .transform((v) => (v && v !== "none" ? v : null))
-  .refine((v) => v === null || z.string().uuid().safeParse(v).success, "Geçersiz seçim.");
+  .refine(
+    (v) => v === null || z.string().uuid().safeParse(v).success,
+    "Geçersiz seçim.",
+  );
 
 // --- Hesap -------------------------------------------------------------------
 
@@ -109,7 +123,10 @@ const phone = z
   .trim()
   .min(7, "Telefon numarası eksik.")
   .max(20, "Telefon numarası çok uzun.")
-  .refine((v) => v.replace(/\D/g, "").length >= 10, "Geçerli bir telefon numarası girin.");
+  .refine(
+    (v) => v.replace(/\D/g, "").length >= 10,
+    "Geçerli bir telefon numarası girin.",
+  );
 
 export const customerSchema = z.object({
   id: z.string().uuid().optional(),
@@ -141,7 +158,10 @@ export const customerSchema = z.object({
     .nullish()
     .transform((v) => (v ? v.replace(/\D/g, "") : null))
     .transform((v) => (v ? v : null))
-    .refine((v) => v === null || /^[0-9]{11}$/.test(v), "T.C. Kimlik No 11 haneli olmalı."),
+    .refine(
+      (v) => v === null || /^[0-9]{11}$/.test(v),
+      "T.C. Kimlik No 11 haneli olmalı.",
+    ),
   notes: optionalText,
 });
 export type CustomerInput = z.input<typeof customerSchema>;
@@ -159,6 +179,12 @@ export type ContractTemplateInput = z.input<typeof contractTemplateSchema>;
 
 // --- Rezervasyon -------------------------------------------------------------
 
+/** Rezervasyona eklenen ek hizmet satırı (dış çekim, havai fişek vb.). */
+export const reservationItemSchema = z.object({
+  name: trimmed(2, 120, "Hizmet adı"),
+  amount: moneyField,
+});
+
 export const reservationSchema = z
   .object({
     id: z.string().uuid().optional(),
@@ -166,17 +192,29 @@ export const reservationSchema = z
     venue_id: uuid,
     package_id: optionalUuid,
     organization_type: z.enum([
-      "dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger",
+      "dugun",
+      "nisan",
+      "kina",
+      "soz",
+      "sunnet",
+      "davet",
+      "kurumsal",
+      "diger",
     ]),
-    status: z.enum([
-      "kesinlesti", "tamamlandi", "iptal_edildi",
-    ]),
+    status: z.enum(["kesinlesti", "tamamlandi", "iptal_edildi"]),
     event_date: isoDate,
     start_time: time,
     end_time: time,
     guest_count: optionalPositiveInt,
     notes: optionalText,
-    gross_amount: moneyField,
+    /**
+     * PAKET tutarı — toplam değil. Toplam, ek hizmetler eklenerek bulunuyor
+     * (veritabanında da aynı kural: brüt = paket + kalemler).
+     */
+    package_amount: moneyField,
+    items: z
+      .array(reservationItemSchema)
+      .max(20, "En fazla 20 ek hizmet eklenebilir."),
     discount_amount: moneyField,
     due_date: optionalIsoDate,
     // Kişi başı anlaşıldıysa birim fiyat. Toplam (gross_amount) yine tek
@@ -186,18 +224,30 @@ export const reservationSchema = z
     // Yalnızca yeni kayıtta kullanılır: girilirse ilk tahsilat kaydı açılır.
     deposit_amount: moneyField.nullish(),
   })
-  .refine((v) => v.discount_amount <= v.gross_amount, {
-    message: "İndirim, toplam fiyattan büyük olamaz.",
-    path: ["discount_amount"],
-  })
+  .refine(
+    (v) =>
+      v.discount_amount <=
+      v.package_amount + v.items.reduce((sum, i) => sum + i.amount, 0),
+    {
+      message: "İndirim, toplam fiyattan büyük olamaz.",
+      path: ["discount_amount"],
+    },
+  )
   .refine((v) => v.start_time !== v.end_time, {
     message: "Başlangıç ve bitiş saati aynı olamaz.",
     path: ["end_time"],
   })
-  .refine((v) => (v.deposit_amount ?? 0) <= v.gross_amount - v.discount_amount, {
-    message: "Kapora, net satış tutarından büyük olamaz.",
-    path: ["deposit_amount"],
-  })
+  .refine(
+    (v) =>
+      (v.deposit_amount ?? 0) <=
+      v.package_amount +
+        v.items.reduce((sum, i) => sum + i.amount, 0) -
+        v.discount_amount,
+    {
+      message: "Kapora, net satış tutarından büyük olamaz.",
+      path: ["deposit_amount"],
+    },
+  )
   .refine((v) => v.pricing_type !== "kisi_basi" || (v.unit_price ?? 0) > 0, {
     message: "Kişi başı fiyat girin.",
     path: ["unit_price"],
@@ -340,11 +390,24 @@ export const leadSchema = z
     email: optionalEmail,
 
     organization_type: z.enum([
-      "dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger",
+      "dugun",
+      "nisan",
+      "kina",
+      "soz",
+      "sunnet",
+      "davet",
+      "kurumsal",
+      "diger",
     ]),
     source: z.enum([
-      "whatsapp", "instagram", "telefon", "yuz_yuze", "web", "referans",
-      "google", "diger",
+      "whatsapp",
+      "instagram",
+      "telefon",
+      "yuz_yuze",
+      "web",
+      "referans",
+      "google",
+      "diger",
     ]),
     venue_id: optionalUuid,
     package_id: optionalUuid,
@@ -357,15 +420,22 @@ export const leadSchema = z
     notes: optionalText,
   })
   // Veritabanındaki leads_time_pair kısıtının form karşılığı.
-  .refine(
-    (v) => (v.start_time === null) === (v.end_time === null),
-    { message: "Başlangıç ve bitiş saatini birlikte girin.", path: ["end_time"] },
-  );
+  .refine((v) => (v.start_time === null) === (v.end_time === null), {
+    message: "Başlangıç ve bitiş saatini birlikte girin.",
+    path: ["end_time"],
+  });
 export type LeadInput = z.input<typeof leadSchema>;
 
 export const leadActivitySchema = z.object({
   lead_id: uuid,
-  type: z.enum(["telefon", "whatsapp", "instagram", "yuz_yuze", "eposta", "not"]),
+  type: z.enum([
+    "telefon",
+    "whatsapp",
+    "instagram",
+    "yuz_yuze",
+    "eposta",
+    "not",
+  ]),
   note: trimmed(2, 2000, "Not"),
   occurred_at: optionalDateTime,
 });
@@ -375,12 +445,17 @@ export const leadLostSchema = z
   .object({
     lead_id: uuid,
     lost_reason: z.enum([
-      "fiyat", "tarih", "baska_salon", "vazgecti", "ulasilamadi", "diger",
+      "fiyat",
+      "tarih",
+      "baska_salon",
+      "vazgecti",
+      "ulasilamadi",
+      "diger",
     ]),
     lost_note: optionalText,
   })
   .refine((v) => v.lost_reason !== "diger" || (v.lost_note ?? "").length > 2, {
-    message: "\"Diğer\" seçtiğinizde kısa bir açıklama yazın.",
+    message: '"Diğer" seçtiğinizde kısa bir açıklama yazın.',
     path: ["lost_note"],
   });
 export type LeadLostInput = z.input<typeof leadLostSchema>;
@@ -400,7 +475,9 @@ export const quoteSchema = z
     discount_amount: moneyField,
     valid_until: optionalIsoDate,
     notes: optionalText,
-    items: z.array(quoteItemSchema).max(20, "En fazla 20 ek hizmet eklenebilir."),
+    items: z
+      .array(quoteItemSchema)
+      .max(20, "En fazla 20 ek hizmet eklenebilir."),
   })
   .refine(
     (v) =>
@@ -451,7 +528,8 @@ export const extendAccessSchema = z.object({
   days: z
     .union([z.number(), z.string()])
     .transform((v) => {
-      const n = typeof v === "number" ? v : Number(String(v).replace(/\D/g, ""));
+      const n =
+        typeof v === "number" ? v : Number(String(v).replace(/\D/g, ""));
       return Number.isFinite(n) ? Math.trunc(n) : Number.NaN;
     })
     .refine((n) => Number.isFinite(n), "Gün sayısı girin.")

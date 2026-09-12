@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { UserPlus } from "lucide-react";
+import { Plus, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,14 +36,25 @@ import type {
   Customer,
   Package,
   Reservation,
+  ReservationItem,
   ReservationPricing,
   Venue,
   VenueAvailability,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
 
+/** Sık eklenen kalemler — tek tıkla satır açar. Teklif formuyla aynı liste. */
+const SUGGESTED_EXTRAS = [
+  { name: "Dış çekim", amount: 12000 },
+  { name: "Fotoğraf & Video", amount: 10000 },
+  { name: "Premium Dekorasyon", amount: 15000 },
+  { name: "Müzik / DJ", amount: 12000 },
+];
+
 export type EditableReservation = Reservation & {
   pricing?: ReservationPricing | null;
+  /** Kayıtlı ek hizmet satırları; düzenlerken forma geri yüklenir. */
+  items?: ReservationItem[] | null;
 };
 
 type FormValues = ReservationInput;
@@ -107,7 +118,9 @@ export function ReservationFormDialog({
     notes: reservation?.notes ?? "",
     pricing_type: reservation?.pricing?.unit_price ? "kisi_basi" : "sabit",
     unit_price: reservation?.pricing?.unit_price ?? 0,
-    gross_amount: reservation?.pricing?.gross_amount ?? 0,
+    package_amount: reservation?.pricing?.package_amount ?? 0,
+    items:
+      reservation?.items?.map((i) => ({ name: i.name, amount: i.amount })) ?? [],
     discount_amount: reservation?.pricing?.discount_amount ?? 0,
     due_date: reservation?.pricing?.due_date ?? undefined,
     deposit_amount: 0,
@@ -118,12 +131,21 @@ export function ReservationFormDialog({
     defaultValues,
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
+
   const packageId = form.watch("package_id");
   const pricingType = form.watch("pricing_type");
   const perGuest = pricingType === "kisi_basi";
   const unitPrice = toNumber(form.watch("unit_price"));
   const guestCount = toNumber(form.watch("guest_count"));
-  const gross = toNumber(form.watch("gross_amount"));
+  const packageAmount = toNumber(form.watch("package_amount"));
+  const extraItems = form.watch("items") ?? [];
+  const extras = extraItems.reduce((sum, item) => sum + toNumber(item.amount), 0);
+  // Brüt, formda da veritabanındaki kuralla aynı: paket + ek hizmetler.
+  const gross = packageAmount + extras;
   const discount = toNumber(form.watch("discount_amount"));
   const net = Math.max(0, gross - discount);
 
@@ -183,8 +205,8 @@ export function ReservationFormDialog({
   useEffect(() => {
     if (!perGuest) return;
     const total = Math.round(unitPrice * guestCount * 100) / 100;
-    if (total !== gross) {
-      form.setValue("gross_amount", total, { shouldDirty: true });
+    if (total !== packageAmount) {
+      form.setValue("package_amount", total, { shouldDirty: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perGuest, unitPrice, guestCount]);
@@ -203,7 +225,7 @@ export function ReservationFormDialog({
       form.setValue("unit_price", selected.base_price, { shouldDirty: true });
     } else {
       form.setValue("unit_price", 0, { shouldDirty: true });
-      form.setValue("gross_amount", selected.base_price, { shouldDirty: true });
+      form.setValue("package_amount", selected.base_price, { shouldDirty: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [packageId]);
@@ -423,12 +445,12 @@ export function ReservationFormDialog({
                 />
               </FormField>
             ) : (
-              <FormField form={form} name="gross_amount" label="Anlaşılan toplam fiyat">
+              <FormField form={form} name="package_amount" label="Paket / anlaşılan fiyat">
                 <MoneyInput
-                  id="gross_amount"
-                  value={form.watch("gross_amount")}
+                  id="package_amount"
+                  value={form.watch("package_amount")}
                   onValueChange={(v) =>
-                    form.setValue("gross_amount", v, { shouldDirty: true })
+                    form.setValue("package_amount", v, { shouldDirty: true })
                   }
                 />
               </FormField>
@@ -445,6 +467,77 @@ export function ReservationFormDialog({
             </FormField>
           </div>
 
+          {/* Ek hizmetler — pakete dahil olmayan kalemler (dış çekim gibi).
+              Teklif formundaki bölümün aynısı; brüt tutar paket + kalemler
+              olarak hem burada hem veritabanında hesaplanıyor. */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-medium">Ek hizmetler</h3>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => append({ name: "", amount: 0 })}
+              >
+                <Plus />
+                Satır ekle
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              {SUGGESTED_EXTRAS.filter(
+                (extra) => !extraItems.some((item) => item.name === extra.name),
+              ).map((extra) => (
+                <button
+                  key={extra.name}
+                  type="button"
+                  onClick={() => append(extra)}
+                  className="rounded-md border bg-muted/40 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                >
+                  + {extra.name}
+                </button>
+              ))}
+            </div>
+
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex items-end gap-2">
+                <FormField
+                  form={form}
+                  name={`items.${index}.name`}
+                  label={index === 0 ? "Hizmet" : ""}
+                  className="flex-1"
+                >
+                  <Input
+                    placeholder="Dış çekim"
+                    {...form.register(`items.${index}.name`)}
+                  />
+                </FormField>
+                <FormField
+                  form={form}
+                  name={`items.${index}.amount`}
+                  label={index === 0 ? "Tutar" : ""}
+                  className="w-40"
+                >
+                  <MoneyInput
+                    value={form.watch(`items.${index}.amount`)}
+                    onValueChange={(v) =>
+                      form.setValue(`items.${index}.amount`, v, { shouldDirty: true })
+                    }
+                  />
+                </FormField>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(index)}
+                  aria-label="Satırı sil"
+                >
+                  <Trash2 />
+                </Button>
+              </div>
+            ))}
+          </div>
+
           <div className="space-y-1.5 rounded-lg bg-muted px-3.5 py-3 text-sm">
             {perGuest && (
               <div className="flex items-center justify-between text-muted-foreground">
@@ -453,6 +546,15 @@ export function ReservationFormDialog({
                   {guestCount > 0
                     ? `${formatMoney(unitPrice)} × ${formatNumber(guestCount)} kişi = ${formatMoney(gross)}`
                     : "Kişi sayısı girin"}
+                </span>
+              </div>
+            )}
+            {extras > 0 && (
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Paket + ek hizmetler</span>
+                <span className="tabular">
+                  {formatMoney(packageAmount)} + {formatMoney(extras)} ={" "}
+                  {formatMoney(gross)}
                 </span>
               </div>
             )}

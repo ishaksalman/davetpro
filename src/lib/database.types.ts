@@ -111,9 +111,24 @@ export type Reservation = Timestamps & {
   ends_at: string;
 };
 
+/** Rezervasyona eklenen ek hizmet satırı. */
+export type ReservationItem = {
+  id: string;
+  business_id: string;
+  reservation_id: string;
+  name: string;
+  amount: number;
+  sort_order: number;
+  created_at: string;
+};
+
 export type ReservationPricing = Timestamps & {
   reservation_id: string;
   business_id: string;
+  /** Paket/temel tutar. Brüt = paket + ek hizmetler (0030). */
+  package_amount: number;
+  /** reservation_items toplamı; tetikleyici ile güncel tutuluyor. */
+  extras_amount: number;
   gross_amount: number;
   discount_amount: number;
   net_amount: number;
@@ -181,6 +196,9 @@ export type ReservationFinancials = {
   profit_amount: number;
   profit_margin: number | null;
   unit_price: number | null;
+  /** 0030'dan beri: brüt = paket + ek hizmetler. */
+  package_amount: number;
+  extras_amount: number;
 };
 
 export type CustomerBalance = {
