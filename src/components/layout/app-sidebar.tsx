@@ -19,6 +19,7 @@ import {
 import { BrandIcon } from "@/components/brand/logo";
 import { ShieldCheck } from "lucide-react";
 import { NAV_GROUPS } from "./nav-items";
+import { SupportLink } from "./support-link";
 import { UserMenu } from "./user-menu";
 import type { SubscriptionInfo } from "@/lib/subscription";
 import type { Business, Profile } from "@/lib/database.types";
@@ -122,7 +123,8 @@ export function AppSidebar({
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-2">
+      <SidebarFooter className="gap-1 border-t p-2">
+        <SupportLink businessName={business.name} email={email || null} />
         <UserMenu
           profile={profile}
           email={email}
