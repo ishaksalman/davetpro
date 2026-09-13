@@ -8,8 +8,6 @@ import { Hero } from "@/components/marketing/hero";
 import { Pricing } from "@/components/marketing/pricing";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
-import { Testimonial } from "@/components/marketing/testimonial";
-import { TrustStrip } from "@/components/marketing/trust-strip";
 
 export default async function LandingPage() {
   // Oturum açmış kullanıcının tanıtım sayfasında işi yok.
@@ -23,10 +21,8 @@ export default async function LandingPage() {
       <SiteHeader />
       <main>
         <Hero />
-        <TrustStrip />
         <FeatureCards />
         <FeatureSections />
-        <Testimonial />
         <Bento />
         <Pricing />
         <CtaBand />

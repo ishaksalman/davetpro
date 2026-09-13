@@ -258,7 +258,7 @@ export function FeatureSections() {
         points={[
           "Salon bazında ay, hafta ve gün görünümü",
           "Opsiyonlu tarihler için süre sonu uyarısı",
-          "Aynı güne ikinci rezervasyon veritabanı düzeyinde engellenir",
+          "Çakışan saat veritabanı düzeyinde engellenir",
         ]}
         visual={<CalendarVisual />}
       />
@@ -268,9 +268,11 @@ export function FeatureSections() {
         tinted
         eyebrow="Tahsilat"
         title="Kapora, ara ödeme ve kalan tutar kendiliğinden."
-        body="Ödeme planını bir kez kurun. Her tahsilatta kalan tutar güncellensin, yaklaşan ödemeler panelde beklesin."
+        // "Ödeme planı" taksit çağrıştırıyordu; üründe taksit tablosu yok,
+        // kapora ve tek bir kalan ödeme tarihi var.
+        body="Kaporayı girin, kalan ödeme tarihini belirleyin. Her tahsilatta kalan tutar kendiliğinden güncellenir, vadesi yaklaşanlar panelde bekler."
         points={[
-          "Nakit, havale, kart ve senet ayrı ayrı izlenir",
+          "Nakit, havale/EFT ve kredi kartı ayrı ayrı izlenir",
           "Girilen tahsilat silinemez; iptal gerekçesiyle birlikte iz bırakır",
           "Sözleşme ve teklif çıktısı tek tıkla yazdırılır",
         ]}
@@ -284,7 +286,7 @@ export function FeatureSections() {
         points={[
           "Her organizasyonun geliri ve gideri ayrı hesaplanır",
           "Gider kalemleri kategoriye göre kırılır",
-          "Aylık nakit akışı ve doluluk raporu hazır gelir",
+          "Aylık gelir-gider, salon performansı ve yoğun gün raporları hazır gelir",
         ]}
         visual={<ProfitVisual />}
       />

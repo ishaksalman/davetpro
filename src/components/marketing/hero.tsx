@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CirclePlay, Star } from "lucide-react";
+import { CirclePlay } from "lucide-react";
 import { AppMockup } from "@/components/marketing/app-mockup";
 import { PillLink } from "@/components/marketing/site-header";
 import { FadeIn } from "@/components/marketing/reveal";
@@ -58,25 +58,6 @@ export function Hero() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={240}>
-            <div className="mt-8 flex items-center justify-center gap-3.5">
-              <div className="flex -space-x-2" aria-hidden>
-                {["#1a5cff", "#0fbfd8", "#16e0b4", "#f7f9fc"].map((c) => (
-                  <span
-                    key={c}
-                    style={{ background: c }}
-                    className="size-7 rounded-full border-2 border-mk-ink"
-                  />
-                ))}
-              </div>
-              <p className="text-[0.8125rem] text-white/60">
-                <span className="inline-flex items-center gap-1 font-semibold text-white">
-                  4,9 <Star className="size-3.5 fill-[#f0b429] text-[#f0b429]" />
-                </span>{" "}
-                · 180+ salon DavetPro ile çalışıyor
-              </p>
-            </div>
-          </FadeIn>
         </div>
 
         {/* Ürün — kaydırdıkça büyür. Çerçevenin genişliği sabit; yalnızca

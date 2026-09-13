@@ -5,7 +5,9 @@ const FEATURES = [
   {
     icon: CalendarCheck,
     title: "Çakışmayan takvim",
-    body: "Salon ve tarih bazında tek takvim. Aynı güne ikinci rezervasyon açılmaz.",
+    // "Aynı güne ikinci rezervasyon açılmaz" YANLIŞTI: aynı salonda arada en az
+    // bir saat varsa ikinci organizasyon açılabiliyor (0011_event_gap).
+    body: "Tüm salonlar tek takvimde. Çakışan saate rezervasyon açılmaz; arka arkaya organizasyonlarda en az 1 saat boşluk şart.",
   },
   {
     icon: Layers,

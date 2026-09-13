@@ -9,8 +9,7 @@ const COLUMNS = [
       { label: "Özellikler", href: "#ozellikler" },
       { label: "Nasıl çalışır", href: "#nasil-calisir" },
       { label: "Fiyatlar", href: "#fiyatlar" },
-      { label: "Referanslar", href: "#referanslar" },
-    ],
+        ],
   },
   {
     title: "Kullanım",
