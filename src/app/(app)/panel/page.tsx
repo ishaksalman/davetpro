@@ -6,6 +6,7 @@ import {
   ArrowUpCircle,
   CalendarClock,
   CalendarDays,
+  TrendingDown,
   TrendingUp,
   Wallet,
 } from "lucide-react";
@@ -38,7 +39,8 @@ import type {
   MonthlySeriesRow,
   Payment,
 } from "@/lib/database.types";
-import { monthOverMonth } from "@/lib/trend";
+import { monthOverMonth, type Trend } from "@/lib/trend";
+import { cn } from "@/lib/utils";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -203,23 +205,30 @@ export default async function DashboardPage() {
                 label="Bu ayki organizasyon"
                 value={formatNumber(summary.reservation_count)}
                 hint={
-                  orgTrend?.label ??
-                  (summary.avg_sale
-                    ? `Ortalama ${formatMoney(summary.avg_sale)}`
-                    : undefined)
+                  orgTrend ? (
+                    <TrendHint trend={orgTrend} />
+                  ) : summary.avg_sale ? (
+                    `Ortalama ${formatMoney(summary.avg_sale)}`
+                  ) : undefined
                 }
                 icon={CalendarDays}
               />
               <StatCard
                 label="Bu ayki toplam satış"
                 value={formatMoney(summary.total_sales)}
-                hint={satisTrend?.label ?? "Organizasyon tarihine göre"}
+                hint={
+                  satisTrend ? (
+                    <TrendHint trend={satisTrend} />
+                  ) : (
+                    "Organizasyon tarihine göre"
+                  )
+                }
                 icon={TrendingUp}
               />
               <StatCard
                 label="Bu ay tahsil edilen"
                 value={formatMoney(summary.collected_in_range)}
-                hint={tahsilTrend?.label ?? "Kasaya giren"}
+                hint={tahsilTrend ? <TrendHint trend={tahsilTrend} /> : "Kasaya giren"}
                 tone="positive"
                 icon={ArrowDownCircle}
               />
@@ -513,4 +522,36 @@ function buildTransactions(
   ];
 
   return items.sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 8);
+}
+
+/**
+ * Kart altındaki kıyas satırı.
+ *
+ * Yön hem ikonla hem renkle veriliyor; renk tek başına bırakılsaydı renk körü
+ * kullanıcı için ayırt edilemezdi. "artış / azalış" kelimesi de duruyor —
+ * ikon ve renk kaybolsa bile cümle kendi başına okunabilmeli.
+ */
+function TrendHint({ trend }: { trend: Trend }) {
+  if (trend.direction === "flat") return <>{trend.label}</>;
+
+  const artis = trend.direction === "up";
+  const Icon = artis ? TrendingUp : TrendingDown;
+
+  return (
+    <>
+      Geçen aya göre{" "}
+      <span
+        className={cn(
+          "inline-flex items-center gap-0.5 font-medium",
+          artis
+            ? "text-emerald-600 dark:text-emerald-400"
+            : "text-rose-600 dark:text-rose-400",
+        )}
+      >
+        %{trend.percent}
+        <Icon className="size-3.5" aria-hidden />
+      </span>{" "}
+      {artis ? "artış" : "azalış"}
+    </>
+  );
 }
