@@ -21,9 +21,9 @@ const SIDEBAR = [
   { group: "Genel", items: [
     { label: "Dashboard", icon: House },
     { label: "Takvim", icon: CalendarDays, active: true },
-    { label: "Talepler", icon: MessagesSquare },
     { label: "Rezervasyonlar", icon: Receipt },
     { label: "Müşteriler", icon: Users },
+    { label: "Talepler", icon: MessagesSquare },
   ]},
   { group: "Finans", items: [
     { label: "Gelirler", icon: Wallet },
