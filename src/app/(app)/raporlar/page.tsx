@@ -76,6 +76,13 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
 
   const hasData = Number(s?.reservation_count ?? 0) > 0;
 
+  // Tahsilat çubuğu için oran. Satış sıfırken bölme yapılmıyor.
+  const toplamSatis = Number(s?.total_sales ?? 0);
+  const tahsilOrani =
+    toplamSatis > 0
+      ? Math.min(100, Math.round((Number(s?.collected_in_range ?? 0) / toplamSatis) * 100))
+      : 0;
+
   const topType = typeRows[0];
   const topPackage = packageRows[0];
   const topVenue = venueRows[0];
@@ -92,44 +99,58 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
       />
 
       <PageBody>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard label="Toplam satış" value={formatMoney(s?.total_sales)} />
-          <StatCard
-            label="Tahsil edilen"
-            value={formatMoney(s?.collected_in_range)}
-            tone="positive"
-            hint="İşlem tarihine göre"
-          />
-          <StatCard
-            label="Bekleyen tahsilat"
-            value={formatMoney(s?.outstanding)}
-            tone={Number(s?.outstanding ?? 0) > 0 ? "pending" : "default"}
-          />
-          <StatCard
-            label="Toplam gider"
-            value={formatMoney(s?.total_expenses)}
-            tone="negative"
-          />
+        {/*
+          Üç blok, on iki kart değil. Eskiden hepsi aynı ağırlıktaydı ve
+          hiçbiri "önce buna bak" demiyordu; birbiriyle ilgili rakamlar ayrı
+          kutulara dağılmıştı. Satış/tahsilat/bekleyen tek hikâye, kâr/marj/
+          gider tek hikâye.
+        */}
+        <div className="grid gap-4 lg:grid-cols-3">
+          <StatCard label="Toplam satış" value={formatMoney(s?.total_sales)}>
+            {/* Tahsilat oranı artık gözle okunuyor; önce kullanıcı iki ayrı
+                karta bakıp kafadan hesaplıyordu. */}
+            <div className="mt-4 space-y-2">
+              <div
+                className="h-1.5 overflow-hidden rounded-full bg-muted"
+                role="presentation"
+              >
+                <div
+                  className="h-full rounded-full bg-emerald-500"
+                  style={{ width: `${tahsilOrani}%` }}
+                />
+              </div>
+              <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs">
+                <span className="text-emerald-700 dark:text-emerald-400">
+                  {formatMoney(s?.collected_in_range)} tahsil
+                </span>
+                <span className="text-muted-foreground">
+                  {formatMoney(s?.outstanding)} bekliyor
+                </span>
+              </div>
+            </div>
+          </StatCard>
+
           {/* Dönemde hiç gider girilmemişse kâr = satış ve marj %100 çıkar.
               Bu bir sonuç değil, eksik veri; rakam yerine durumu yazıyoruz. */}
           <StatCard
             label="Kâr"
             value={giderYok ? "—" : formatMoney(s?.profit)}
-            hint={giderYok ? "Bu dönemde gider girilmedi" : "Satış − gider"}
+            hint={
+              giderYok
+                ? "Bu dönemde gider girilmedi"
+                : `${formatPercent(s?.profit_margin)} marj · ${formatMoney(s?.total_expenses)} gider`
+            }
             tone={!giderYok && Number(s?.profit ?? 0) < 0 ? "negative" : "default"}
           />
+
           <StatCard
-            label="Kâr marjı"
-            value={giderYok ? "—" : formatPercent(s?.profit_margin)}
-            hint={giderYok ? "Gider girilince hesaplanır" : undefined}
-          />
-          <StatCard
-            label="Organizasyon sayısı"
+            label="Organizasyon"
             value={formatNumber(s?.reservation_count)}
-          />
-          <StatCard
-            label="Organizasyon başına ortalama"
-            value={s?.avg_sale ? formatMoney(s.avg_sale) : "—"}
+            hint={
+              s?.avg_sale
+                ? `Organizasyon başına ortalama ${formatMoney(s.avg_sale)}`
+                : undefined
+            }
           />
         </div>
 
@@ -141,7 +162,12 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
           />
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/*
+              Bunlar metrik değil, kategorik öne çıkanlar. Para rakamlarıyla
+              aynı kutuda durunca hem yer kaplıyor hem yanlış bir eşitlik
+              kuruyordu. Kart değil, tek satırlık şerit.
+            */}
+            <div className="grid gap-x-6 gap-y-4 rounded-xl border bg-card px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
               <Highlight
                 label="En çok tercih edilen tür"
                 value={
@@ -153,7 +179,9 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                 label="En çok satılan paket"
                 value={topPackage?.package_name ?? "—"}
                 hint={
-                  topPackage ? `${topPackage.reservation_count} organizasyon` : "Paket kullanılmamış"
+                  topPackage
+                    ? `${topPackage.reservation_count} organizasyon`
+                    : "Paket kullanılmamış"
                 }
               />
               <Highlight
@@ -269,11 +297,12 @@ function Highlight({
   value: string;
   hint?: string;
 }) {
+  // Kendi kenarlığı yok: dördü birden tek bir şeridin içinde duruyor.
   return (
-    <div className="rounded-xl border bg-card p-5">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-2 truncate text-lg font-semibold tracking-tight">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
+    <div className="min-w-0">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 truncate font-semibold tracking-tight">{value}</p>
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
