@@ -61,11 +61,23 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/;
  * URL'deki ?bas / ?bit / ?aralik parametrelerinden tarih aralığı üretir.
  * Geçersiz değerlerde sessizce varsayılana (bu ay) döner.
  */
-export function parseDateRange(searchParams: {
-  bas?: string | string[];
-  bit?: string | string[];
-  aralik?: string | string[];
-}): DateRange & { preset: RangePreset | null } {
+/**
+ * Adres çubuğundaki dönemi çözer.
+ *
+ * `fallback` çağırana bırakıldı çünkü doğru varsayılan ekrana göre değişiyor:
+ * gelir/gider listeleri nakit akışı ekranı, orada "bu ay" doğru. Raporlar ise
+ * kârlılık ekranı ve düğün salonu mevsimlik çalışıyor — ocak ayında iki, ağustosta
+ * kırk organizasyon olabiliyor. Tek aya bakmak yanıltıcı; üstelik ayın özeti
+ * zaten panelde duruyor.
+ */
+export function parseDateRange(
+  searchParams: {
+    bas?: string | string[];
+    bit?: string | string[];
+    aralik?: string | string[];
+  },
+  fallback: RangePreset = "bu-ay",
+): DateRange & { preset: RangePreset | null } {
   const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const from = first(searchParams.bas);
   const to = first(searchParams.bit);
@@ -79,7 +91,7 @@ export function parseDateRange(searchParams: {
     preset as RangePreset,
   )
     ? (preset as RangePreset)
-    : "bu-ay";
+    : fallback;
 
   return { ...resolvePreset(valid), preset: valid };
 }

@@ -33,7 +33,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
   if (!canSeeFinance(profile)) notFound();
 
   const params = await searchParams;
-  const { from, to, preset } = parseDateRange(params);
+  const { from, to, preset } = parseDateRange(params, "bu-yil");
 
   const supabase = await createClient();
   const range = { p_from: from, p_to: to };
