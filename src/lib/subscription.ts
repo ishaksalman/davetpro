@@ -19,7 +19,7 @@ export const BILLING_WHATSAPP = "0538 927 57 28";
 export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
 
 /**
- * Fiyatlandırma: TEK PAKET, TEK DÖNEM — yıllık.
+ * Fiyatlandırma: TEK PAKET, iki dönem — 6 ay ve 12 ay.
  *
  * NEDEN KADEME YOK: kademe, her yeni özellikte "bu hangi pakette" sorusunu,
  * yükseltme yolunu, limit denetimini ve satışta bir açıklamayı beraberinde
@@ -27,26 +27,69 @@ export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
  * şey içermiyor; başka ürünlere olduğu gibi taşınabilsin diye sade tutuldu.
  *
  * NEDEN AYLIK YOK: ödeme havale ile alınıp elle onaylanıyor. Aylıkta bir
- * müşteri için yılda on iki kez yazışıp onaylamak gerekirdi. Yıllık peşin
- * ayrıca bırakma oranını düşürüyor. Sektördeki iki rakip de yalnızca yıllık
- * satıyor.
+ * müşteri için yılda on iki kez yazışıp onaylamak gerekirdi. Altı ay, yıllık
+ * peşine hazır olmayan müşteri için giriş kapısı.
  *
  * NEDEN SALON SAYISINA GÖRE DEĞİL: dönem ortasında salon eklenince tutarın
  * değişmesi, elle tahsilatta her seferinde yazışma demekti. Salon sayısı yine
  * /yonetim listesinde görünüyor — Kurumsal adayını fark etmek için.
  */
 
-/** Yıllık abonelik bedeli. */
-export const YEARLY_PRICE = 6000;
+/** Aylık taban fiyat. Dönem bedelleri bundan türetiliyor. */
+export const MONTHLY_PRICE = 500;
 
-/** Bir yıllık erişimin gün karşılığı — yönetim ekranındaki uzatma ile aynı. */
-export const YEARLY_DAYS = 365;
+/** 12 aylık dönemde ödenmeyen ay sayısı. */
+export const FREE_MONTHS_YEARLY = 1;
+
+export type BillingPeriod = "alti-ay" | "on-iki-ay";
+
+export type BillingTerm = {
+  id: BillingPeriod;
+  label: string;
+  months: number;
+  /** Ödenen ay sayısı; 12 aylıkta bir ay alınmıyor. */
+  paidMonths: number;
+  price: number;
+  /** Erişim gün karşılığı — yönetim ekranındaki uzatma ile aynı birim. */
+  days: number;
+  featured?: boolean;
+};
+
+function term(
+  id: BillingPeriod,
+  label: string,
+  months: number,
+  bedavaAy: number,
+  featured?: boolean,
+): BillingTerm {
+  const paidMonths = months - bedavaAy;
+  return {
+    id,
+    label,
+    months,
+    paidMonths,
+    price: MONTHLY_PRICE * paidMonths,
+    // 30 gün/ay: yönetim ekranı gün ekliyor, ay değil.
+    days: months * 30,
+    featured,
+  };
+}
 
 /**
- * Aylığa bölünmüş karşılık. Satışta rakamı küçültmek için gösteriliyor;
- * aylık ödeme seçeneği YOK, bu yalnızca bir kıyas.
+ * Dönemler. Bedeller taban fiyattan HESAPLANIYOR, elle yazılmıyor — böylece
+ * "1 ay ücretsiz" ifadesi ile fiyat birbirinden ayrışamıyor.
  */
-export const MONTHLY_EQUIVALENT = Math.round(YEARLY_PRICE / 12);
+export const BILLING_TERMS: BillingTerm[] = [
+  term("alti-ay", "6 ay", 6, 0),
+  term("on-iki-ay", "12 ay", 12, FREE_MONTHS_YEARLY, true),
+];
+
+/** 12 aylık dönemde cepte kalan tutar. */
+export const YEARLY_SAVING = MONTHLY_PRICE * FREE_MONTHS_YEARLY;
+
+/** Satış sayfasında gösterilen giriş bedeli — en kısa dönem. */
+export const ENTRY_TERM = BILLING_TERMS[0];
+export const YEARLY_TERM = BILLING_TERMS[1];
 
 /** Pakete dahil olan her şey — satış sayfası ve abonelik sayfası aynı listeyi kullanır. */
 export const PLAN_FEATURES = [
@@ -122,14 +165,14 @@ export function subscriptionWhatsAppMessage({
   businessName,
   referenceCode,
   email,
-  withPlan,
+  term,
 }: {
   state: SubscriptionState;
   businessName: string;
   referenceCode: string;
   email: string | null;
-  /** true ise mesajda yıllık abonelik bedeli de yazılır. */
-  withPlan?: boolean;
+  /** Verilirse mesajda seçilen dönem ve bedeli yazılır. */
+  term?: BillingTerm;
 }): string {
   const acilis =
     state === "sona_erdi"
@@ -142,7 +185,7 @@ export function subscriptionWhatsAppMessage({
   if (email) satirlar.push(`Hesap: ${email}`);
   // Hangi dönemi istediği mesajda yazılı olsun; yazışmada tekrar sormaya gerek
   // kalmıyor ve süre uzatılırken kaç gün ekleneceği net.
-  if (withPlan) satirlar.push(`Plan: Yıllık (${YEARLY_PRICE} TL)`);
+  if (term) satirlar.push(`Plan: ${term.label} (${term.price} TL)`);
   return satirlar.join("\n");
 }
 

@@ -4,10 +4,12 @@ import { Reveal } from "@/components/marketing/reveal";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import {
-  MONTHLY_EQUIVALENT,
+  ENTRY_TERM,
+  FREE_MONTHS_YEARLY,
+  MONTHLY_PRICE,
   PLAN_FEATURES,
   TRIAL_DAYS,
-  YEARLY_PRICE,
+  YEARLY_TERM,
 } from "@/lib/subscription";
 
 /**
@@ -20,9 +22,10 @@ import {
 const PLANS = [
   {
     name: "DavetPro",
-    price: formatMoney(YEARLY_PRICE),
-    period: "/ yıl",
-    note: `365 gün, tek ödeme. Ayda ${formatMoney(MONTHLY_EQUIVALENT)}'ye denk geliyor.`,
+    // Giriş bedeli en kısa dönem; uzun dönem avantajı notta duruyor.
+    price: formatMoney(ENTRY_TERM.price),
+    period: `/ ${ENTRY_TERM.label}`,
+    note: `Ayda ${formatMoney(MONTHLY_PRICE)}. ${YEARLY_TERM.label} ödeyin ${formatMoney(YEARLY_TERM.price)}, ${FREE_MONTHS_YEARLY} ay ücretsiz.`,
     featured: true,
     features: PLAN_FEATURES,
     cta: "Ücretsiz deneyin",
@@ -54,8 +57,8 @@ export function Pricing() {
             Bir düğünün kaporasından az.
           </h2>
           <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">
-            {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. Yıllık, KDV
-            hariç fiyattır; istediğiniz zaman iptal edebilirsiniz.
+            {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. KDV hariç
+            fiyatlardır; istediğiniz zaman iptal edebilirsiniz.
           </p>
         </Reveal>
 

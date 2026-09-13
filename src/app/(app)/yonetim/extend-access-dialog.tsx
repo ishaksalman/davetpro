@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { FormDialog, FormField, type TriggerButton } from "@/components/shared/form-dialog";
 import { formatDate } from "@/lib/format";
 import { extendAccessSchema, type ExtendAccessInput } from "@/lib/schemas";
-import { YEARLY_DAYS } from "@/lib/subscription";
+import { BILLING_TERMS } from "@/lib/subscription";
 import type { AdminBusinessRow } from "@/lib/database.types";
 import { extendAccess } from "./actions";
 
@@ -20,8 +20,8 @@ import { extendAccess } from "./actions";
 const KISAYOLLAR = [
   { days: 7, label: "1 hafta" },
   { days: 30, label: "1 ay" },
-  { days: 90, label: "3 ay" },
-  { days: YEARLY_DAYS, label: "1 yıl" },
+  // Satılan iki dönem; gün karşılıkları fiyat listesiyle aynı yerden geliyor.
+  ...BILLING_TERMS.map((t) => ({ days: t.days, label: t.label })),
 ];
 
 export function ExtendAccessDialog({
@@ -35,8 +35,8 @@ export function ExtendAccessDialog({
 }) {
   const defaultValues: ExtendAccessInput = {
     business_id: row.business_id,
-    // Satılan şey yıllık abonelik; varsayılan da o olsun.
-    days: YEARLY_DAYS,
+    // En uzun dönem varsayılan; en sık onaylanan o.
+    days: BILLING_TERMS[BILLING_TERMS.length - 1].days,
     note: "",
   };
 
