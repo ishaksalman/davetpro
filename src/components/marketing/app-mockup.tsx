@@ -62,27 +62,27 @@ type Gun = {
 const HAFTALAR: Gun[][] = [
   [
     { d: 31, onceki: true }, { d: 1 }, { d: 2 },
-    { d: 3, e: [["19:00 Ahmet Erdinç", KAPALI]] },
+    { d: 3, e: [["19:00 Zeynep & Burak", KAPALI]] },
     { d: 4 },
-    { d: 5, e: [["15:00 Elif & Serkan", KAPALI], ["19:00 Reyhan & Ömer", KIR]] },
-    { d: 6, e: [["19:00 Sude & Fatih", KAPALI]] },
+    { d: 5, e: [["15:00 Melis & Kaan", KAPALI], ["19:00 Ece & Onur", KIR]] },
+    { d: 6, e: [["19:00 Nil & Barış", KAPALI]] },
   ],
   [
     { d: 7 }, { d: 8 }, { d: 9 }, { d: 10 },
-    { d: 11, e: [["19:00 Kenan Yıldız", KIR]], fazla: 2 },
-    { d: 12, e: [["19:00 Damla & Tolga", KAPALI]] },
+    { d: 11, e: [["19:00 Deniz Aydın", KIR]], fazla: 2 },
+    { d: 12, e: [["19:00 Selin & Emre", KAPALI]] },
     { d: 13, bugun: true },
   ],
   [
     { d: 14 }, { d: 15 }, { d: 16 },
-    { d: 17, e: [["19:00 Reyhan & Ömer", KAPALI]] },
-    { d: 18, e: [["19:00 Ahmet Erdinç", KIR]] },
-    { d: 19, e: [["19:00 Damla & Tolga", KAPALI], ["19:00 Ahmet & Ayşe", KAPALI]] },
-    { d: 20, e: [["19:00 Ahmet Erdinç", KIR]], talep: "19:00 Zeki Çelik" },
+    { d: 17, e: [["19:00 Ece & Onur", KAPALI]] },
+    { d: 18, e: [["19:00 İrem & Cem", KIR]] },
+    { d: 19, e: [["19:00 Selin & Emre", KAPALI], ["19:00 Pelin & Umut", KAPALI]] },
+    { d: 20, e: [["19:00 Hazal & Efe", KIR]], talep: "19:00 Gökhan Şahin" },
   ],
   [
     { d: 21 }, { d: 22 }, { d: 23 }, { d: 24 }, { d: 25 },
-    { d: 26, e: [["19:00 Ahmet Erdinç", KAPALI], ["19:00 Ahmet Erdinç", KIR]] },
+    { d: 26, e: [["19:00 Aslı & Mert", KAPALI], ["19:00 Buse & Arda", KIR]] },
     { d: 27 },
   ],
   [{ d: 28 }, { d: 29 }, { d: 30 }, { d: null }, { d: null }, { d: null }, { d: null }],
@@ -111,7 +111,7 @@ export function AppMockup({ className }: { className?: string }) {
             <BrandMark className="h-5 w-auto" />
             <span className="min-w-0">
               <span className="block truncate text-[0.75rem] font-semibold tracking-tight text-mk-ink">
-                Alya Davet
+                Meridyen Davet
               </span>
               <span className="block text-[0.625rem] text-mk-muted">DavetPro</span>
             </span>
@@ -146,11 +146,11 @@ export function AppMockup({ className }: { className?: string }) {
           {/* Kullanıcı satırı — gerçek kenar çubuğunda da en altta duruyor. */}
           <div className="flex items-center gap-2 border-t border-mk-line px-3 py-2">
             <span className="flex size-6 items-center justify-center rounded-md bg-mk-ink/5 text-[0.5625rem] font-medium text-mk-muted">
-              is
+              ma
             </span>
             <span className="min-w-0">
               <span className="block truncate text-[0.6875rem] font-medium text-mk-ink">
-                İshak Salman
+                Murat Aksoy
               </span>
               <span className="block text-[0.5625rem] text-mk-muted">
                 İşletme Sahibi
@@ -212,11 +212,11 @@ export function AppMockup({ className }: { className?: string }) {
             <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.625rem] text-mk-muted">
               <span className="flex items-center gap-1">
                 <span className="size-1.5 rounded-full bg-[#6366f1]" />
-                Alya Kapalı Nişan Salonu
+                Meridyen Balo Salonu
               </span>
               <span className="flex items-center gap-1">
                 <span className="size-1.5 rounded-full bg-[#4ade80]" />
-                Alya Kır Düğün Salonu
+                Meridyen Kır Bahçesi
               </span>
               <span className="hidden h-3 w-px bg-mk-line lg:block" />
               <span className="hidden items-center gap-1 lg:flex">
@@ -258,7 +258,7 @@ export function AppMockup({ className }: { className?: string }) {
                     <div
                       key={gi}
                       className={cn(
-                        "min-h-[46px] px-1 py-1 sm:min-h-[54px]",
+                        "min-h-[58px] px-1 py-1.5 sm:min-h-[78px] sm:px-1.5",
                         gi < 6 && "border-r border-mk-line",
                         (gun.d === null || gun.onceki) && "bg-mk-soft/50",
                         gun.bugun && "bg-mk-soft",
@@ -277,7 +277,7 @@ export function AppMockup({ className }: { className?: string }) {
                         {gun.d ?? ""}
                       </span>
 
-                      <span className="mt-1 flex flex-col gap-0.5">
+                      <span className="mt-1.5 flex flex-col gap-0.5 sm:gap-1">
                         {/* Dar ekranda metin "19:…" diye kırpılıp okunmaz
                             hale geliyordu; renkli çubuk doluluğu zaten
                             anlatıyor. */}
