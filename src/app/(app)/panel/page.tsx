@@ -38,6 +38,7 @@ import type {
   MonthlySeriesRow,
   Payment,
 } from "@/lib/database.types";
+import { monthOverMonth } from "@/lib/trend";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -52,10 +53,22 @@ export default async function DashboardPage() {
   const monthStart = toISODate(startOfMonth(now));
   const monthEnd = toISODate(endOfMonth(now));
   const seriesStart = toISODate(startOfMonth(subMonths(now, 5)));
+  // Kartlardaki "geçen aya göre" kıyası için.
+  const prevMonth = subMonths(now, 1);
+  const prevStart = toISODate(startOfMonth(prevMonth));
+  const prevEnd = toISODate(endOfMonth(prevMonth));
 
   const supabase = await createClient();
 
-  const [lookups, reservationsResult, summaryResult, seriesResult, recentPayments, recentExpenses] =
+  const [
+    lookups,
+    reservationsResult,
+    summaryResult,
+    seriesResult,
+    prevSummaryResult,
+    recentPayments,
+    recentExpenses,
+  ] =
     await Promise.all([
       getLookups(),
       getReservationRows({ from: today }),
@@ -64,6 +77,9 @@ export default async function DashboardPage() {
         : Promise.resolve({ data: null }),
       showFinance
         ? supabase.rpc("monthly_series", { p_from: seriesStart, p_to: monthEnd })
+        : Promise.resolve({ data: null }),
+      showFinance
+        ? supabase.rpc("finance_summary", { p_from: prevStart, p_to: prevEnd })
         : Promise.resolve({ data: null }),
       showFinance
         ? supabase
@@ -108,6 +124,23 @@ export default async function DashboardPage() {
   const nextEvents = upcoming.filter((r) => r.event_date > today).slice(0, 5);
 
   const summary = (summaryResult.data as FinanceSummary[] | null)?.[0] ?? null;
+  const prevSummary =
+    (prevSummaryResult.data as FinanceSummary[] | null)?.[0] ?? null;
+
+  /*
+   * Kart altlarındaki kıyas. Geçen ay hiç kayıt yoksa null dönüyor ve
+   * kartlar eski açıklayıcı metinlerine düşüyor — "%100 artış" demek
+   * sıfırdan çıkışta anlamsız olurdu.
+   */
+  const orgTrend = monthOverMonth(
+    summary?.reservation_count,
+    prevSummary?.reservation_count,
+  );
+  const satisTrend = monthOverMonth(summary?.total_sales, prevSummary?.total_sales);
+  const tahsilTrend = monthOverMonth(
+    summary?.collected_in_range,
+    prevSummary?.collected_in_range,
+  );
   const series = (seriesResult.data as MonthlySeriesRow[] | null) ?? [];
 
   // Yaklaşan ödemeler: ödeme tarihi girilmiş ve bakiyesi kalan organizasyonlar.
@@ -170,22 +203,23 @@ export default async function DashboardPage() {
                 label="Bu ayki organizasyon"
                 value={formatNumber(summary.reservation_count)}
                 hint={
-                  summary.avg_sale
+                  orgTrend?.label ??
+                  (summary.avg_sale
                     ? `Ortalama ${formatMoney(summary.avg_sale)}`
-                    : undefined
+                    : undefined)
                 }
                 icon={CalendarDays}
               />
               <StatCard
                 label="Bu ayki toplam satış"
                 value={formatMoney(summary.total_sales)}
-                hint="Organizasyon tarihine göre"
+                hint={satisTrend?.label ?? "Organizasyon tarihine göre"}
                 icon={TrendingUp}
               />
               <StatCard
                 label="Bu ay tahsil edilen"
                 value={formatMoney(summary.collected_in_range)}
-                hint="Kasaya giren"
+                hint={tahsilTrend?.label ?? "Kasaya giren"}
                 tone="positive"
                 icon={ArrowDownCircle}
               />
