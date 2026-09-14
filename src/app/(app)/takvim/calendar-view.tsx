@@ -42,6 +42,7 @@ import type {
 } from "@/lib/database.types";
 import type { ReservationRow } from "@/lib/queries";
 import { cn } from "@/lib/utils";
+import { useVertical } from "@/components/layout/vertical-provider";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
 const localizer = dateFnsLocalizer({
@@ -134,6 +135,7 @@ export function CalendarView({
   packages: Package[];
   showFinance: boolean;
 }) {
+  const sozluk = useVertical();
   const router = useRouter();
   const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState(new Date());
@@ -293,7 +295,7 @@ export function CalendarView({
               <Select value={venueId} onValueChange={setVenueId}>
                 <SelectTrigger
                   className="min-w-0 flex-1 sm:w-40 sm:flex-none"
-                  aria-label="Salon filtresi"
+                  aria-label={`${sozluk.resource.singular} filtresi`}
                 >
                   <SelectValue />
                 </SelectTrigger>

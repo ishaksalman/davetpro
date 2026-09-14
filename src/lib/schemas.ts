@@ -94,7 +94,8 @@ export type ChangePasswordInput = z.input<typeof changePasswordSchema>;
 
 export const venueSchema = z.object({
   id: z.string().uuid().optional(),
-  name: trimmed(1, 120, "Salon adı"),
+  // Etiket nötr: aynı şema hem salon hem ekip kaydı için çalışıyor.
+  name: trimmed(1, 120, "İsim"),
   capacity: optionalPositiveInt,
   description: optionalText,
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Geçersiz renk."),

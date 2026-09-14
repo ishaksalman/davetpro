@@ -26,6 +26,10 @@ export type Vertical = {
   resourceField: string;
   /** İşletme adı için örnek metin. */
   businessPlaceholder: string;
+  /** Kaynak adı için örnek metin. */
+  resourcePlaceholder: string;
+  /** Kaynak açıklaması için örnek metin. */
+  resourceDescPlaceholder: string;
 };
 
 export const VERTICALS: Record<BusinessType, Vertical> = {
@@ -38,6 +42,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceEmpty: "Henüz salon eklenmemiş",
     resourceField: "Salon",
     businessPlaceholder: "Gül Düğün Salonu",
+    resourcePlaceholder: "Balo Salonu",
+    resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
   },
   fotografci: {
     label: "Fotoğrafçı",
@@ -48,6 +54,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceEmpty: "Henüz ekip eklenmemiş",
     resourceField: "Ekip",
     businessPlaceholder: "Ela Fotoğrafçılık",
+    resourcePlaceholder: "1. Ekip",
+    resourceDescPlaceholder: "İki fotoğrafçı, bir video operatörü",
   },
 };
 

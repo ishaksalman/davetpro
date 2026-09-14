@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -39,6 +40,7 @@ export function LeadBoard({
   venues: Venue[];
   members: Pick<Profile, "id" | "full_name">[];
 }) {
+  const sozluk = useVertical();
   // Tek görünüm var: liste. Dar ekranda tablo yerine kart yığını.
   const narrow = useNarrowScreen();
   const [search, setSearch] = useState("");
@@ -93,7 +95,7 @@ export function LeadBoard({
         <FilterSelect
           value={venue}
           onChange={setVenue}
-          placeholder="Salon"
+          placeholder={sozluk.resourceField}
           options={venues.map((v) => ({ value: v.id, label: v.name }))}
         />
         <FilterSelect

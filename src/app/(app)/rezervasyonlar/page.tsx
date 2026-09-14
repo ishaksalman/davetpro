@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { canSeeFinance, isAdmin, requireSession } from "@/lib/auth";
+import { vertical } from "@/lib/vertical";
 import { getLookups, getReservationRows } from "@/lib/queries";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/shared/error-state";
@@ -14,7 +15,10 @@ import { ReservationTable } from "./reservation-table";
 export const metadata: Metadata = { title: "Rezervasyonlar" };
 
 export default async function ReservationsPage() {
-  const { profile } = await requireSession();
+  const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
   const [lookups, { rows, error, truncated }] = await Promise.all([
     getLookups(),
     getReservationRows({}),
@@ -46,8 +50,8 @@ export default async function ReservationsPage() {
         ) : !hasVenue ? (
           <EmptyState
             icon={Store}
-            title="Önce bir salon tanımlayın"
-            description="Rezervasyonlar mutlaka bir salonla ilişkilendirilir. Salonlarınızı ekledikten sonra buraya dönebilirsiniz."
+            title={`Önce bir ${kucuk} tanımlayın`}
+            description={`Rezervasyonlar mutlaka bir ${kucuk} ile ilişkilendirilir. ${sozluk.resource.plural} bölümünü doldurduktan sonra buraya dönebilirsiniz.`}
             action={
               <Button asChild>
                 <Link href="/salonlar">Salon ekle</Link>

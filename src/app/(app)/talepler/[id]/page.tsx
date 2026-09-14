@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Phone } from "lucide-react";
 import { canSeeFinance, requireSession } from "@/lib/auth";
+import { vertical } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups } from "@/lib/queries";
 import { getLeadById } from "@/lib/leads";
@@ -41,7 +42,8 @@ export default async function LeadDetailPage({
   params,
 }: PageProps<"/talepler/[id]">) {
   const { id } = await params;
-  const { profile } = await requireSession();
+  const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
   const showFinance = canSeeFinance(profile);
 
   const supabase = await createClient();
@@ -146,7 +148,7 @@ export default async function LeadDetailPage({
                   {ORGANIZATION_TYPE_LABELS[lead.organization_type]}
                 </Detail>
                 <Detail label="Kaynak">{LEAD_SOURCE_LABELS[lead.source]}</Detail>
-                <Detail label="Salon">{lead.venue?.name ?? "Belirsiz"}</Detail>
+                <Detail label={sozluk.resourceField}>{lead.venue?.name ?? "Belirsiz"}</Detail>
                 <Detail label="Tarih">
                   {lead.event_date ? formatDate(lead.event_date) : "Belirsiz"}
                 </Detail>

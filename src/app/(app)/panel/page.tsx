@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { canSeeFinance, requireSession } from "@/lib/auth";
+import { vertical } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationRows } from "@/lib/queries";
 import { today as businessToday, todayISO } from "@/lib/time";
@@ -47,6 +48,8 @@ export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
+
   const showFinance = canSeeFinance(profile);
 
   // Sunucunun değil işletmenin saatine göre "bugün".
@@ -189,7 +192,7 @@ export default async function DashboardPage() {
           <EmptyState
             icon={CalendarDays}
             title="Kuruluma birkaç adım kaldı"
-            description="Salonlarınızı tanımlayın, ardından paketlerinizi ekleyin. Sonrasında rezervasyon almaya başlayabilirsiniz."
+            description={`${sozluk.resource.plural} bölümünü doldurun, ardından paketlerinizi ekleyin. Sonrasında rezervasyon almaya başlayabilirsiniz.`}
             action={
               <Button asChild>
                 <Link href="/salonlar">Salonları tanımla</Link>

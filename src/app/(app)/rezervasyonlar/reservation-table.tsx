@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -64,6 +65,8 @@ export function ReservationTable({
   showFinance: boolean;
   canDelete: boolean;
 }) {
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
   const router = useRouter();
   const [status, setStatus] = useState<ReservationStatus | "all">("all");
   const [venueId, setVenueId] = useState<string>("all");
@@ -128,7 +131,7 @@ export function ReservationTable({
       },
       {
         id: "venue",
-        header: "Salon",
+        header: sozluk.resourceField,
         accessorFn: (row) => row.venue?.name ?? "",
         cell: ({ row }) => (
           <span className="flex items-center gap-2 whitespace-nowrap">
@@ -269,14 +272,14 @@ export function ReservationTable({
     });
 
     return base;
-  }, [showFinance, canDelete, customers, venues, packages]);
+  }, [showFinance, canDelete, customers, venues, packages, sozluk.resourceField]);
 
   return (
     <DataTable
       columns={columns}
       data={filtered}
       totalCount={reservations.length}
-      searchPlaceholder="Müşteri veya salon ara…"
+      searchPlaceholder={`Müşteri veya ${kucuk} ara…`}
       onRowClick={(row) => router.push(`/rezervasyonlar/${row.id}`)}
       rowClassName={(row) =>
         cn(row.status === "iptal_edildi" && "text-muted-foreground line-through")
@@ -310,7 +313,7 @@ export function ReservationTable({
 
           {venues.length > 1 && (
             <Select value={venueId} onValueChange={setVenueId}>
-              <SelectTrigger className="w-40" aria-label="Salon filtresi">
+              <SelectTrigger className="w-40" aria-label={`${sozluk.resource.singular} filtresi`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

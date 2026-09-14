@@ -31,7 +31,7 @@ export default async function PackagesPage() {
     <>
       <PageHeader
         title="Paketler"
-        description="Salonunuzun hazır fiyat paketleri."
+        description="İşletmenizin hazır fiyat paketleri."
         actions={
           <PackageFormDialog
             venues={venues}

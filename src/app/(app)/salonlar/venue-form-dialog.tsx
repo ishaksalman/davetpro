@@ -11,6 +11,7 @@ import {
   type TriggerButton,
 } from "@/components/shared/form-dialog";
 import { VENUE_COLORS } from "@/lib/constants";
+import { useVertical } from "@/components/layout/vertical-provider";
 import { venueSchema, type VenueInput } from "@/lib/schemas";
 import type { Venue } from "@/lib/database.types";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,9 @@ export function VenueFormDialog({
   triggerButton?: TriggerButton;
   suggestedColor?: string;
 }) {
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
   const defaultValues: VenueInput = {
     id: venue?.id,
     name: venue?.name ?? "",
@@ -47,15 +51,15 @@ export function VenueFormDialog({
     <FormDialog
       trigger={trigger}
       triggerButton={triggerButton}
-      title={venue ? "Salonu düzenle" : "Yeni salon"}
-      description="Salon adı takvimde ve rezervasyon listelerinde görünür."
+      title={venue ? `${sozluk.resource.singular} bilgilerini düzenle` : sozluk.resourceNew}
+      description={`${sozluk.resource.singular} adı takvimde ve rezervasyon listelerinde görünür.`}
       form={form}
       defaultValues={defaultValues}
       action={saveVenue}
-      successMessage={venue ? "Salon güncellendi." : "Salon eklendi."}
+      successMessage={venue ? `${sozluk.resource.singular} güncellendi.` : `${sozluk.resource.singular} eklendi.`}
     >
-      <FormField form={form} name="name" label="Salon adı">
-        <Input id="name" placeholder="Balo Salonu" {...form.register("name")} />
+      <FormField form={form} name="name" label={`${sozluk.resource.singular} adı`}>
+        <Input id="name" placeholder={sozluk.resourcePlaceholder} {...form.register("name")} />
       </FormField>
 
       <FormField
@@ -76,7 +80,7 @@ export function VenueFormDialog({
         form={form}
         name="color"
         label="Takvim rengi"
-        description="Takvimde bu salonun rezervasyonları bu renkle görünür."
+        description={`Takvimde bu ${kucuk} kaydının rezervasyonları bu renkle görünür.`}
       >
         <div className="flex flex-wrap gap-2">
           {VENUE_COLORS.map((c) => (
@@ -100,7 +104,7 @@ export function VenueFormDialog({
         <Textarea
           id="description"
           rows={3}
-          placeholder="Kapalı, klimalı, 500 kişilik balo salonu"
+          placeholder={sozluk.resourceDescPlaceholder}
           {...form.register("description")}
         />
       </FormField>

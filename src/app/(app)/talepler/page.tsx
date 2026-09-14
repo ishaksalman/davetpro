@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Store } from "lucide-react";
 import { requireSession } from "@/lib/auth";
+import { vertical } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups } from "@/lib/queries";
 import { getLeadRows } from "@/lib/leads";
@@ -18,7 +19,10 @@ import { LeadFormDialog } from "./lead-form-dialog";
 export const metadata: Metadata = { title: "Talepler" };
 
 export default async function LeadsPage() {
-  await requireSession();
+  const { business } = await requireSession();
+  const sozluk = vertical(business.business_type);
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
 
   const supabase = await createClient();
   const [lookups, { rows, error, truncated }, membersResult] = await Promise.all([
@@ -63,8 +67,8 @@ export default async function LeadsPage() {
         ) : !hasVenue && rows.length === 0 ? (
           <EmptyState
             icon={Store}
-            title="Önce bir salon tanımlayın"
-            description="Talep alırken müşteriye hangi salonu önerdiğinizi kaydedebilmek için en az bir salon gerekir."
+            title={`Önce bir ${kucuk} tanımlayın`}
+            description={`Talep alırken müşteriye hangi ${kucuk} kaydını önerdiğinizi kaydedebilmek için en az bir ${kucuk} gerekir.`}
             action={
               <Button asChild>
                 <Link href="/salonlar">Salon ekle</Link>

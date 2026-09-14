@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import {
   Check,
   MoreHorizontal,
@@ -29,6 +30,8 @@ export function PackageList({
   packages: Package[];
   venues: Venue[];
 }) {
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
   const venueName = new Map(venues.map((v) => [v.id, v.name] as const));
   if (packages.length === 0) {
     return (
@@ -71,7 +74,7 @@ export function PackageList({
                   salonlarda geçerli olanlarda söylenecek bir şey yok. */}
               {pkg.venue_id && (
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {venueName.get(pkg.venue_id) ?? "Silinmiş salon"}
+                  {venueName.get(pkg.venue_id) ?? `Silinmiş ${kucuk}`}
                 </p>
               )}
             </div>

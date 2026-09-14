@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BarChart3 } from "lucide-react";
 import { canSeeFinance, requireSession } from "@/lib/auth";
+import { vertical } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { parseDateRange } from "@/lib/date-range";
 import { ORGANIZATION_TYPE_LABELS, WEEKDAY_LABELS } from "@/lib/constants";
@@ -29,7 +30,10 @@ import type {
 export const metadata: Metadata = { title: "Raporlar" };
 
 export default async function ReportsPage({ searchParams }: PageProps<"/raporlar">) {
-  const { profile } = await requireSession();
+  const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
   if (!canSeeFinance(profile)) notFound();
 
   const params = await searchParams;
@@ -185,7 +189,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                 }
               />
               <Highlight
-                label="En yoğun salon"
+                label={`En yoğun ${kucuk}`}
                 value={topVenue?.venue_name ?? "—"}
                 hint={topVenue ? `${formatMoney(topVenue.sales)} satış` : undefined}
               />

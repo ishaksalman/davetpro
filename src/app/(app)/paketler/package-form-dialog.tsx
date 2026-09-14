@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,8 @@ export function PackageFormDialog({
   triggerButton?: TriggerButton;
 }) {
   const activeVenues = venues.filter((v) => v.is_active);
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
   // Tek salonlu işletmede seçim anlamsız; alan hiç gösterilmiyor.
   const scoped = activeVenues.length > 1;
   const defaultValues: PackageInput = {
@@ -111,8 +114,8 @@ export function PackageFormDialog({
           <FormField
             form={form}
             name="venue_id"
-            label="Geçerli olduğu salon"
-            description="Yalnızca bu salonun rezervasyon ve tekliflerinde seçilebilir."
+            label={`Geçerli olduğu ${kucuk}`}
+            description={`Yalnızca bu ${kucuk} kaydının rezervasyon ve tekliflerinde seçilebilir.`}
           >
             <Select
               value={form.watch("venue_id") ?? "none"}

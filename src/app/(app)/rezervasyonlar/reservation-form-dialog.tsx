@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useVertical } from "@/components/layout/vertical-provider";
 import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { Combobox } from "@/components/shared/combobox";
 import { CustomerFormDialog } from "../musteriler/customer-form-dialog";
@@ -136,6 +137,9 @@ export function ReservationFormDialog({
     name: "items",
   });
 
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
   const packageId = form.watch("package_id");
   const pricingType = form.watch("pricing_type");
   const perGuest = pricingType === "kisi_basi";
@@ -247,8 +251,8 @@ export function ReservationFormDialog({
           ? conflict.gap_minutes !== null
             ? "İki organizasyon arasında en az 1 saat olmalı."
             : conflict.conflict_kind === "opsiyon"
-              ? "Seçilen salon ve saat opsiyonlu. Farklı bir tarih veya salon seçin."
-              : "Seçilen salon ve saatte kesin rezervasyon var. Farklı bir tarih veya salon seçin."
+              ? `Seçilen ${kucuk} ve saat opsiyonlu. Farklı bir tarih veya ${kucuk} seçin.`
+              : `Seçilen ${kucuk} ve saatte kesin rezervasyon var. Farklı bir tarih veya ${kucuk} seçin.`
           : null
       }
       contentClassName="sm:max-w-2xl"
@@ -296,13 +300,13 @@ export function ReservationFormDialog({
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField form={form} name="venue_id" label="Salon">
+        <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id")}
             onValueChange={(v) => form.setValue("venue_id", v, { shouldDirty: true })}
           >
             <SelectTrigger id="venue_id" className="w-full">
-              <SelectValue placeholder="Salon seçin" />
+              <SelectValue placeholder={`${sozluk.resource.singular} seçin`} />
             </SelectTrigger>
             <SelectContent>
               {activeVenues.map((venue) => (

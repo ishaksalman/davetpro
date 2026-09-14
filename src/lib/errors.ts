@@ -16,10 +16,11 @@ export function toTurkishError(error: unknown): string {
 
   // Veritabanı kısıtları
   if (message.includes("reservations_no_overlap")) {
-    return "Bu salonda seçtiğiniz tarih ve saat aralığında başka bir rezervasyon var.";
+    // Nötr dil: bu modülün oturuma erişimi yok, işin cinsini bilemiyor.
+    return "Seçtiğiniz tarih ve saat aralığında çakışan başka bir rezervasyon var.";
   }
   if (err.code === "23505" || message.includes("duplicate key")) {
-    if (message.includes("venues_business_id_name_key")) return "Bu isimde bir salon zaten var.";
+    if (message.includes("venues_business_id_name_key")) return "Bu isim zaten kullanılıyor.";
     if (message.includes("packages_business_id_name_key")) return "Bu isimde bir paket zaten var.";
     if (message.includes("expense_categories_business_id_name_key"))
       return "Bu isimde bir gider kategorisi zaten var.";

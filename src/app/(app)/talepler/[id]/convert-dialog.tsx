@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,6 +50,7 @@ export function ConvertDialog({
   activeHold: VenueHold | null;
   trigger: React.ReactElement;
 }) {
+  const sozluk = useVertical();
   const router = useRouter();
   const activeVenues = venues.filter((v) => v.is_active || v.id === lead.venue_id);
   const activePackages = packages.filter((p) => p.is_active || p.id === lead.package_id);
@@ -146,13 +148,13 @@ export function ConvertDialog({
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField form={form} name="venue_id" label="Salon">
+        <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id")}
             onValueChange={(v) => form.setValue("venue_id", v, { shouldDirty: true })}
           >
             <SelectTrigger id="venue_id" className="w-full">
-              <SelectValue placeholder="Salon seçin" />
+              <SelectValue placeholder={`${sozluk.resource.singular} seçin`} />
             </SelectTrigger>
             <SelectContent>
               {activeVenues.map((venue) => (

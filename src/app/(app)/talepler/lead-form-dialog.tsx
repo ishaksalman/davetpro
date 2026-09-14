@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,6 +57,8 @@ export function LeadFormDialog({
   trigger?: React.ReactElement;
   triggerButton?: TriggerButton;
 }) {
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
   const isEdit = Boolean(lead);
   const activeVenues = venues.filter((v) => v.is_active || v.id === lead?.venue_id);
   const activePackages = packages.filter(
@@ -149,8 +152,8 @@ export function LeadFormDialog({
           ? conflict.gap_minutes !== null
             ? "İki organizasyon arasında en az 1 saat olmalı."
             : conflict.conflict_kind === "opsiyon"
-              ? "Seçilen salon ve saat opsiyonlu. Farklı bir tarih veya salon seçin."
-              : "Seçilen salon ve saatte kesin rezervasyon var. Farklı bir tarih veya salon seçin."
+              ? `Seçilen ${kucuk} ve saat opsiyonlu. Farklı bir tarih veya ${kucuk} seçin.`
+              : `Seçilen ${kucuk} ve saatte kesin rezervasyon var. Farklı bir tarih veya ${kucuk} seçin.`
           : null
       }
       contentClassName="sm:max-w-2xl"
@@ -239,7 +242,7 @@ export function LeadFormDialog({
       <Separator />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField form={form} name="venue_id" label="İlgilendiği salon">
+        <FormField form={form} name="venue_id" label={`İlgilendiği ${kucuk}`}>
           <Select
             value={form.watch("venue_id") ?? "none"}
             onValueChange={(v) => form.setValue("venue_id", v, { shouldDirty: true })}

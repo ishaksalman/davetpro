@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CircleAlert, FileText, Phone, Users } from "lucide-react";
 import { canSeeFinance, requireSession } from "@/lib/auth";
+import { vertical } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationById } from "@/lib/queries";
 import {
@@ -48,6 +49,7 @@ export default async function ReservationDetailPage({
 }: PageProps<"/rezervasyonlar/[id]">) {
   const { id } = await params;
   const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
   const showFinance = canSeeFinance(profile);
 
   const supabase = await createClient();
@@ -168,7 +170,7 @@ export default async function ReservationDetailPage({
                 <Detail label="Tür">
                   {ORGANIZATION_TYPE_LABELS[reservation.organization_type]}
                 </Detail>
-                <Detail label="Salon">{reservation.venue?.name ?? "—"}</Detail>
+                <Detail label={sozluk.resourceField}>{reservation.venue?.name ?? "—"}</Detail>
                 <Detail label="Paket">{reservation.package?.name ?? "Paketsiz"}</Detail>
                 <Detail label="Tarih">{formatDate(reservation.event_date)}</Detail>
                 <Detail label="Saat">

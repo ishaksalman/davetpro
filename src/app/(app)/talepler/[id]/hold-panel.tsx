@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useState, useTransition } from "react";
 import { CalendarClock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -137,6 +138,7 @@ function NewHoldDialog({
     end_time: string | null;
   };
 }) {
+  const sozluk = useVertical();
   const activeVenues = venues.filter((v) => v.is_active);
   const [open, setOpen] = useState(false);
   const [venueId, setVenueId] = useState(defaults.venue_id ?? activeVenues[0]?.id ?? "");
@@ -150,7 +152,7 @@ function NewHoldDialog({
   function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!venueId || !date) {
-      toast.error("Salon ve tarih seçin.");
+      toast.error(`${sozluk.resource.singular} ve tarih seçin.`);
       return;
     }
     if (!guard.begin()) return;
@@ -195,7 +197,7 @@ function NewHoldDialog({
             <Label htmlFor="hold_venue">Salon</Label>
             <Select value={venueId} onValueChange={setVenueId}>
               <SelectTrigger id="hold_venue" className="w-full">
-                <SelectValue placeholder="Salon seçin" />
+                <SelectValue placeholder={`${sozluk.resource.singular} seçin`} />
               </SelectTrigger>
               <SelectContent>
                 {activeVenues.map((venue) => (

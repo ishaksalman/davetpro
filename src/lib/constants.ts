@@ -160,7 +160,8 @@ export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
 export const LEAD_LOST_REASON_LABELS: Record<LeadLostReason, string> = {
   fiyat: "Fiyat yüksek",
   tarih: "Tarih uygun değildi",
-  baska_salon: "Başka salon seçti",
+  // "Başka salon" yerine nötr: fotoğrafçı da aynı nedeni kullanıyor.
+  baska_salon: "Başka firma seçti",
   vazgecti: "Müşteri vazgeçti",
   ulasilamadi: "Ulaşılamadı",
   diger: "Diğer",

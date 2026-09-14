@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { BrandIcon } from "@/components/brand/logo";
 import { ShieldCheck } from "lucide-react";
+import { useVertical } from "./vertical-provider";
 import { NAV_GROUPS } from "./nav-items";
 import { UserMenu } from "./user-menu";
 import type { SubscriptionInfo } from "@/lib/subscription";
@@ -42,6 +43,7 @@ export function AppSidebar({
   isPlatformAdmin: boolean;
 }) {
   const pathname = usePathname();
+  const sozluk = useVertical();
   const { setOpenMobile } = useSidebar();
 
   // Mobilde kenar çubuğu içeriğin üstünü kaplıyor; gezinince kapanmazsa
@@ -87,7 +89,13 @@ export function AppSidebar({
                       <SidebarMenuButton asChild isActive={isActive(item.href)}>
                         <Link href={item.href}>
                           <item.icon />
-                          <span>{item.label}</span>
+                          {/* Yol sabit (/salonlar); yalnızca görünen ad
+                              işin cinsine göre değişiyor. */}
+                          <span>
+                            {item.href === "/salonlar"
+                              ? sozluk.resource.plural
+                              : item.label}
+                          </span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

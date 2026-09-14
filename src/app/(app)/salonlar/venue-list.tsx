@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
+import { useVertical } from "@/components/layout/vertical-provider";
 import { formatNumber } from "@/lib/format";
 import type { Venue } from "@/lib/database.types";
 import { VENUE_COLORS } from "@/lib/constants";
@@ -18,14 +19,17 @@ import { deleteVenue } from "./actions";
 import { VenueFormDialog } from "./venue-form-dialog";
 
 export function VenueList({ venues }: { venues: Venue[] }) {
+  const sozluk = useVertical();
+  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
   if (venues.length === 0) {
     return (
       <EmptyState
         icon={Store}
-        title="Henüz salon eklemediniz"
-        description="Rezervasyon oluşturabilmek için en az bir salon tanımlamanız gerekiyor."
+        title={sozluk.resourceEmpty}
+        description={`Rezervasyon oluşturabilmek için en az bir ${kucuk} tanımlamanız gerekiyor.`}
         action={
-          <VenueFormDialog triggerButton={{ label: "İlk salonunuzu ekleyin" }} />
+          <VenueFormDialog triggerButton={{ label: `İlk ${kucuk} kaydınızı ekleyin` }} />
         }
       />
     );
@@ -77,7 +81,7 @@ export function VenueList({ venues }: { venues: Venue[] }) {
                   }
                 />
                 <ConfirmDialog
-                  title="Salon silinsin mi?"
+                  title={`${sozluk.resource.singular} silinsin mi?`}
                   description={
                     <>
                       <strong>{venue.name}</strong> kalıcı olarak silinecek. Bu salona
@@ -86,7 +90,7 @@ export function VenueList({ venues }: { venues: Venue[] }) {
                     </>
                   }
                   confirmLabel="Sil"
-                  successMessage="Salon silindi."
+                  successMessage={`${sozluk.resource.singular} silindi.`}
                   onConfirm={() => deleteVenue(venue.id)}
                   trigger={
                     <DropdownMenuItem

@@ -1,5 +1,6 @@
 "use client";
 
+import { useVertical } from "@/components/layout/vertical-provider";
 import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +49,7 @@ export function QuoteFormDialog({
   };
   isRevision: boolean;
 }) {
+  const sozluk = useVertical();
   const activeVenues = venues.filter((v) => v.is_active);
   const activePackages = packages.filter((p) => p.is_active);
 
@@ -142,7 +144,7 @@ export function QuoteFormDialog({
       contentClassName="sm:max-w-2xl"
     >
       <div className="grid gap-4 sm:grid-cols-3">
-        <FormField form={form} name="venue_id" label="Salon">
+        <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id") ?? "none"}
             onValueChange={(v) => form.setValue("venue_id", v, { shouldDirty: true })}

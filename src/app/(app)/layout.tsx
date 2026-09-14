@@ -3,6 +3,8 @@ import { requireSession, canSeeFinance, isAdmin } from "@/lib/auth";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SubscriptionNotice } from "@/components/layout/subscription-notice";
+import { VerticalProvider } from "@/components/layout/vertical-provider";
+import { vertical } from "@/lib/vertical";
 
 /**
  * Uygulama sayfaları dizine girmesin. Oturum gerektirdikleri için tarayıcı
@@ -25,28 +27,31 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
    * Platform yöneticisine gösterilmiyor: onun erişimi zaten kilitlenmiyor.
    */
   const uyari =
-    subscription && !isPlatformAdmin &&
+    subscription &&
+    !isPlatformAdmin &&
     (subscription.state === "deneme" || subscription.isWarning)
       ? subscription
       : null;
 
+  const sozluk = vertical(business.business_type);
+
   return (
-    <SidebarProvider>
-      <AppSidebar
-        profile={profile}
-        business={business}
-        email={user.email ?? ""}
-        showFinance={canSeeFinance(profile)}
-        isPlatformAdmin={isPlatformAdmin}
-        subscription={subscription}
-        canManageBilling={isAdmin(profile)}
-      />
-      <SidebarInset className="min-w-0">
-        {uyari && (
-          <SubscriptionNotice subscription={uyari} />
-        )}
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <VerticalProvider value={sozluk}>
+      <SidebarProvider>
+        <AppSidebar
+          profile={profile}
+          business={business}
+          email={user.email ?? ""}
+          showFinance={canSeeFinance(profile)}
+          isPlatformAdmin={isPlatformAdmin}
+          subscription={subscription}
+          canManageBilling={isAdmin(profile)}
+        />
+        <SidebarInset className="min-w-0">
+          {uyari && <SubscriptionNotice subscription={uyari} />}
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </VerticalProvider>
   );
 }
