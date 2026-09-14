@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
+import { CONTACT_EMAIL, CONTACT_WHATSAPP } from "@/lib/contact";
 
 const COLUMNS = [
   {
@@ -45,18 +46,18 @@ export function SiteFooter() {
 
             <div className="mt-6 flex flex-col gap-2.5">
               <a
-                href="mailto:info@davetpro.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="inline-flex items-center gap-2.5 text-[0.875rem] text-mk-body transition-colors hover:text-mk-ink"
               >
                 <Mail className="size-4 text-mk-muted" />
-                info@davetpro.com
+                {CONTACT_EMAIL}
               </a>
               <a
-                href="tel:+905389275728"
+                href={`tel:+9${CONTACT_WHATSAPP.replace(/\D/g, "")}`}
                 className="inline-flex items-center gap-2.5 text-[0.875rem] text-mk-body transition-colors hover:text-mk-ink"
               >
                 <Phone className="size-4 text-mk-muted" />
-                0538 927 57 28
+                {CONTACT_WHATSAPP}
               </a>
             </div>
           </div>

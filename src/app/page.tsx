@@ -7,6 +7,7 @@ import { FeatureSections } from "@/components/marketing/feature-sections";
 import { Hero } from "@/components/marketing/hero";
 import { Pricing } from "@/components/marketing/pricing";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { WhatsAppFloat } from "@/components/marketing/whatsapp-float";
 import { SiteHeader } from "@/components/marketing/site-header";
 
 export default async function LandingPage() {
@@ -28,6 +29,7 @@ export default async function LandingPage() {
         <CtaBand />
       </main>
       <SiteFooter />
+      <WhatsAppFloat />
     </div>
   );
 }

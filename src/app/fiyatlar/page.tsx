@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import { PillLink, SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { WhatsAppFloat } from "@/components/marketing/whatsapp-float";
 import { Reveal } from "@/components/marketing/reveal";
 import { formatMoney } from "@/lib/format";
+import { CONTACT_WHATSAPP } from "@/lib/contact";
 import {
   BILLING_TERMS,
-  BILLING_WHATSAPP,
   FREE_MONTHS_YEARLY,
   MONTHLY_PRICE,
   PLAN_FEATURES,
@@ -47,7 +48,7 @@ const SORULAR = [
   {
     soru: "Ödemeyi nasıl yapıyorum?",
     cevap:
-      `Havale veya EFT ile. Abonelik sayfanızda IBAN ve size özel bir referans kodu yazıyor; açıklamaya o kodu yazmanız gerekiyor, gelen ödemeyi hesabınıza bağlayan tek bilgi o. Havaleyi yaptıktan sonra ${BILLING_WHATSAPP} numarasına bildiriyorsunuz ve süreniz uzatılıyor.`,
+      `Havale veya EFT ile. Abonelik sayfanızda IBAN ve size özel bir referans kodu yazıyor; açıklamaya o kodu yazmanız gerekiyor, gelen ödemeyi hesabınıza bağlayan tek bilgi o. Havaleyi yaptıktan sonra ${CONTACT_WHATSAPP} numarasına bildiriyorsunuz ve süreniz uzatılıyor.`,
   },
   {
     soru: "Otomatik yenileme var mı?",
@@ -230,6 +231,7 @@ export default function FiyatlarPage() {
       </main>
 
       <SiteFooter />
+      <WhatsAppFloat />
     </div>
   );
 }

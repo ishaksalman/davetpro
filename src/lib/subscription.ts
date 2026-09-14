@@ -1,5 +1,6 @@
 import { differenceInCalendarDays } from "date-fns";
 import { whatsAppLink } from "@/lib/format";
+import { CONTACT_WHATSAPP } from "@/lib/contact";
 import { today } from "@/lib/time";
 import type { Subscription } from "@/lib/database.types";
 
@@ -12,9 +13,6 @@ export const TRIAL_DAYS = 30;
 
 /** Süre bitimine bu kadar gün kalınca uyarı şeridi çıkar. */
 export const SUBSCRIPTION_WARNING_DAYS = 7;
-
-/** Süre uzatma taleplerinin geldiği numara. */
-export const BILLING_WHATSAPP = "0538 927 57 28";
 
 export type SubscriptionState = "deneme" | "abone" | "sona_erdi";
 
@@ -193,5 +191,5 @@ export function subscriptionWhatsAppMessage({
 export function subscriptionWhatsAppLink(
   args: Parameters<typeof subscriptionWhatsAppMessage>[0],
 ): string | null {
-  return whatsAppLink(BILLING_WHATSAPP, subscriptionWhatsAppMessage(args));
+  return whatsAppLink(CONTACT_WHATSAPP, subscriptionWhatsAppMessage(args));
 }
