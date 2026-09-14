@@ -76,7 +76,11 @@ export function AppSidebar({
 
       <SidebarContent className="px-2 py-2">
         {NAV_GROUPS.map((group) => {
-          const items = group.items.filter((i) => showFinance || !i.financeOnly);
+          const items = group.items.filter(
+            (i) =>
+              (showFinance || !i.financeOnly) &&
+              (sozluk.usesDelivery || !i.deliveryOnly),
+          );
           if (items.length === 0) return null;
 
           return (

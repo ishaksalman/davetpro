@@ -20,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
         "/panel",
         "/takvim",
         "/talepler",
+        "/teslimat",
         "/rezervasyonlar",
         "/musteriler",
         "/gelirler",

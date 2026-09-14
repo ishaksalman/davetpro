@@ -39,6 +39,7 @@ import type {
 import { ExpenseFormDialog } from "../../giderler/expense-form-dialog";
 import { PaymentFormDialog } from "../../gelirler/payment-form-dialog";
 import { ReservationFormDialog } from "../reservation-form-dialog";
+import { DeliveryMenu } from "./delivery-menu";
 import { ReservationStatusMenu } from "./status-menu";
 import { VoidPaymentButton, VoidExpenseButton } from "./void-buttons";
 
@@ -140,6 +141,14 @@ export default async function ReservationDetailPage({
               reservationId={reservation.id}
               status={reservation.status}
             />
+            {/* Teslim akışı yalnızca fotoğrafçıda: salonda organizasyon
+                biter, iş biter. */}
+            {sozluk.usesDelivery && (
+              <DeliveryMenu
+                reservationId={reservation.id}
+                status={reservation.delivery_status}
+              />
+            )}
             <ReservationFormDialog
               reservation={reservation}
               customers={lookups.customers}

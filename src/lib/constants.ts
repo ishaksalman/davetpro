@@ -1,5 +1,6 @@
 import type {
   ContractStatus,
+  DeliveryStatus,
   HoldStatus,
   IncomeCategory,
   LeadActivityType,
@@ -52,6 +53,36 @@ export const RESERVATION_STATUS_STYLES: Record<ReservationStatus, string> = {
     "bg-blue-100 text-blue-800 ring-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:ring-blue-900",
   iptal_edildi:
     "bg-rose-100 text-rose-800 ring-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:ring-rose-900",
+};
+
+export const DELIVERY_STATUS_LABELS: Record<DeliveryStatus, string> = {
+  cekim_yapildi: "Çekim yapıldı",
+  secim_bekleniyor: "Seçim bekleniyor",
+  duzenleniyor: "Düzenleniyor",
+  baskida: "Baskıda",
+  teslim_edildi: "Teslim edildi",
+};
+
+/** Akış sırası — menüde ve listede bu sırayla gösteriliyor. */
+export const DELIVERY_STATUS_FLOW: DeliveryStatus[] = [
+  "cekim_yapildi",
+  "secim_bekleniyor",
+  "duzenleniyor",
+  "baskida",
+  "teslim_edildi",
+];
+
+export const DELIVERY_STATUS_STYLES: Record<DeliveryStatus, string> = {
+  cekim_yapildi:
+    "bg-slate-100 text-slate-800 ring-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-800",
+  secim_bekleniyor:
+    "bg-amber-100 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-900",
+  duzenleniyor:
+    "bg-blue-100 text-blue-800 ring-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:ring-blue-900",
+  baskida:
+    "bg-violet-100 text-violet-800 ring-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:ring-violet-900",
+  teslim_edildi:
+    "bg-emerald-100 text-emerald-800 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900",
 };
 
 export const PRICING_TYPE_LABELS: Record<PricingType, string> = {

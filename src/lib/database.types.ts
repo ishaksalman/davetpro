@@ -27,6 +27,17 @@ export type OrganizationType =
 
 export type PricingType = "sabit" | "kisi_basi";
 
+/**
+ * Çekim sonrası teslim aşaması. NULL = akış başlamamış.
+ * Yalnızca fotoğrafçıda kullanılıyor; salonda organizasyon biter, iş biter.
+ */
+export type DeliveryStatus =
+  | "cekim_yapildi"
+  | "secim_bekleniyor"
+  | "duzenleniyor"
+  | "baskida"
+  | "teslim_edildi";
+
 export type PaymentMethod = "nakit" | "kredi_karti" | "havale_eft" | "diger";
 
 export type IncomeCategory =
@@ -115,6 +126,9 @@ export type Reservation = Timestamps & {
   guest_count: number | null;
   /** Etkinliğin yapılacağı adres. Fotoğrafçıda dolu, salonda boş. */
   location: string | null;
+  delivery_status: DeliveryStatus | null;
+  /** Teslim anı; tetikleyici yazıyor, elle girilmiyor. */
+  delivered_at: string | null;
   notes: string | null;
   created_by: string | null;
   starts_at: string;

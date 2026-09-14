@@ -1,4 +1,5 @@
 import {
+  PackageCheck,
   ArrowDownCircle,
   ArrowUpCircle,
   BarChart3,
@@ -18,6 +19,8 @@ export type NavItem = {
   icon: LucideIcon;
   /** Finans yetkisi olmayan personele gösterilmez (RLS zaten veriyi de gizler). */
   financeOnly?: boolean;
+  /** Yalnızca teslim akışı kullanan işletmelerde görünür. */
+  deliveryOnly?: boolean;
 };
 
 export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
@@ -29,6 +32,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { href: "/rezervasyonlar", label: "Rezervasyonlar", icon: Store },
       { href: "/musteriler", label: "Müşteriler", icon: Users },
       { href: "/talepler", label: "Talepler", icon: MessagesSquare },
+      { href: "/teslimat", label: "Teslimat", icon: PackageCheck, deliveryOnly: true },
     ],
   },
   {

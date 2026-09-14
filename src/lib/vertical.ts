@@ -39,6 +39,12 @@ export type Vertical = {
   usesGuestCount: boolean;
   /** Etkinlik adresi alanı gösterilsin mi. */
   usesLocation: boolean;
+  /**
+   * Çekim sonrası teslim akışı kullanılıyor mu.
+   * Salonda organizasyon biter iş biter; fotoğrafçıda seçim, düzenleme,
+   * baskı ve teslim adımları var.
+   */
+  usesDelivery: boolean;
 };
 
 export const VERTICALS: Record<BusinessType, Vertical> = {
@@ -55,6 +61,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
     usesGuestCount: true,
     usesLocation: false,
+    usesDelivery: false,
   },
   fotografci: {
     label: "Fotoğrafçı",
@@ -69,6 +76,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceDescPlaceholder: "İki fotoğrafçı, bir video operatörü",
     usesGuestCount: false,
     usesLocation: true,
+    usesDelivery: true,
   },
 };
 

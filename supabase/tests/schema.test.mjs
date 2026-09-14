@@ -928,5 +928,56 @@ await step('adres gönderilmezse kayıt normal açılıyor', async () => {
   if (r.rows[0].location !== null) throw new Error(JSON.stringify(r.rows[0]))
 })
 
+console.log('\n\x1b[1m18) Teslim akışı\x1b[0m')
+
+await as(U.ownerA)
+const TV = (await db.query(`insert into venues (name) values ('Teslim Ekibi') returning id`)).rows[0].id
+const TC = (await db.query(
+  `insert into customers (full_name, phone) values ('Teslim Müşteri','05005550001') returning id`)).rows[0].id
+const TR = (await db.query(
+  `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-10-09','13:00','19:00',
+          null,null,70000,0,null,null,null) id`, [TC, TV])).rows[0].id
+
+const teslim = async () => (await db.query(
+  `select delivery_status, delivered_at from reservations where id = $1`, [TR])).rows[0]
+
+await step('yeni kayıtta teslim akışı başlamamış', async () => {
+  const r = await teslim()
+  if (r.delivery_status !== null || r.delivered_at !== null) throw new Error(JSON.stringify(r))
+})
+
+await step('ara aşamalarda teslim tarihi yazılmıyor', async () => {
+  for (const d of ['cekim_yapildi', 'secim_bekleniyor', 'duzenleniyor', 'baskida']) {
+    await db.query(`update reservations set delivery_status = $1 where id = $2`, [d, TR])
+    const r = await teslim()
+    if (r.delivered_at !== null) throw new Error(`${d} → ${r.delivered_at}`)
+  }
+})
+
+await step('teslim edildiğinde tarih damgalanıyor', async () => {
+  await db.query(`update reservations set delivery_status = 'teslim_edildi' where id = $1`, [TR])
+  const r = await teslim()
+  if (r.delivered_at === null) throw new Error('tarih yazılmadı')
+})
+
+// Geri alınınca tarih kalmamalı; aksi halde "teslim edilmedi ama tarihi var"
+// gibi tutarsız bir kayıt oluşur.
+await step('geri alınınca teslim tarihi siliniyor', async () => {
+  await db.query(`update reservations set delivery_status = 'duzenleniyor' where id = $1`, [TR])
+  const r = await teslim()
+  if (r.delivered_at !== null) throw new Error(JSON.stringify(r))
+})
+
+await expectFail('tanımsız aşama kabul edilmiyor', () =>
+  db.query(`update reservations set delivery_status = 'albumde' where id = $1`, [TR]))
+
+// Salon tarafı bu kolondan etkilenmemeli.
+await step('salon rezervasyonlarında kolon boş kalıyor', async () => {
+  await asSuper()
+  const r = await db.query(
+    `select count(*)::int c from reservations where delivery_status is not null`)
+  if (r.rows[0].c !== 1) throw new Error(`${r.rows[0].c} kayıtta dolu`)
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

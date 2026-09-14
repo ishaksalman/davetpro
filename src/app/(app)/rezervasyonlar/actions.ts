@@ -6,7 +6,7 @@ import { canSeeFinance, requireSession } from "@/lib/auth";
 import { reservationSchema, type ReservationInput } from "@/lib/schemas";
 import { actionError, validationError, type ActionResult } from "@/lib/action-result";
 import { todayISO } from "@/lib/time";
-import type { ReservationStatus } from "@/lib/database.types";
+import type { DeliveryStatus, ReservationStatus } from "@/lib/database.types";
 
 function revalidateReservation(id?: string) {
   revalidatePath("/rezervasyonlar");
@@ -90,6 +90,29 @@ export async function updateReservationStatus(
 
   const supabase = await createClient();
   const { error } = await supabase.from("reservations").update({ status }).eq("id", id);
+  if (error) return actionError(error);
+
+  revalidateReservation(id);
+  return { ok: true };
+}
+
+/**
+ * Teslim aşaması. Ayrı eylem: rezervasyon durumundan bağımsız ilerliyor —
+ * iş "tamamlandı" olsa da albüm hâlâ baskıda olabilir.
+ *
+ * delivered_at elle yazılmıyor; veritabanı tetikleyicisi damgalıyor.
+ */
+export async function updateDeliveryStatus(
+  id: string,
+  status: DeliveryStatus | null,
+): Promise<ActionResult> {
+  await requireSession();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("reservations")
+    .update({ delivery_status: status })
+    .eq("id", id);
   if (error) return actionError(error);
 
   revalidateReservation(id);
