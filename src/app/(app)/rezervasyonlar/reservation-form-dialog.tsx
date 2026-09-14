@@ -116,6 +116,7 @@ export function ReservationFormDialog({
     start_time: reservation?.start_time?.slice(0, 5) ?? defaults?.start_time ?? "19:00",
     end_time: reservation?.end_time?.slice(0, 5) ?? defaults?.end_time ?? "23:00",
     guest_count: reservation?.guest_count ?? "",
+    location: reservation?.location ?? "",
     notes: reservation?.notes ?? "",
     pricing_type: reservation?.pricing?.unit_price ? "kisi_basi" : "sabit",
     unit_price: reservation?.pricing?.unit_price ?? 0,
@@ -400,22 +401,46 @@ export function ReservationFormDialog({
           </Select>
         </FormField>
 
-        <FormField form={form} name="guest_count" label="Tahmini kişi">
-          <Input
-            id="guest_count"
-            inputMode="numeric"
-            placeholder="400"
-            {...form.register("guest_count")}
-          />
-        </FormField>
+        {/* Fotoğrafçıda davetli sayısı işi etkilemiyor; alan hiç
+            gösterilmiyor. Şemada zaten opsiyonel, boş kalması sorun değil. */}
+        {sozluk.usesGuestCount && (
+          <FormField form={form} name="guest_count" label="Tahmini kişi">
+            <Input
+              id="guest_count"
+              inputMode="numeric"
+              placeholder="400"
+              {...form.register("guest_count")}
+            />
+          </FormField>
+        )}
+
+        {sozluk.usesLocation && (
+          <FormField
+            form={form}
+            name="location"
+            label="Etkinlik adresi"
+            className="sm:col-span-2"
+            description="Çekimin yapılacağı yer. Takvimde ve sözleşmede görünür."
+          >
+            <Input
+              id="location"
+              placeholder="Mekân adı, mahalle, ilçe"
+              {...form.register("location")}
+            />
+          </FormField>
+        )}
       </div>
 
       {showFinance && (
         <>
           <Separator className="my-2" />
 
+          {/* Kişi başı fiyat salon işi. Fotoğrafçıda sekme gösterilmiyor ve
+              tip 'sabit' kalıyor — şema zorunlu tuttuğu için değer yine
+              gönderiliyor, yalnızca seçim sunulmuyor. */}
           <Tabs
             value={pricingType}
+            className={sozluk.usesGuestCount ? undefined : "hidden"}
             onValueChange={(v) =>
               form.setValue("pricing_type", v as "sabit" | "kisi_basi", {
                 shouldDirty: true,

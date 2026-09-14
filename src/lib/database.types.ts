@@ -113,6 +113,8 @@ export type Reservation = Timestamps & {
   start_time: string;
   end_time: string;
   guest_count: number | null;
+  /** Etkinliğin yapılacağı adres. Fotoğrafçıda dolu, salonda boş. */
+  location: string | null;
   notes: string | null;
   created_by: string | null;
   starts_at: string;
@@ -320,6 +322,8 @@ export type ContractSnapshot = {
     end_time: string;
     guest_count: number | null;
     package_name: string | null;
+    /** Etkinlik adresi; 0032 öncesi kayıtlarda bulunmuyor. */
+    location?: string | null;
     /** Paketin kapsadığı hizmetler; sözleşmede madde madde yazılır. */
     included_services: string[];
     /**

@@ -893,5 +893,40 @@ await step('fotoğrafçıda da çakışan saat engelleniyor', async () => {
   await asSuper()
 })
 
+console.log('\n\x1b[1m17) Etkinlik adresi\x1b[0m')
+
+await as(U.ownerA)
+const AV = (await db.query(`insert into venues (name) values ('Adres Salonu') returning id`)).rows[0].id
+const AC = (await db.query(
+  `insert into customers (full_name, phone) values ('Adres Müşteri','05004440001') returning id`)).rows[0].id
+
+let AR
+await step('adres kaydediliyor', async () => {
+  AR = (await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-09-18','14:00','20:00',
+            null,null,60000,0,null,null,null,$3) id`,
+    [AC, AV, '  Bağdat Cad. No:5, Kadıköy  '])).rows[0].id
+  const r = await db.query(`select location from reservations where id = $1`, [AR])
+  // btrim: baştaki ve sondaki boşluk temizlenmeli.
+  if (r.rows[0].location !== 'Bağdat Cad. No:5, Kadıköy') throw new Error(JSON.stringify(r.rows[0]))
+})
+
+await step('boş adres null olarak yazılıyor', async () => {
+  await db.query(
+    `select save_reservation($1,$2,$3,null,'dugun','kesinlesti','2027-09-18','14:00','20:00',
+            null,null,60000,0,null,null,null,'   ')`, [AR, AC, AV])
+  const r = await db.query(`select location from reservations where id = $1`, [AR])
+  if (r.rows[0].location !== null) throw new Error(JSON.stringify(r.rows[0]))
+})
+
+// Salon tarafı adres göndermiyor; eski davranış bozulmamalı.
+await step('adres gönderilmezse kayıt normal açılıyor', async () => {
+  const id = (await db.query(
+    `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-09-25','14:00','20:00',
+            null,null,30000,0,null,null,null) id`, [AC, AV])).rows[0].id
+  const r = await db.query(`select location from reservations where id = $1`, [id])
+  if (r.rows[0].location !== null) throw new Error(JSON.stringify(r.rows[0]))
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

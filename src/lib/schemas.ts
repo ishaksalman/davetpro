@@ -207,6 +207,8 @@ export const reservationSchema = z
     start_time: time,
     end_time: time,
     guest_count: optionalPositiveInt,
+    /** Etkinliğin yapılacağı adres; fotoğrafçıda dolduruluyor. */
+    location: optionalText,
     notes: optionalText,
     /**
      * PAKET tutarı — toplam değil. Toplam, ek hizmetler eklenerek bulunuyor

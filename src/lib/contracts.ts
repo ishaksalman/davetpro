@@ -29,7 +29,8 @@ export const CONTRACT_VARIABLES: { key: string; label: string }[] = [
   { key: "event_date", label: "Organizasyon tarihi" },
   { key: "start_time", label: "Başlangıç saati" },
   { key: "end_time", label: "Bitiş saati" },
-  { key: "venue_name", label: "Salon" },
+  { key: "venue_name", label: "Salon / Ekip" },
+  { key: "location", label: "Etkinlik adresi" },
   { key: "package_name", label: "Paket" },
   { key: "included_services", label: "Pakete dahil hizmetler" },
   { key: "extra_services", label: "Ek hizmetler (tutarlı liste)" },
@@ -92,6 +93,8 @@ export function buildContractSnapshot({
       end_time: reservation.end_time,
       guest_count: reservation.guest_count,
       package_name: reservation.package?.name ?? null,
+      // Fotoğrafçıda çekimin yapılacağı yer; salonda boş kalıyor.
+      location: reservation.location,
       included_services: reservation.package?.included_services ?? [],
       // Sözleşmede tutarıyla birlikte yazılıyor: pakete dahil olmayan
       // hizmetlerin bedeli tarafların üzerinde anlaştığı metinde görünmeli.
@@ -146,6 +149,7 @@ export function contractVariableValues(
     start_time: formatTime(o.start_time),
     end_time: formatTime(o.end_time),
     venue_name: o.venue_name,
+    location: o.location?.trim() || EMPTY,
     package_name: o.package_name ?? "Paketsiz",
     included_services: o.included_services.length
       ? o.included_services.join(", ")

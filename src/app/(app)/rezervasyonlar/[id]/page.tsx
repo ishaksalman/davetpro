@@ -176,6 +176,9 @@ export default async function ReservationDetailPage({
                 <Detail label="Saat">
                   {formatTimeRange(reservation.start_time, reservation.end_time)}
                 </Detail>
+                {reservation.location && (
+                  <Detail label="Etkinlik adresi">{reservation.location}</Detail>
+                )}
                 <Detail label="Kişi sayısı">
                   {reservation.guest_count
                     ? `${formatNumber(reservation.guest_count)} kişi`

@@ -30,6 +30,15 @@ export type Vertical = {
   resourcePlaceholder: string;
   /** Kaynak açıklaması için örnek metin. */
   resourceDescPlaceholder: string;
+  /**
+   * Misafir sayısı ve kişi başı fiyat gösterilsin mi.
+   *
+   * Fotoğrafçıda davetli sayısı işi etkilemiyor ve fiyat kişi başına
+   * hesaplanmıyor; alanları göstermek doldurulacak boş kutu bırakmak olurdu.
+   */
+  usesGuestCount: boolean;
+  /** Etkinlik adresi alanı gösterilsin mi. */
+  usesLocation: boolean;
 };
 
 export const VERTICALS: Record<BusinessType, Vertical> = {
@@ -44,6 +53,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     businessPlaceholder: "Gül Düğün Salonu",
     resourcePlaceholder: "Balo Salonu",
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
+    usesGuestCount: true,
+    usesLocation: false,
   },
   fotografci: {
     label: "Fotoğrafçı",
@@ -56,6 +67,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     businessPlaceholder: "Ela Fotoğrafçılık",
     resourcePlaceholder: "1. Ekip",
     resourceDescPlaceholder: "İki fotoğrafçı, bir video operatörü",
+    usesGuestCount: false,
+    usesLocation: true,
   },
 };
 
