@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { PillLink } from "@/components/marketing/site-header";
 import { Reveal } from "@/components/marketing/reveal";
@@ -62,6 +63,14 @@ export function Pricing() {
             Kademe yok, ek modül yok. Salon ve kullanıcı sınırı olmadan tüm
             özellikler her abonelikte açık. {TRIAL_DAYS} gün ücretsiz deneyin,
             kart istemiyoruz; istediğiniz zaman iptal edebilirsiniz.
+          </p>
+          <p className="mt-4 text-[0.9375rem]">
+            <Link
+              href="/fiyatlar"
+              className="font-medium text-mk-ink underline underline-offset-4 hover:no-underline"
+            >
+              Ödeme, deneme ve iptal hakkında her şey
+            </Link>
           </p>
         </Reveal>
 

@@ -6,18 +6,18 @@ const COLUMNS = [
   {
     title: "Ürün",
     links: [
-      { label: "Özellikler", href: "#ozellikler" },
-      { label: "Nasıl çalışır", href: "#nasil-calisir" },
-      { label: "Fiyatlar", href: "#fiyatlar" },
+      { label: "Özellikler", href: "/#ozellikler" },
+      { label: "Nasıl çalışır", href: "/#nasil-calisir" },
+      { label: "Fiyatlar", href: "/fiyatlar" },
         ],
   },
   {
     title: "Kullanım",
     links: [
-      { label: "Takvim ve rezervasyon", href: "#nasil-calisir" },
-      { label: "Tahsilat takibi", href: "#nasil-calisir" },
-      { label: "Gelir–gider", href: "#nasil-calisir" },
-      { label: "Raporlar", href: "#nasil-calisir" },
+      { label: "Takvim ve rezervasyon", href: "/#nasil-calisir" },
+      { label: "Tahsilat takibi", href: "/#nasil-calisir" },
+      { label: "Gelir–gider", href: "/#nasil-calisir" },
+      { label: "Raporlar", href: "/#nasil-calisir" },
     ],
   },
   {
@@ -45,18 +45,18 @@ export function SiteFooter() {
 
             <div className="mt-6 flex flex-col gap-2.5">
               <a
-                href="mailto:merhaba@davetpro.com"
+                href="mailto:info@davetpro.com"
                 className="inline-flex items-center gap-2.5 text-[0.875rem] text-mk-body transition-colors hover:text-mk-ink"
               >
                 <Mail className="size-4 text-mk-muted" />
-                merhaba@davetpro.com
+                info@davetpro.com
               </a>
               <a
-                href="tel:+908508400000"
+                href="tel:+905389275728"
                 className="inline-flex items-center gap-2.5 text-[0.875rem] text-mk-body transition-colors hover:text-mk-ink"
               >
                 <Phone className="size-4 text-mk-muted" />
-                0850 840 00 00
+                0538 927 57 28
               </a>
             </div>
           </div>

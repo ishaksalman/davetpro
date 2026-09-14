@@ -9,8 +9,11 @@ const GUEST_ONLY_ROUTES = ["/giris", "/kayit", "/sifre-sifirla"];
  * Oturumlu da oturumsuz da erişilebilen sayfalar.
  * /sifre-yenile bilerek burada: sıfırlama bağlantısı geçici bir oturum açar,
  * kullanıcı panele atılırsa yeni şifresini belirleyemez.
+ *
+ * /fiyatlar herkese açık bir tanıtım sayfası; burada olmazsa oturumsuz
+ * ziyaretçi giriş ekranına yönlendirilir ve arama motoru sayfayı hiç göremez.
  */
-const OPEN_ROUTES = ["/auth", "/sifre-yenile"];
+const OPEN_ROUTES = ["/auth", "/sifre-yenile", "/fiyatlar"];
 
 /** Oturumu tazeler ve korumalı rotalara erişimi denetler. */
 export async function updateSession(request: NextRequest) {

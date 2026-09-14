@@ -6,10 +6,15 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
+/*
+ * Çapalar MUTLAK ("/#..."): başlık her tanıtım sayfasında görünüyor ve
+ * /fiyatlar üzerindeyken "#ozellikler" hiçbir yere gitmiyordu — o çapa orada
+ * yok. Mutlak hâlde önce anasayfaya gidip bölüme kayıyor.
+ */
 const NAV = [
-  { label: "Özellikler", href: "#ozellikler" },
-  { label: "Nasıl çalışır", href: "#nasil-calisir" },
-  { label: "Fiyatlar", href: "#fiyatlar" },
+  { label: "Özellikler", href: "/#ozellikler" },
+  { label: "Nasıl çalışır", href: "/#nasil-calisir" },
+  { label: "Fiyatlar", href: "/fiyatlar" },
 ];
 
 /**
