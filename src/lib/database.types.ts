@@ -3,6 +3,13 @@
 
 export type UserRole = "owner" | "manager" | "staff";
 
+/**
+ * İşin cinsi. Kısıtlı kaynağın adı (salon / ekip) ve kurulumda açılan gider
+ * kategorileri ile sözleşme şablonu buna göre değişiyor. Çakışma mantığı
+ * tipten bağımsız — her iki işte de aynı venues satırı ve aynı kısıt.
+ */
+export type BusinessType = "salon" | "fotografci";
+
 export type ReservationStatus =
   | "kesinlesti"
   | "tamamlandi"
@@ -34,6 +41,7 @@ type Timestamps = { created_at: string; updated_at: string };
 export type Business = Timestamps & {
   id: string;
   name: string;
+  business_type: BusinessType;
   phone: string | null;
   city: string | null;
   /** Sözleşme başlığı ve taraflar bölümü için. */

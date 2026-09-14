@@ -34,6 +34,9 @@ const registerSchema = z.object({
     .trim()
     .min(2, "Ad soyad en az 2 karakter olmalı.")
     .max(120, "Ad soyad çok uzun."),
+  // İşin cinsi kurulum adımında seçiliyor; kayıt formunda sorulmuyor.
+  // Geçersiz ya da eksik gelirse salon kabul ediliyor: mevcut davranış bu.
+  businessType: z.enum(["salon", "fotografci"]).catch("salon"),
   email: z.string().trim().email("Geçerli bir e-posta adresi girin."),
   password: z.string().min(8, "Şifre en az 8 karakter olmalı."),
   // Ticari ileti rızası: işaretlenmemiş gelir, zorunlu değildir.
@@ -108,13 +111,18 @@ export async function registerAction(
     };
   }
 
-  const { error: rpcError } = await supabase.rpc("create_business_with_owner", {
-    p_business_name: businessName,
-    p_full_name: fullName,
-  });
-  if (rpcError) return { error: toTurkishError(rpcError) };
-
-  redirect("/panel");
+  /*
+   * İşletme BURADA açılmıyor.
+   *
+   * E-posta doğrulaması kapalıyken kayıt anında oturum açılıyor ve eskiden
+   * işletme hemen oluşturuluyordu. Artık işin cinsi (salon / fotoğrafçı)
+   * kurulum adımında soruluyor; burada oluşturursak kullanıcı o seçimi hiç
+   * görmez ve herkes salon olarak açılır.
+   *
+   * Profili olmayan oturum requireSession() tarafından /isletme-kur'a
+   * yönlendiriliyor; kayıt formundaki bilgiler orada önden dolduruluyor.
+   */
+  redirect("/isletme-kur");
 }
 
 export async function setupBusinessAction(
@@ -122,10 +130,11 @@ export async function setupBusinessAction(
   formData: FormData,
 ): Promise<AuthState> {
   const parsed = registerSchema
-    .pick({ businessName: true, fullName: true })
+    .pick({ businessName: true, fullName: true, businessType: true })
     .safeParse({
       businessName: formData.get("businessName"),
       fullName: formData.get("fullName"),
+      businessType: formData.get("businessType"),
     });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -133,6 +142,7 @@ export async function setupBusinessAction(
   const { error } = await supabase.rpc("create_business_with_owner", {
     p_business_name: parsed.data.businessName,
     p_full_name: parsed.data.fullName,
+    p_business_type: parsed.data.businessType,
   });
   if (error) return { error: toTurkishError(error) };
 

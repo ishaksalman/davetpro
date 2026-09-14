@@ -819,5 +819,79 @@ await step('rezervasyon silinince kalemler de siliniyor', async () => {
   if (sonra !== once - 1) throw new Error(`${once} -> ${sonra}`)
 })
 
+console.log('\n\x1b[1m16) İşletme tipi\x1b[0m')
+
+// MEVCUT HESAPLAR: bu testteki A ve B işletmeleri 0031'den önceki imzayla
+// açıldı; tip kolonu eklendikten sonra hepsinin 'salon' olması gerekiyor.
+await step('tip verilmeyen işletmeler salon kalıyor', async () => {
+  await asSuper()
+  const r = await db.query(
+    `select count(*)::int c from businesses where business_type <> 'salon'`)
+  if (r.rows[0].c !== 0) throw new Error(`${r.rows[0].c} işletme salon değil`)
+})
+
+const U_FOTO = '55555555-5555-5555-5555-555555555555'
+await asSuper()
+await db.query(`insert into auth.users (id, email) values ($1, 'foto@test.local')`, [U_FOTO])
+await as(U_FOTO)
+await step('fotoğrafçı işletmesi açılıyor', () =>
+  db.query(`select create_business_with_owner('Foto Ela', 'Ela', 'fotografci')`))
+
+await step('fotoğrafçıya kendi gider kategorileri açılıyor', async () => {
+  await asSuper()
+  const r = await db.query(
+    `select string_agg(c.name, '|' order by c.name) k
+       from expense_categories c join businesses b on b.id = c.business_id
+      where b.name = 'Foto Ela'`)
+  const k = r.rows[0].k
+  if (!k.includes('Ekipman') || !k.includes('Albüm / Baskı')) {
+    throw new Error(k)
+  }
+  // Salona özgü kalemler fotoğrafçıda olmamalı.
+  if (k.includes('Catering') || k.includes('Müzik / DJ')) throw new Error(k)
+})
+
+await step('salonun kategorileri değişmedi', async () => {
+  const r = await db.query(
+    `select string_agg(c.name, '|' order by c.name) k
+       from expense_categories c join businesses b on b.id = c.business_id
+      where b.name = 'Gül Düğün Salonu'`)
+  if (!r.rows[0].k.includes('Catering / Yemek')) throw new Error(r.rows[0].k)
+})
+
+await step('sözleşme şablonu işin cinsine göre', async () => {
+  const r = await db.query(
+    `select b.name, split_part(t.body, E'\n', 1) bas,
+            (t.body like '%TELİF VE KULLANIM%') telif
+       from contract_templates t join businesses b on b.id = t.business_id
+      where b.name in ('Foto Ela', 'Gül Düğün Salonu') order by b.name`)
+  const foto = r.rows.find((x) => x.name === 'Foto Ela')
+  const salon = r.rows.find((x) => x.name === 'Gül Düğün Salonu')
+  if (!foto.bas.includes('FOTOĞRAF')) throw new Error(foto.bas)
+  if (!salon.bas.includes('ORGANİZASYON')) throw new Error(salon.bas)
+  // Telif maddesi fotoğrafçıya özel; salon metnine sızmamalı.
+  if (foto.telif !== true || salon.telif !== false) throw new Error('telif maddesi yanlış yerde')
+})
+
+// Çakışma mantığı tipten BAĞIMSIZ: fotoğrafçıda da aynı kısıt işliyor.
+await step('fotoğrafçıda da çakışan saat engelleniyor', async () => {
+  await as(U_FOTO)
+  const ekip = (await db.query(`insert into venues (name) values ('1. Ekip') returning id`)).rows[0].id
+  const m = (await db.query(
+    `insert into customers (full_name, phone) values ('Test Çift','05003334455') returning id`)).rows[0].id
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-08-14','14:00','20:00',
+            null,null,40000,0,null,null,null)`, [m, ekip])
+  try {
+    await db.query(
+      `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-08-14','16:00','19:00',
+              null,null,20000,0,null,null,null)`, [m, ekip])
+    throw new Error('çakışan kayıt kabul edildi')
+  } catch (e) {
+    if (!/organizasyon var|no_overlap|çakış/i.test(e.message)) throw e
+  }
+  await asSuper()
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)
