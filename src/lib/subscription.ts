@@ -95,7 +95,8 @@ export const YEARLY_TERM = BILLING_TERMS[1];
 export const PLAN_FEATURES = [
   "Sınırsız salon ve kullanıcı",
   "Takvim, rezervasyon ve talep takibi",
-  "Tahsilat planı ve kalan tutar takibi",
+  // "Tahsilat planı" taksit çağrıştırıyordu; üründe taksit tablosu yok.
+  "Kapora, tahsilat ve kalan tutar takibi",
   "Teklif ve sözleşme çıktısı",
   "Organizasyon bazlı kârlılık",
   "Gider kategorileri ve raporlar",

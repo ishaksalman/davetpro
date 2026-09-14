@@ -34,11 +34,13 @@ const PLANS = [
     name: "Kurumsal",
     price: "Teklif",
     period: null,
-    note: "Zincir işletmeler ve özel ihtiyaçlar için.",
+    note: "Firmanıza özel ihtiyaçlar için konuşalım.",
     features: [
       "DavetPro'daki her şey",
-      "Veri aktarımı ve kurulum desteği",
-      "Öncelikli destek hattı",
+      "Firmanıza özel ekran ve alan talepleri",
+      "Mevcut sisteminizden veri aktarımı",
+      "Entegrasyon ve özel geliştirme",
+      "Kurulum ve öncelikli destek",
     ],
     cta: "Bize ulaşın",
     href: "mailto:merhaba@davetpro.com",
@@ -54,11 +56,12 @@ export function Pricing() {
             Fiyatlar
           </p>
           <h2 className="mk-title mt-4 text-[clamp(1.9rem,3.6vw,2.75rem)] text-mk-ink">
-            Bir düğünün kaporasından az.
+            Tek paket, her şey dahil.
           </h2>
           <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">
-            {TRIAL_DAYS} gün ücretsiz deneyin, kart istemiyoruz. KDV hariç
-            fiyatlardır; istediğiniz zaman iptal edebilirsiniz.
+            Kademe yok, ek modül yok. Salon ve kullanıcı sınırı olmadan tüm
+            özellikler her abonelikte açık. {TRIAL_DAYS} gün ücretsiz deneyin,
+            kart istemiyoruz; istediğiniz zaman iptal edebilirsiniz.
           </p>
         </Reveal>
 
