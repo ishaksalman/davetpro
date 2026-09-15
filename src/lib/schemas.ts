@@ -74,6 +74,18 @@ const optionalUuid = z
     "Geçersiz seçim.",
   );
 
+// Zorunlu olmayan telefon. Boş metin null'a çevriliyor ki şema idempotent
+// kalsın: parse(parse(x)) ikinci turda da geçmeli.
+const optionalPhone = z
+  .string()
+  .trim()
+  .nullish()
+  .transform((v) => (v ? v : null))
+  .refine(
+    (v) => v === null || v.replace(/\D/g, "").length >= 10,
+    "Geçerli bir telefon numarası girin.",
+  );
+
 // --- Hesap -------------------------------------------------------------------
 
 export const changePasswordSchema = z
@@ -104,6 +116,19 @@ export const venueSchema = z.object({
   is_active: z.boolean(),
 });
 export type VenueInput = z.input<typeof venueSchema>;
+
+// --- Ekip --------------------------------------------------------------------
+
+export const teamSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: trimmed(1, 120, "Ekip adı"),
+  members: optionalText,
+  phone: optionalPhone,
+  note: optionalText,
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Geçersiz renk."),
+  is_active: z.boolean(),
+});
+export type TeamInput = z.input<typeof teamSchema>;
 
 // --- Paket -------------------------------------------------------------------
 
@@ -217,6 +242,8 @@ export const reservationSchema = z
     guest_count: optionalPositiveInt,
     /** Etkinliğin yapılacağı adres; fotoğrafçıda dolduruluyor. */
     location: optionalText,
+    /** Çekimi yapacak ekip. Opsiyonel — atama sonradan da yapılabilir. */
+    team_id: optionalUuid,
     notes: optionalText,
     /**
      * PAKET tutarı — toplam değil. Toplam, ek hizmetler eklenerek bulunuyor

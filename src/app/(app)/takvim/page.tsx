@@ -19,13 +19,15 @@ export default async function CalendarPage() {
   const sozluk = vertical(business.business_type);
   const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
 
-  const [lookups, { rows, error, truncated }, holds, leads] = await Promise.all([
-    getLookups(),
-    getReservationRows({}),
-    // Opsiyon ve talepler takvimde kesin rezervasyondan ayrı görünür.
-    getActiveHolds(),
-    getCalendarLeads(),
-  ]);
+  const [lookups, { rows, error, truncated }, holds, leads] = await Promise.all(
+    [
+      getLookups(),
+      getReservationRows({}),
+      // Opsiyon ve talepler takvimde kesin rezervasyondan ayrı görünür.
+      getActiveHolds(),
+      getCalendarLeads(),
+    ],
+  );
 
   const activeVenues = lookups.venues.filter((v) => v.is_active);
 
@@ -57,12 +59,13 @@ export default async function CalendarPage() {
               </Notice>
             )}
             <CalendarView
-            reservations={rows}
-            holds={holds}
-            leads={leads}
-            customers={lookups.customers}
-            venues={activeVenues}
-            packages={lookups.packages}
+              reservations={rows}
+              holds={holds}
+              leads={leads}
+              customers={lookups.customers}
+              venues={activeVenues}
+              teams={lookups.teams}
+              packages={lookups.packages}
               showFinance={canSeeFinance(profile)}
             />
           </>

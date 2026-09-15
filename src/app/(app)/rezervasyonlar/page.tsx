@@ -37,6 +37,7 @@ export default async function ReservationsPage() {
             <ReservationFormDialog
               customers={lookups.customers}
               venues={lookups.venues}
+              teams={lookups.teams}
               packages={lookups.packages}
               showFinance={showFinance}
               triggerButton={{ label: "Yeni rezervasyon", icon: "plus" }}
@@ -66,11 +67,12 @@ export default async function ReservationsPage() {
               </Notice>
             )}
             <ReservationTable
-            reservations={rows}
-            customers={lookups.customers}
-            venues={lookups.venues}
-            packages={lookups.packages}
-            showFinance={showFinance}
+              reservations={rows}
+              customers={lookups.customers}
+              venues={lookups.venues}
+              teams={lookups.teams}
+              packages={lookups.packages}
+              showFinance={showFinance}
               canDelete={isAdmin(profile)}
             />
           </>

@@ -11,37 +11,34 @@ import {
   type TriggerButton,
 } from "@/components/shared/form-dialog";
 import { VENUE_COLORS } from "@/lib/constants";
-import { useVertical } from "@/components/layout/vertical-provider";
-import { venueSchema, type VenueInput } from "@/lib/schemas";
-import type { Venue } from "@/lib/database.types";
+import { teamSchema, type TeamInput } from "@/lib/schemas";
+import type { Team } from "@/lib/database.types";
 import { cn } from "@/lib/utils";
-import { saveVenue } from "./actions";
+import { saveTeam } from "./actions";
 
-export function VenueFormDialog({
-  venue,
+export function TeamFormDialog({
+  team,
   trigger,
   triggerButton,
   suggestedColor,
 }: {
-  venue?: Venue;
+  team?: Team;
   trigger?: React.ReactElement;
   triggerButton?: TriggerButton;
   suggestedColor?: string;
 }) {
-  const sozluk = useVertical();
-  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
-
-  const defaultValues: VenueInput = {
-    id: venue?.id,
-    name: venue?.name ?? "",
-    capacity: venue?.capacity ?? "",
-    description: venue?.description ?? "",
-    color: venue?.color ?? suggestedColor ?? VENUE_COLORS[0],
-    is_active: venue?.is_active ?? true,
+  const defaultValues: TeamInput = {
+    id: team?.id,
+    name: team?.name ?? "",
+    members: team?.members ?? "",
+    phone: team?.phone ?? "",
+    note: team?.note ?? "",
+    color: team?.color ?? suggestedColor ?? VENUE_COLORS[0],
+    is_active: team?.is_active ?? true,
   };
 
-  const form = useForm<VenueInput>({
-    resolver: zodResolver(venueSchema) as never,
+  const form = useForm<TeamInput>({
+    resolver: zodResolver(teamSchema) as never,
     defaultValues,
   });
 
@@ -51,36 +48,44 @@ export function VenueFormDialog({
     <FormDialog
       trigger={trigger}
       triggerButton={triggerButton}
-      title={venue ? `${sozluk.resource.singular} bilgilerini düzenle` : sozluk.resourceNew}
-      description={`${sozluk.resource.singular} adı takvimde ve rezervasyon listelerinde görünür.`}
+      title={team ? "Ekip bilgilerini düzenle" : "Yeni ekip"}
+      description="Ekip, çekimi yapan kişilerdir. Plato ile karıştırmayın: plato çekimin yapıldığı yer ve aynı saatte tek çekim alır."
       form={form}
       defaultValues={defaultValues}
-      action={saveVenue}
-      successMessage={venue ? `${sozluk.resource.singular} güncellendi.` : `${sozluk.resource.singular} eklendi.`}
+      action={saveTeam}
+      successMessage={team ? "Ekip güncellendi." : "Ekip eklendi."}
     >
-      <FormField form={form} name="name" label={`${sozluk.resource.singular} adı`}>
-        <Input id="name" placeholder={sozluk.resourcePlaceholder} {...form.register("name")} />
+      <FormField form={form} name="name" label="Ekip adı">
+        <Input id="name" placeholder="1. Ekip" {...form.register("name")} />
       </FormField>
 
       <FormField
         form={form}
-        name="capacity"
-        label="Kapasite"
-        description="Kişi sayısı. Bilmiyorsanız boş bırakabilirsiniz."
+        name="members"
+        label="Ekipte kimler var"
+        description="Serbest metin. Sabit kadro olmak zorunda değil."
       >
         <Input
-          id="capacity"
-          inputMode="numeric"
-          placeholder="500"
-          {...form.register("capacity")}
+          id="members"
+          placeholder="Ela (foto), Murat (video)"
+          {...form.register("members")}
+        />
+      </FormField>
+
+      <FormField form={form} name="phone" label="Telefon">
+        <Input
+          id="phone"
+          inputMode="tel"
+          placeholder="0555 000 00 00"
+          {...form.register("phone")}
         />
       </FormField>
 
       <FormField
         form={form}
         name="color"
-        label="Takvim rengi"
-        description={`Takvimde bu ${kucuk} kaydının rezervasyonları bu renkle görünür.`}
+        label="Renk"
+        description="Listelerde ekibi ayırt etmek için."
       >
         <div className="flex flex-wrap gap-2">
           {VENUE_COLORS.map((c) => (
@@ -100,12 +105,12 @@ export function VenueFormDialog({
         </div>
       </FormField>
 
-      <FormField form={form} name="description" label="Açıklama">
+      <FormField form={form} name="note" label="Not">
         <Textarea
-          id="description"
+          id="note"
           rows={3}
-          placeholder={sozluk.resourceDescPlaceholder}
-          {...form.register("description")}
+          placeholder="Ekipman, çalışma saatleri, özel durumlar…"
+          {...form.register("note")}
         />
       </FormField>
 
@@ -113,7 +118,7 @@ export function VenueFormDialog({
         <span className="text-sm">
           <span className="font-medium">Aktif</span>
           <span className="block text-muted-foreground">
-            Pasif kayıtlar yeni rezervasyon formunda listelenmez.
+            Pasif ekipler yeni çekim formunda listelenmez.
           </span>
         </span>
         <Switch

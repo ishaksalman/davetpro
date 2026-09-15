@@ -41,6 +41,7 @@ import type {
   Package,
   ReservationStatus,
   Venue,
+  Team,
 } from "@/lib/database.types";
 import { cn } from "@/lib/utils";
 import type { ReservationRow } from "@/lib/queries";
@@ -54,6 +55,7 @@ export function ReservationTable({
   reservations,
   customers,
   venues,
+  teams,
   packages,
   showFinance,
   canDelete,
@@ -61,6 +63,7 @@ export function ReservationTable({
   reservations: ReservationRow[];
   customers: Customer[];
   venues: Venue[];
+  teams: Team[];
   packages: Package[];
   showFinance: boolean;
   canDelete: boolean;
@@ -112,7 +115,9 @@ export function ReservationTable({
         header: "Tarih",
         cell: ({ row }) => (
           <div className="whitespace-nowrap">
-            <p className="font-medium tabular">{formatDateShort(row.original.event_date)}</p>
+            <p className="font-medium tabular">
+              {formatDateShort(row.original.event_date)}
+            </p>
             <p className="text-xs text-muted-foreground tabular">
               {formatTimeRange(row.original.start_time, row.original.end_time)}
             </p>
@@ -238,6 +243,7 @@ export function ReservationTable({
                 reservation={row.original}
                 customers={customers}
                 venues={venues}
+                teams={teams}
                 packages={packages}
                 showFinance={showFinance}
                 trigger={
@@ -272,7 +278,15 @@ export function ReservationTable({
     });
 
     return base;
-  }, [showFinance, canDelete, customers, venues, packages, sozluk.resourceField]);
+  }, [
+    showFinance,
+    canDelete,
+    customers,
+    venues,
+    teams,
+    packages,
+    sozluk.resourceField,
+  ]);
 
   return (
     <DataTable
@@ -282,28 +296,41 @@ export function ReservationTable({
       searchPlaceholder={`Müşteri veya ${kucuk} ara…`}
       onRowClick={(row) => router.push(`/rezervasyonlar/${row.id}`)}
       rowClassName={(row) =>
-        cn(row.status === "iptal_edildi" && "text-muted-foreground line-through")
+        cn(
+          row.status === "iptal_edildi" && "text-muted-foreground line-through",
+        )
       }
       toolbar={
         <>
-          <Select value={timeFilter} onValueChange={(v) => setTimeFilter(v as TimeFilter)}>
+          <Select
+            value={timeFilter}
+            onValueChange={(v) => setTimeFilter(v as TimeFilter)}
+          >
             <SelectTrigger className="w-44" aria-label="Zaman filtresi">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="upcoming">Yaklaşanlar ({counts.upcoming})</SelectItem>
+              <SelectItem value="upcoming">
+                Yaklaşanlar ({counts.upcoming})
+              </SelectItem>
               <SelectItem value="past">Geçmiş ({counts.past})</SelectItem>
               <SelectItem value="all">Tümü ({counts.all})</SelectItem>
             </SelectContent>
           </Select>
 
-          <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
+          <Select
+            value={status}
+            onValueChange={(v) => setStatus(v as typeof status)}
+          >
             <SelectTrigger className="w-40" aria-label="Durum filtresi">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tüm durumlar</SelectItem>
-              {RESERVATION_STATUS_FLOW.map((v) => ({ value: v, label: RESERVATION_STATUS_LABELS[v] })).map((o) => (
+              {RESERVATION_STATUS_FLOW.map((v) => ({
+                value: v,
+                label: RESERVATION_STATUS_LABELS[v],
+              })).map((o) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>
@@ -313,7 +340,10 @@ export function ReservationTable({
 
           {venues.length > 1 && (
             <Select value={venueId} onValueChange={setVenueId}>
-              <SelectTrigger className="w-40" aria-label={`${sozluk.resource.singular} filtresi`}>
+              <SelectTrigger
+                className="w-40"
+                aria-label={`${sozluk.resource.singular} filtresi`}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -337,6 +367,7 @@ export function ReservationTable({
             <ReservationFormDialog
               customers={customers}
               venues={venues}
+              teams={teams}
               packages={packages}
               showFinance={showFinance}
               triggerButton={{ label: "Rezervasyon oluştur" }}

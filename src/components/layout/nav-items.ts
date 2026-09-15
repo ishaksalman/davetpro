@@ -11,6 +11,7 @@ import {
   Settings,
   Store,
   Users,
+  UsersRound,
 } from "lucide-react";
 
 export type NavItem = {
@@ -21,6 +22,8 @@ export type NavItem = {
   financeOnly?: boolean;
   /** Yalnızca teslim akışı kullanan işletmelerde görünür. */
   deliveryOnly?: boolean;
+  /** Yalnızca ekip kavramı olan işletmelerde görünür (fotoğrafçı). */
+  teamsOnly?: boolean;
 };
 
 export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
@@ -48,6 +51,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/paketler", label: "Paketler", icon: Package },
       { href: "/salonlar", label: "Salonlar", icon: Store },
+      { href: "/ekipler", label: "Ekipler", icon: UsersRound, teamsOnly: true },
       { href: "/ayarlar", label: "Ayarlar", icon: Settings },
     ],
   },

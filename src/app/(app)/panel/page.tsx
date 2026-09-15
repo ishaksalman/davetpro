@@ -16,7 +16,10 @@ import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationRows } from "@/lib/queries";
 import { today as businessToday, todayISO } from "@/lib/time";
-import { ORGANIZATION_TYPE_LABELS, PAYMENT_METHOD_LABELS } from "@/lib/constants";
+import {
+  ORGANIZATION_TYPE_LABELS,
+  PAYMENT_METHOD_LABELS,
+} from "@/lib/constants";
 import {
   formatDate,
   formatDateShort,
@@ -73,38 +76,37 @@ export default async function DashboardPage() {
     prevSummaryResult,
     recentPayments,
     recentExpenses,
-  ] =
-    await Promise.all([
-      getLookups(),
-      getReservationRows({ from: today }),
-      showFinance
-        ? supabase.rpc("finance_summary", { p_from: monthStart, p_to: monthEnd })
-        : Promise.resolve({ data: null }),
-      showFinance
-        ? supabase.rpc("monthly_series", { p_from: seriesStart, p_to: monthEnd })
-        : Promise.resolve({ data: null }),
-      showFinance
-        ? supabase.rpc("finance_summary", { p_from: prevStart, p_to: prevEnd })
-        : Promise.resolve({ data: null }),
-      showFinance
-        ? supabase
-            .from("payments")
-            .select("*")
-            .is("voided_at", null)
-            .order("created_at", { ascending: false })
-            .limit(5)
-            .returns<Payment[]>()
-        : Promise.resolve({ data: null }),
-      showFinance
-        ? supabase
-            .from("expenses")
-            .select("*")
-            .is("voided_at", null)
-            .order("created_at", { ascending: false })
-            .limit(5)
-            .returns<Expense[]>()
-        : Promise.resolve({ data: null }),
-    ]);
+  ] = await Promise.all([
+    getLookups(),
+    getReservationRows({ from: today }),
+    showFinance
+      ? supabase.rpc("finance_summary", { p_from: monthStart, p_to: monthEnd })
+      : Promise.resolve({ data: null }),
+    showFinance
+      ? supabase.rpc("monthly_series", { p_from: seriesStart, p_to: monthEnd })
+      : Promise.resolve({ data: null }),
+    showFinance
+      ? supabase.rpc("finance_summary", { p_from: prevStart, p_to: prevEnd })
+      : Promise.resolve({ data: null }),
+    showFinance
+      ? supabase
+          .from("payments")
+          .select("*")
+          .is("voided_at", null)
+          .order("created_at", { ascending: false })
+          .limit(5)
+          .returns<Payment[]>()
+      : Promise.resolve({ data: null }),
+    showFinance
+      ? supabase
+          .from("expenses")
+          .select("*")
+          .is("voided_at", null)
+          .order("created_at", { ascending: false })
+          .limit(5)
+          .returns<Expense[]>()
+      : Promise.resolve({ data: null }),
+  ]);
 
   // Finansal veri okunamadıysa ₺0 göstermek yerine hatayı bildir.
   const hata =
@@ -124,7 +126,9 @@ export default async function DashboardPage() {
     );
   }
 
-  const upcoming = reservationsResult.rows.filter((r) => r.status !== "iptal_edildi");
+  const upcoming = reservationsResult.rows.filter(
+    (r) => r.status !== "iptal_edildi",
+  );
   const todayEvents = upcoming.filter((r) => r.event_date === today);
   const nextEvents = upcoming.filter((r) => r.event_date > today).slice(0, 5);
 
@@ -141,7 +145,10 @@ export default async function DashboardPage() {
     summary?.reservation_count,
     prevSummary?.reservation_count,
   );
-  const satisTrend = monthOverMonth(summary?.total_sales, prevSummary?.total_sales);
+  const satisTrend = monthOverMonth(
+    summary?.total_sales,
+    prevSummary?.total_sales,
+  );
   const tahsilTrend = monthOverMonth(
     summary?.collected_in_range,
     prevSummary?.collected_in_range,
@@ -175,6 +182,7 @@ export default async function DashboardPage() {
             <ReservationFormDialog
               customers={lookups.customers}
               venues={lookups.venues}
+              teams={lookups.teams}
               packages={lookups.packages}
               showFinance={showFinance}
               triggerButton={{
@@ -231,7 +239,13 @@ export default async function DashboardPage() {
               <StatCard
                 label="Bu ay tahsil edilen"
                 value={formatMoney(summary.collected_in_range)}
-                hint={tahsilTrend ? <TrendHint trend={tahsilTrend} /> : "Kasaya giren"}
+                hint={
+                  tahsilTrend ? (
+                    <TrendHint trend={tahsilTrend} />
+                  ) : (
+                    "Kasaya giren"
+                  )
+                }
                 tone="positive"
                 icon={ArrowDownCircle}
               />
@@ -283,14 +297,25 @@ export default async function DashboardPage() {
 
             <Panel
               title={`Bugünkü ${sozluk.event.plural}`}
-              hint={todayEvents.length ? `${todayEvents.length} ${sozluk.event.singular}` : undefined}
+              hint={
+                todayEvents.length
+                  ? `${todayEvents.length} ${sozluk.event.singular}`
+                  : undefined
+              }
             >
               {todayEvents.length === 0 ? (
-                <Empty text={`Bugün planlanmış ${sozluk.event.singular} yok.`} />
+                <Empty
+                  text={`Bugün planlanmış ${sozluk.event.singular} yok.`}
+                />
               ) : (
                 <ul className="divide-y">
                   {todayEvents.map((r) => (
-                    <EventRow key={r.id} reservation={r} showFinance={showFinance} showToday />
+                    <EventRow
+                      key={r.id}
+                      reservation={r}
+                      showFinance={showFinance}
+                      showToday
+                    />
                   ))}
                 </ul>
               )}
@@ -321,7 +346,9 @@ export default async function DashboardPage() {
                           )}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{t.title}</p>
+                          <p className="truncate text-sm font-medium">
+                            {t.title}
+                          </p>
                           <p className="truncate text-xs text-muted-foreground">
                             {formatDateShort(t.date)} · {t.subtitle}
                           </p>
@@ -356,7 +383,12 @@ export default async function DashboardPage() {
               ) : (
                 <ul className="divide-y">
                   {nextEvents.map((r) => (
-                    <EventRow key={r.id} reservation={r} showFinance={showFinance} compact />
+                    <EventRow
+                      key={r.id}
+                      reservation={r}
+                      showFinance={showFinance}
+                      compact
+                    />
                   ))}
                 </ul>
               )}
@@ -369,7 +401,10 @@ export default async function DashboardPage() {
                 ) : (
                   <ul className="divide-y">
                     {duePayments.map((r) => (
-                      <li key={r.id} className="flex items-center gap-3 px-5 py-3.5">
+                      <li
+                        key={r.id}
+                        className="flex items-center gap-3 px-5 py-3.5"
+                      >
                         <div className="min-w-0 flex-1">
                           <Link
                             href={`/rezervasyonlar/${r.id}`}
@@ -382,7 +417,11 @@ export default async function DashboardPage() {
                             {formatDateShort(r.due_date!)}
                           </p>
                         </div>
-                        <Money value={r.balance_amount} tone="pending" className="text-sm" />
+                        <Money
+                          value={r.balance_amount}
+                          tone="pending"
+                          className="text-sm"
+                        />
                         <WhatsAppButton
                           phone={r.customer?.phone}
                           message={`Merhaba ${r.customer?.full_name ?? ""}, ${formatDate(r.event_date)} tarihli ${sozluk.event.possessive} için kalan ödemeniz ${formatMoney(r.balance_amount)}.`}
@@ -426,7 +465,11 @@ function Panel({
 }
 
 function Empty({ text }: { text: string }) {
-  return <p className="px-5 py-8 text-center text-sm text-muted-foreground">{text}</p>;
+  return (
+    <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+      {text}
+    </p>
+  );
 }
 
 function EventRow({
@@ -480,7 +523,11 @@ function EventRow({
           <>
             <StatusBadge status={reservation.status} />
             {showFinance && reservation.balance_amount > 0 && (
-              <Money value={reservation.balance_amount} tone="pending" className="text-sm" />
+              <Money
+                value={reservation.balance_amount}
+                tone="pending"
+                className="text-sm"
+              />
             )}
           </>
         )}

@@ -79,7 +79,8 @@ export function AppSidebar({
           const items = group.items.filter(
             (i) =>
               (showFinance || !i.financeOnly) &&
-              (sozluk.usesDelivery || !i.deliveryOnly),
+              (sozluk.usesDelivery || !i.deliveryOnly) &&
+              (sozluk.usesTeams || !i.teamsOnly),
           );
           if (items.length === 0) return null;
 

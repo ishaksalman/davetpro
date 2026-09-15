@@ -65,47 +65,47 @@ export default async function ReservationDetailPage({
     leadResult,
     contractResult,
   ] = await Promise.all([
-      getReservationById(id),
-      getLookups(),
-      supabase
-        .from("payments")
-        .select("*")
-        .eq("reservation_id", id)
-        .order("payment_date", { ascending: true })
-        .returns<Payment[]>(),
-      supabase
-        .from("expenses")
-        .select("*")
-        .eq("reservation_id", id)
-        .order("expense_date", { ascending: true })
-        .returns<Expense[]>(),
-      supabase
-        .from("expense_categories")
-        .select("*")
-        .order("name")
-        .returns<ExpenseCategory[]>(),
-      // Bu rezervasyon bir talepten mi doğdu?
-      supabase
-        .from("leads")
-        .select("id")
-        .eq("reservation_id", id)
-        .maybeSingle<{ id: string }>(),
-      // Sözleşmenin yalnızca en güncel sürümü; kart durumunu göstermek için.
-      showFinance
-        ? supabase
-            .from("contracts")
-            .select("id, contract_number, status, version, created_at")
-            .eq("reservation_id", id)
-            .order("version", { ascending: false })
-            .limit(1)
-            .maybeSingle<
-              Pick<
-                Contract,
-                "id" | "contract_number" | "status" | "version" | "created_at"
-              >
-            >()
-        : Promise.resolve({ data: null }),
-    ]);
+    getReservationById(id),
+    getLookups(),
+    supabase
+      .from("payments")
+      .select("*")
+      .eq("reservation_id", id)
+      .order("payment_date", { ascending: true })
+      .returns<Payment[]>(),
+    supabase
+      .from("expenses")
+      .select("*")
+      .eq("reservation_id", id)
+      .order("expense_date", { ascending: true })
+      .returns<Expense[]>(),
+    supabase
+      .from("expense_categories")
+      .select("*")
+      .order("name")
+      .returns<ExpenseCategory[]>(),
+    // Bu rezervasyon bir talepten mi doğdu?
+    supabase
+      .from("leads")
+      .select("id")
+      .eq("reservation_id", id)
+      .maybeSingle<{ id: string }>(),
+    // Sözleşmenin yalnızca en güncel sürümü; kart durumunu göstermek için.
+    showFinance
+      ? supabase
+          .from("contracts")
+          .select("id, contract_number, status, version, created_at")
+          .eq("reservation_id", id)
+          .order("version", { ascending: false })
+          .limit(1)
+          .maybeSingle<
+            Pick<
+              Contract,
+              "id" | "contract_number" | "status" | "version" | "created_at"
+            >
+          >()
+      : Promise.resolve({ data: null }),
+  ]);
 
   // Finansal veri okunamadıysa sessizce ₺0 göstermek yerine hatayı bildir.
   if (reservationResult.error) {
@@ -127,7 +127,9 @@ export default async function ReservationDetailPage({
   const categories = categoriesResult.data ?? [];
   const categoryNames = new Map(categories.map((c) => [c.id, c.name] as const));
 
-  const customer = lookups.customers.find((c) => c.id === reservation.customer_id);
+  const customer = lookups.customers.find(
+    (c) => c.id === reservation.customer_id,
+  );
 
   return (
     <>
@@ -153,6 +155,7 @@ export default async function ReservationDetailPage({
               reservation={reservation}
               customers={lookups.customers}
               venues={lookups.venues}
+              teams={lookups.teams}
               packages={lookups.packages}
               showFinance={showFinance}
               triggerButton={{
@@ -172,21 +175,39 @@ export default async function ReservationDetailPage({
             {/* Organizasyon bilgileri */}
             <section className="rounded-xl border bg-card">
               <header className="flex items-center justify-between gap-3 border-b px-5 py-4">
-                <h2 className="font-medium">{buyukHarf(sozluk.event.singular)}</h2>
+                <h2 className="font-medium">
+                  {buyukHarf(sozluk.event.singular)}
+                </h2>
                 <StatusBadge status={reservation.status} />
               </header>
               <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5 sm:grid-cols-3">
                 <Detail label="Tür">
                   {ORGANIZATION_TYPE_LABELS[reservation.organization_type]}
                 </Detail>
-                <Detail label={sozluk.resourceField}>{reservation.venue?.name ?? "—"}</Detail>
-                <Detail label="Paket">{reservation.package?.name ?? "Paketsiz"}</Detail>
-                <Detail label="Tarih">{formatDate(reservation.event_date)}</Detail>
+                <Detail label={sozluk.resourceField}>
+                  {reservation.venue?.name ?? "—"}
+                </Detail>
+                <Detail label="Paket">
+                  {reservation.package?.name ?? "Paketsiz"}
+                </Detail>
+                <Detail label="Tarih">
+                  {formatDate(reservation.event_date)}
+                </Detail>
                 <Detail label="Saat">
-                  {formatTimeRange(reservation.start_time, reservation.end_time)}
+                  {formatTimeRange(
+                    reservation.start_time,
+                    reservation.end_time,
+                  )}
                 </Detail>
                 {reservation.location && (
-                  <Detail label="Etkinlik adresi">{reservation.location}</Detail>
+                  <Detail label="Etkinlik adresi">
+                    {reservation.location}
+                  </Detail>
+                )}
+                {/* Ekip zorunlu değil: atanmamışsa alan hiç gösterilmiyor,
+                    "—" ile boş satır bırakmak yerine. */}
+                {sozluk.usesTeams && reservation.team && (
+                  <Detail label="Ekip">{reservation.team.name}</Detail>
                 )}
                 <Detail label="Kişi sayısı">
                   {reservation.guest_count
@@ -200,7 +221,9 @@ export default async function ReservationDetailPage({
                     Bu rezervasyon bir talepten dönüştürüldü.
                   </p>
                   <Button asChild variant="ghost" size="sm">
-                    <Link href={`/talepler/${leadResult.data.id}`}>Talebi görüntüle</Link>
+                    <Link href={`/talepler/${leadResult.data.id}`}>
+                      Talebi görüntüle
+                    </Link>
                   </Button>
                 </div>
               )}
@@ -208,7 +231,9 @@ export default async function ReservationDetailPage({
               {reservation.notes && (
                 <div className="border-t px-5 py-4">
                   <p className="text-xs text-muted-foreground">Notlar</p>
-                  <p className="mt-1 text-sm whitespace-pre-line">{reservation.notes}</p>
+                  <p className="mt-1 text-sm whitespace-pre-line">
+                    {reservation.notes}
+                  </p>
                 </div>
               )}
             </section>
@@ -221,7 +246,8 @@ export default async function ReservationDetailPage({
                     <div>
                       <h2 className="font-medium">Tahsilatlar</h2>
                       <p className="text-xs text-muted-foreground">
-                        {payments.filter((p) => !p.voided_at).length} ödeme kaydı
+                        {payments.filter((p) => !p.voided_at).length} ödeme
+                        kaydı
                       </p>
                     </div>
                     <PaymentFormDialog
@@ -387,7 +413,10 @@ export default async function ReservationDetailPage({
                     </>
                   ) : (
                     <Row label="Anlaşılan fiyat">
-                      <Money value={reservation.pricing?.gross_amount ?? 0} tone="muted" />
+                      <Money
+                        value={reservation.pricing?.gross_amount ?? 0}
+                        tone="muted"
+                      />
                     </Row>
                   )}
                   {reservation.unit_price && reservation.guest_count ? (
@@ -416,12 +445,17 @@ export default async function ReservationDetailPage({
                 </p>
                 <dl className="mt-2.5 space-y-2.5 text-sm">
                   <Row label="Tahsil edilen">
-                    <Money value={reservation.collected_amount} tone="positive" />
+                    <Money
+                      value={reservation.collected_amount}
+                      tone="positive"
+                    />
                   </Row>
                   <Row label="Kalan ödeme" strong>
                     <Money
                       value={reservation.balance_amount}
-                      tone={reservation.balance_amount > 0 ? "pending" : "positive"}
+                      tone={
+                        reservation.balance_amount > 0 ? "pending" : "positive"
+                      }
                     />
                   </Row>
                   {reservation.due_date && (
@@ -452,12 +486,19 @@ export default async function ReservationDetailPage({
                 ) : (
                   <dl className="mt-2.5 space-y-2.5 text-sm">
                     <Row label="Bağlı gider">
-                      <Money value={reservation.expense_amount} tone="negative" />
+                      <Money
+                        value={reservation.expense_amount}
+                        tone="negative"
+                      />
                     </Row>
                     <Row label="Kâr" strong>
                       <Money
                         value={reservation.profit_amount}
-                        tone={reservation.profit_amount >= 0 ? "positive" : "negative"}
+                        tone={
+                          reservation.profit_amount >= 0
+                            ? "positive"
+                            : "negative"
+                        }
                       />
                     </Row>
                     <Row label="Kâr marjı">
@@ -602,7 +643,6 @@ export default async function ReservationDetailPage({
                 Finansal bilgileri görme yetkiniz bulunmuyor.
               </section>
             )}
-
           </aside>
         </div>
       </PageBody>
@@ -610,7 +650,13 @@ export default async function ReservationDetailPage({
   );
 }
 
-function Detail({ label, children }: { label: string; children: React.ReactNode }) {
+function Detail({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -630,7 +676,9 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <dt className={strong ? "font-medium" : "text-muted-foreground"}>{label}</dt>
+      <dt className={strong ? "font-medium" : "text-muted-foreground"}>
+        {label}
+      </dt>
       <dd className={strong ? "font-semibold" : ""}>{children}</dd>
     </div>
   );

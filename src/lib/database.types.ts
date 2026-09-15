@@ -83,6 +83,27 @@ export type Venue = Timestamps & {
   description: string | null;
   color: string;
   is_active: boolean;
+  /**
+   * true ise bu alanda çakışma kontrolü yapılmaz ("Diğer" / serbest alan).
+   * Fotoğrafçıda plato dışı çekimler burada toplanıyor.
+   */
+  allows_overlap: boolean;
+};
+
+/**
+ * Çekimi yapan ekip. Platodan AYRI kavram: plato kısıtlı kaynak (aynı
+ * saatte tek çekim), ekip yalnızca bir atama ve zorunlu değil.
+ */
+export type Team = Timestamps & {
+  id: string;
+  business_id: string;
+  name: string;
+  /** Ekipte kimler var — serbest metin, personel tablosu değil. */
+  members: string | null;
+  phone: string | null;
+  note: string | null;
+  color: string;
+  is_active: boolean;
 };
 
 export type Package = Timestamps & {
@@ -131,6 +152,8 @@ export type Reservation = Timestamps & {
   guest_count: number | null;
   /** Etkinliğin yapılacağı adres. Fotoğrafçıda dolu, salonda boş. */
   location: string | null;
+  /** Çekimi yapacak ekip. Opsiyonel; atama sonradan da yapılabilir. */
+  team_id: string | null;
   delivery_status: DeliveryStatus | null;
   /** Teslim anı; tetikleyici yazıyor, elle girilmiyor. */
   delivered_at: string | null;

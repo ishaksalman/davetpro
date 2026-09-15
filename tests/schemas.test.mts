@@ -24,6 +24,7 @@ import {
   packageSchema,
   paymentSchema,
   reservationSchema,
+  teamSchema,
   venueSchema,
 } from "../src/lib/schemas.ts";
 import type { ZodTypeAny } from "zod";
@@ -48,6 +49,16 @@ const samples: [string, ZodTypeAny, unknown][] = [
     "venueSchema (dolu)",
     venueSchema,
     { id: "11111111-1111-1111-1111-111111111111", name: "Kır Bahçesi", capacity: "300", description: "Açık alan", color: "#14b8a6", is_active: false },
+  ],
+  [
+    "teamSchema (boş opsiyoneller)",
+    teamSchema,
+    { name: "1. Ekip", members: "", phone: "", note: "", color: "#0ea5e9", is_active: true },
+  ],
+  [
+    "teamSchema (dolu)",
+    teamSchema,
+    { id: "11111111-1111-1111-1111-111111111111", name: "2. Ekip", members: "Ela, Murat", phone: "0555 000 00 00", note: "Drone var", color: "#f97316", is_active: false },
   ],
   [
     "packageSchema (kişi başı)",

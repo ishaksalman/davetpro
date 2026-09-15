@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Pencil, Store, Trash2, Users } from "lucide-react";
+import { MoreHorizontal, Pencil, Phone, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,54 +10,54 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
-import { useVertical } from "@/components/layout/vertical-provider";
-import { formatNumber } from "@/lib/format";
-import type { Venue } from "@/lib/database.types";
+import { formatPhone } from "@/lib/format";
+import type { Team } from "@/lib/database.types";
 import { VENUE_COLORS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { deleteVenue } from "./actions";
-import { VenueFormDialog } from "./venue-form-dialog";
+import { deleteTeam } from "./actions";
+import { TeamFormDialog } from "./team-form-dialog";
 
-export function VenueList({ venues }: { venues: Venue[] }) {
-  const sozluk = useVertical();
-  const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
-
-  if (venues.length === 0) {
+export function TeamList({ teams }: { teams: Team[] }) {
+  if (teams.length === 0) {
     return (
       <EmptyState
-        icon={Store}
-        title={sozluk.resourceEmpty}
-        description={`Rezervasyon oluşturabilmek için en az bir ${kucuk} tanımlamanız gerekiyor.`}
-        action={
-          <VenueFormDialog triggerButton={{ label: `İlk ${kucuk} kaydınızı ekleyin` }} />
-        }
+        icon={Users}
+        title="Henüz ekip eklenmemiş"
+        description="Ekip zorunlu değil — çekimleri ekip atamadan da kaydedebilirsiniz. Kimin hangi işe gittiğini takip etmek isterseniz buradan tanımlayın."
+        action={<TeamFormDialog triggerButton={{ label: "İlk ekibinizi ekleyin" }} />}
       />
     );
   }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {venues.map((venue, index) => (
+      {teams.map((team, index) => (
         <article
-          key={venue.id}
+          key={team.id}
           className={cn(
             "group relative overflow-hidden rounded-xl border bg-card p-5 transition-shadow hover:shadow-sm",
-            !venue.is_active && "opacity-60",
+            !team.is_active && "opacity-60",
           )}
         >
           <span
             aria-hidden
             className="absolute inset-x-0 top-0 h-1"
-            style={{ backgroundColor: venue.color }}
+            style={{ backgroundColor: team.color }}
           />
 
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="truncate font-medium">{venue.name}</h3>
-              {venue.capacity && (
+              <h3 className="truncate font-medium">{team.name}</h3>
+              {team.members && (
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Users className="size-3.5" />
-                  {formatNumber(venue.capacity)} kişi
+                  <Users className="size-3.5 shrink-0" />
+                  <span className="truncate">{team.members}</span>
+                </p>
+              )}
+              {team.phone && (
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Phone className="size-3.5 shrink-0" />
+                  {formatPhone(team.phone)}
                 </p>
               )}
             </div>
@@ -66,12 +66,12 @@ export function VenueList({ venues }: { venues: Venue[] }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="-mt-1 -mr-2 shrink-0">
                   <MoreHorizontal />
-                  <span className="sr-only">{sozluk.resource.singular} işlemleri</span>
+                  <span className="sr-only">Ekip işlemleri</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <VenueFormDialog
-                  venue={venue}
+                <TeamFormDialog
+                  team={team}
                   suggestedColor={VENUE_COLORS[index % VENUE_COLORS.length]}
                   trigger={
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -81,17 +81,17 @@ export function VenueList({ venues }: { venues: Venue[] }) {
                   }
                 />
                 <ConfirmDialog
-                  title={`${sozluk.resource.singular} silinsin mi?`}
+                  title="Ekip silinsin mi?"
                   description={
                     <>
-                      <strong>{venue.name}</strong> kalıcı olarak silinecek. Bu{" "}
-                      {kucuk} kaydına bağlı rezervasyon varsa silme işlemi yapılamaz —
-                      bunun yerine pasife alabilirsiniz.
+                      <strong>{team.name}</strong> kalıcı olarak silinecek. Bu ekibin
+                      atandığı çekimler <strong>silinmez</strong>; yalnızca ekip ataması
+                      boşalır.
                     </>
                   }
                   confirmLabel="Sil"
-                  successMessage={`${sozluk.resource.singular} silindi.`}
-                  onConfirm={() => deleteVenue(venue.id)}
+                  successMessage="Ekip silindi."
+                  onConfirm={() => deleteTeam(team.id)}
                   trigger={
                     <DropdownMenuItem
                       variant="destructive"
@@ -106,13 +106,11 @@ export function VenueList({ venues }: { venues: Venue[] }) {
             </DropdownMenu>
           </div>
 
-          {venue.description && (
-            <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-              {venue.description}
-            </p>
+          {team.note && (
+            <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{team.note}</p>
           )}
 
-          {!venue.is_active && (
+          {!team.is_active && (
             <span className="mt-3 inline-flex rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
               Pasif
             </span>

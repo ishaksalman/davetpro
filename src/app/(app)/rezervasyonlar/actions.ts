@@ -44,6 +44,7 @@ export async function saveReservation(
     p_guest_count: v.guest_count,
     p_notes: v.notes,
     p_location: v.location,
+    p_team_id: v.team_id,
     // p_gross_amount, veritabanı tarafında PAKET tutarı olarak okunuyor;
     // brütü kalemleri ekleyerek orada hesaplıyor (0030).
     p_gross_amount: v.package_amount,

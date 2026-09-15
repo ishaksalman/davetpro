@@ -8,6 +8,7 @@ import type {
   Reservation,
   ReservationFinancials,
   ReservationPricing,
+  Team,
   Venue,
 } from "@/lib/database.types";
 
@@ -27,6 +28,7 @@ export type ReservationRow = Reservation & {
   items: ReservationItem[];
   customer: { id: string; full_name: string; phone: string } | null;
   venue: { id: string; name: string; color: string } | null;
+  team: { id: string; name: string } | null;
   package: { id: string; name: string; included_services: string[] } | null;
   net_amount: number;
   collected_amount: number;
@@ -42,6 +44,8 @@ export type Lookups = {
   customers: Customer[];
   venues: Venue[];
   packages: Package[];
+  /** Yalnızca fotoğrafçıda dolu; salonda tablo boş olduğu için [] döner. */
+  teams: Team[];
 };
 
 /**
@@ -51,16 +55,18 @@ export type Lookups = {
  */
 export const getLookups = cache(async (): Promise<Lookups> => {
   const supabase = await createClient();
-  const [customers, venues, packages] = await Promise.all([
+  const [customers, venues, packages, teams] = await Promise.all([
     supabase.from("customers").select("*").order("full_name").returns<Customer[]>(),
     supabase.from("venues").select("*").order("name").returns<Venue[]>(),
     supabase.from("packages").select("*").order("name").returns<Package[]>(),
+    supabase.from("teams").select("*").order("name").returns<Team[]>(),
   ]);
 
   return {
     customers: customers.data ?? [],
     venues: venues.data ?? [],
     packages: packages.data ?? [],
+    teams: teams.data ?? [],
   };
 });
 
@@ -142,11 +148,13 @@ export async function getReservationRows(
   const customers = new Map(resolvedLookups.customers.map((c) => [c.id, c] as const));
   const venues = new Map(resolvedLookups.venues.map((v) => [v.id, v] as const));
   const packages = new Map(resolvedLookups.packages.map((p) => [p.id, p] as const));
+  const teams = new Map(resolvedLookups.teams.map((t) => [t.id, t] as const));
 
   const rows = (reservationsResult.data ?? []).map<ReservationRow>((reservation) => {
     const f = financials.get(reservation.id);
     const customer = customers.get(reservation.customer_id);
     const venue = venues.get(reservation.venue_id);
+    const team = reservation.team_id ? teams.get(reservation.team_id) : undefined;
     const pkg = reservation.package_id ? packages.get(reservation.package_id) : undefined;
 
     return {
@@ -155,6 +163,7 @@ export async function getReservationRows(
         ? { id: customer.id, full_name: customer.full_name, phone: customer.phone }
         : null,
       venue: venue ? { id: venue.id, name: venue.name, color: venue.color } : null,
+      team: team ? { id: team.id, name: team.name } : null,
       package: pkg
         ? {
             id: pkg.id,

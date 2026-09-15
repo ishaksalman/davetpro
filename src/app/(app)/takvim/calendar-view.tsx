@@ -39,6 +39,7 @@ import type {
   LeadStatus,
   Package,
   Venue,
+  Team,
 } from "@/lib/database.types";
 import type { ReservationRow } from "@/lib/queries";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,7 @@ export function CalendarView({
   leads,
   customers,
   venues,
+  teams,
   packages,
   showFinance,
 }: {
@@ -133,6 +135,7 @@ export function CalendarView({
   leads: CalendarLead[];
   customers: Customer[];
   venues: Venue[];
+  teams: Team[];
   packages: Package[];
   showFinance: boolean;
 }) {
@@ -498,6 +501,7 @@ export function CalendarView({
         defaults={slotDefaults}
         customers={customers}
         venues={venues}
+        teams={teams}
         packages={packages}
         showFinance={showFinance}
       />
@@ -515,8 +519,18 @@ function shift(date: Date, view: View, direction: 1 | -1): Date {
 }
 
 const AY_ADLARI = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+  "Ocak",
+  "Şubat",
+  "Mart",
+  "Nisan",
+  "Mayıs",
+  "Haziran",
+  "Temmuz",
+  "Ağustos",
+  "Eylül",
+  "Ekim",
+  "Kasım",
+  "Aralık",
 ];
 
 /**
@@ -582,7 +596,8 @@ function PeriodJump({
 
         <div className="mt-2 grid grid-cols-3 gap-1">
           {AY_ADLARI.map((ad, ay) => {
-            const secili = year === date.getFullYear() && ay === date.getMonth();
+            const secili =
+              year === date.getFullYear() && ay === date.getMonth();
             return (
               <button
                 key={ad}

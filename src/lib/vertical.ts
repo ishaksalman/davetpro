@@ -67,6 +67,13 @@ export type Vertical = {
   /** Etkinlik adresi alanı gösterilsin mi. */
   usesLocation: boolean;
   /**
+   * Ekip kavramı kullanılıyor mu.
+   *
+   * Plato ile karıştırılmamalı: plato kısıtlı kaynak (aynı saatte tek çekim),
+   * ekip çekime atanan kişiler ve zorunlu değil. Salonda karşılığı yok.
+   */
+  usesTeams: boolean;
+  /**
    * Çekim sonrası teslim akışı kullanılıyor mu.
    * Salonda organizasyon biter iş biter; fotoğrafçıda seçim, düzenleme,
    * baskı ve teslim adımları var.
@@ -97,16 +104,17 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
     usesGuestCount: true,
     usesLocation: false,
+    usesTeams: false,
     usesDelivery: false,
   },
   fotografci: {
     label: "Fotoğrafçı",
     description:
-      "Düğün, nişan ve dış çekim hizmeti veriyorsanız. Takvim ekip bazında tutulur.",
-    resource: { singular: "Ekip", plural: "Ekipler" },
-    resourceNew: "Yeni ekip",
-    resourceEmpty: "Henüz ekip eklenmemiş",
-    resourceField: "Ekip",
+      "Düğün, nişan ve dış çekim hizmeti veriyorsanız. Takvim plato bazında tutulur.",
+    resource: { singular: "Plato", plural: "Platolar" },
+    resourceNew: "Yeni plato",
+    resourceEmpty: "Henüz plato eklenmemiş",
+    resourceField: "Plato",
     event: {
       singular: "çekim",
       plural: "çekimler",
@@ -117,10 +125,11 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
       possessive: "çekiminiz",
     },
     businessPlaceholder: "Ela Fotoğrafçılık",
-    resourcePlaceholder: "1. Ekip",
-    resourceDescPlaceholder: "İki fotoğrafçı, bir video operatörü",
+    resourcePlaceholder: "A Platosu",
+    resourceDescPlaceholder: "120 m², sonsuz fon, stüdyo aydınlatması",
     usesGuestCount: false,
     usesLocation: true,
+    usesTeams: true,
     usesDelivery: true,
   },
 };

@@ -41,6 +41,7 @@ import type {
   ReservationPricing,
   Venue,
   VenueAvailability,
+  Team,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
 import { buyukHarf } from "@/lib/vertical";
@@ -65,6 +66,7 @@ export function ReservationFormDialog({
   reservation,
   customers,
   venues,
+  teams,
   packages,
   showFinance,
   defaults,
@@ -76,6 +78,7 @@ export function ReservationFormDialog({
   reservation?: EditableReservation;
   customers: Customer[];
   venues: Venue[];
+  teams: Team[];
   packages: Package[];
   showFinance: boolean;
   /** Takvimden hızlı oluşturma için ön dolgu. */
@@ -93,6 +96,9 @@ export function ReservationFormDialog({
   const [customerOpen, setCustomerOpen] = useState(false);
 
   const activeVenues = venues.filter((v) => v.is_active || v.id === reservation?.venue_id);
+  // Pasif ekip yalnızca zaten atanmışsa listede kalıyor — aksi halde
+  // düzenlemede mevcut atama sessizce kaybolurdu.
+  const activeTeams = teams.filter((t) => t.is_active || t.id === reservation?.team_id);
   const activePackages = packages.filter(
     (p) => p.is_active || p.id === reservation?.package_id,
   );
@@ -118,6 +124,7 @@ export function ReservationFormDialog({
     end_time: reservation?.end_time?.slice(0, 5) ?? defaults?.end_time ?? "23:00",
     guest_count: reservation?.guest_count ?? "",
     location: reservation?.location ?? "",
+    team_id: reservation?.team_id ?? null,
     notes: reservation?.notes ?? "",
     pricing_type: reservation?.pricing?.unit_price ? "kisi_basi" : "sabit",
     unit_price: reservation?.pricing?.unit_price ?? 0,
@@ -412,6 +419,32 @@ export function ReservationFormDialog({
               placeholder="400"
               {...form.register("guest_count")}
             />
+          </FormField>
+        )}
+
+        {/* Ekip ZORUNLU DEĞİL: plato gibi bir kısıtı yok, sonradan da
+            atanabilir. Hiç ekip tanımlanmamışsa alan gösterilmiyor. */}
+        {sozluk.usesTeams && activeTeams.length > 0 && (
+          <FormField form={form} name="team_id" label="Ekip" description="Zorunlu değil.">
+            <Select
+              value={form.watch("team_id") ?? "none"}
+              onValueChange={(v) =>
+                form.setValue("team_id", v === "none" ? null : v, { shouldDirty: true })
+              }
+            >
+              <SelectTrigger id="team_id" className="w-full">
+                <SelectValue placeholder="Ekip seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Atanmadı</SelectItem>
+                {activeTeams.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                    {t.members && ` · ${t.members}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FormField>
         )}
 
