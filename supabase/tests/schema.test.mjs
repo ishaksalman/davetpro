@@ -908,6 +908,142 @@ await step('fotoğrafçıda da çakışan saat engelleniyor', async () => {
   await asSuper()
 })
 
+// --- Platolar ve serbest alan ------------------------------------------------
+
+await step('fotoğrafçı kurulumunda "Diğer" platosu açılıyor', async () => {
+  await asSuper()
+  const r = await db.query(
+    `select v.name, v.allows_overlap from venues v join businesses b on b.id = v.business_id
+      where b.name = 'Foto Ela' and v.name = 'Diğer'`)
+  if (r.rows.length !== 1) throw new Error('"Diğer" platosu yok')
+  if (r.rows[0].allows_overlap !== true) throw new Error('serbest alan bayrağı kapalı')
+})
+
+await step('salon kurulumunda "Diğer" platosu AÇILMIYOR', async () => {
+  const r = await db.query(
+    `select count(*)::int c from venues v join businesses b on b.id = v.business_id
+      where b.business_type = 'salon' and v.allows_overlap`)
+  if (r.rows[0].c !== 0) throw new Error('salonda serbest alan var')
+})
+
+await step('serbest alanda aynı saatte iki çekim olabiliyor', async () => {
+  await as(U_FOTO)
+  const diger = (await db.query(`select id from venues where name = 'Diğer'`)).rows[0].id
+  const m = (await db.query(
+    `insert into customers (full_name, phone) values ('Serbest Çift','05003334466') returning id`)).rows[0].id
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-09-09','14:00','20:00',
+            null,null,40000,0,null,null,null)`, [m, diger])
+  // Birebir aynı saat: gerçek platoda engellenirdi.
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-09-09','14:00','20:00',
+            null,null,20000,0,null,null,null)`, [m, diger])
+  const r = await db.query(
+    `select count(*)::int c from reservations where venue_id = $1 and event_date = '2027-09-09'`,
+    [diger])
+  if (r.rows[0].c !== 2) throw new Error(`2 bekleniyordu, ${r.rows[0].c} var`)
+  await asSuper()
+})
+
+await step('serbest alan müsaitlikte hep boş görünüyor', async () => {
+  await as(U_FOTO)
+  const r = await db.query(
+    `select venue_name, is_available, severity from venue_availability('2027-09-09','15:00','18:00')
+      where venue_name = 'Diğer'`)
+  if (r.rows[0].is_available !== true) throw new Error('serbest alan dolu görünüyor')
+  if (r.rows[0].severity !== null) throw new Error('serbest alana uyarı düşmüş: ' + r.rows[0].severity)
+  await asSuper()
+})
+
+// Çakışan kayıt varken serbest alanı kapatmak tutarsızlık yaratırdı.
+// Reddediliyor, ama kullanıcıya ne yapacağını söyleyen bir mesajla.
+await step('çakışan kayıt varken serbest alan kapatılamıyor', async () => {
+  await as(U_FOTO)
+  const diger = (await db.query(`select id from venues where name = 'Diğer'`)).rows[0].id
+  try {
+    await db.query(`update venues set allows_overlap = false where id = $1`, [diger])
+    throw new Error('kapatmaya izin verildi')
+  } catch (e) {
+    if (!e.message.includes('farklı alanlara taşıyın')) throw new Error(e.message)
+  }
+  await asSuper()
+})
+
+// Çakışan kaydı olmayan bir platoda bayrak iki yöne de serbestçe dönmeli,
+// ve kopya kolon onu izlemeli.
+await step('boş platoda bayrak değişince kopya kolon izliyor', async () => {
+  await as(U_FOTO)
+  const v = (await db.query(
+    `insert into venues (name, allows_overlap) values ('Sokak', true) returning id`)).rows[0].id
+  const m = (await db.query(
+    `insert into customers (full_name, phone) values ('Tek Çift','05003334477') returning id`)).rows[0].id
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-10-10','14:00','18:00',
+            null,null,30000,0,null,null,null)`, [m, v])
+  await db.query(`update venues set allows_overlap = false where id = $1`, [v])
+  const r = await db.query(
+    `select bool_and(venue_allows_overlap = false) ok from reservations where venue_id = $1`, [v])
+  if (r.rows[0].ok !== true) throw new Error('kopya kolon güncellenmedi')
+  await asSuper()
+})
+
+// --- Ekipler -----------------------------------------------------------------
+
+await step('ekip atanmadan çekim kaydedilebiliyor', async () => {
+  await as(U_FOTO)
+  const v = (await db.query(`insert into venues (name) values ('2. Plato') returning id`)).rows[0].id
+  const m = (await db.query(
+    `insert into customers (full_name, phone) values ('Ekipsiz Çift','05003334488') returning id`)).rows[0].id
+  const r = await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-11-11','14:00','18:00',
+            null,null,30000,0,null,null,null,null,null) id`, [m, v])
+  const t = await db.query(`select team_id from reservations where id = $1`, [r.rows[0].id])
+  if (t.rows[0].team_id !== null) throw new Error('ekip boş değil')
+  await asSuper()
+})
+
+await step('ekip atanıp okunabiliyor', async () => {
+  await as(U_FOTO)
+  const e = (await db.query(
+    `insert into teams (name, members) values ('1. Ekip', 'Ela, Murat') returning id`)).rows[0].id
+  const v = (await db.query(`select id from venues where name = '2. Plato'`)).rows[0].id
+  const m = (await db.query(`select id from customers where full_name = 'Ekipsiz Çift'`)).rows[0].id
+  const r = await db.query(
+    `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-11-12','14:00','18:00',
+            null,null,30000,0,null,null,null,null,$3) id`, [m, v, e])
+  const t = await db.query(`select team_id from reservations where id = $1`, [r.rows[0].id])
+  if (t.rows[0].team_id !== e) throw new Error('ekip yazılmadı')
+  await asSuper()
+})
+
+// Ekip silinince rezervasyon DURMALI, yalnızca atama kalkmalı. Bileşik FK'da
+// "set null" kolon listesiz yazılsaydı business_id'yi de null'a çekerdi.
+await step('ekip silinince rezervasyon kalıyor, atama düşüyor', async () => {
+  await as(U_FOTO)
+  const e = (await db.query(`select id from teams where name = '1. Ekip'`)).rows[0].id
+  const say = (await db.query(
+    `select count(*)::int c from reservations where team_id = $1`, [e])).rows[0].c
+  if (say < 1) throw new Error('kurulum hatalı: atanmış çekim yok')
+  await db.query(`delete from teams where id = $1`, [e])
+  const r = await db.query(
+    `select count(*)::int c from reservations where event_date = '2027-11-12'`)
+  if (r.rows[0].c !== 1) throw new Error('rezervasyon silinmiş')
+  const b = await db.query(
+    `select business_id is not null ok, team_id from reservations where event_date = '2027-11-12'`)
+  if (b.rows[0].ok !== true) throw new Error('business_id null olmuş')
+  if (b.rows[0].team_id !== null) throw new Error('atama düşmedi')
+  await asSuper()
+})
+
+await step('ekipler kiracıya kapalı', async () => {
+  await as(U_FOTO)
+  await db.query(`insert into teams (name) values ('Gizli Ekip')`)
+  await as(U.ownerA)
+  const r = await db.query(`select count(*)::int c from teams where name = 'Gizli Ekip'`)
+  if (r.rows[0].c !== 0) throw new Error('başka kiracının ekibi görünüyor')
+  await asSuper()
+})
+
 // Aynı kural salonda "organizasyon" demeli.
 await step('salonda mesaj "organizasyon" diyor', async () => {
   await as(U.ownerA)
