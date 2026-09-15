@@ -1,4 +1,4 @@
-import type { BusinessType } from "@/lib/database.types";
+import type { BusinessType, OrganizationType } from "@/lib/database.types";
 
 /**
  * İşin cinsine göre değişen sözlük.
@@ -67,6 +67,19 @@ export type Vertical = {
   /** Etkinlik adresi alanı gösterilsin mi. */
   usesLocation: boolean;
   /**
+   * Formda sunulan iş türleri.
+   *
+   * Enum'da hepsi var; burada yalnızca o işin gerçekten yaptıkları
+   * listeleniyor. Salona "bebek çekimi", fotoğrafçıya "sünnet salonu
+   * organizasyonu" göstermek doldurulacak çöp seçenek olurdu.
+   */
+  eventTypes: OrganizationType[];
+  /**
+   * Ek hizmet bölümünde tek tıkla eklenen öneriler.
+   * Tutarlar yalnızca başlangıç değeri; kullanıcı değiştiriyor.
+   */
+  suggestedExtras: { name: string; amount: number }[];
+  /**
    * Ekip kavramı kullanılıyor mu.
    *
    * Plato ile karıştırılmamalı: plato kısıtlı kaynak (aynı saatte tek çekim),
@@ -103,6 +116,13 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourcePlaceholder: "Balo Salonu",
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
     usesGuestCount: true,
+    eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
+    suggestedExtras: [
+      { name: "Fotoğraf & Video", amount: 10000 },
+      { name: "Premium Dekorasyon", amount: 15000 },
+      { name: "Müzik / DJ", amount: 12000 },
+      { name: "Ekstra saat", amount: 5000 },
+    ],
     usesLocation: false,
     usesTeams: false,
     usesDelivery: false,
@@ -128,6 +148,17 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourcePlaceholder: "A Platosu",
     resourceDescPlaceholder: "120 m², sonsuz fon, stüdyo aydınlatması",
     usesGuestCount: false,
+    // Düğün/nişan/kına fotoğrafçıda da olay; eksik olan düğüne bağlı
+    // olmayan işlerdi (0039).
+    eventTypes: ["dugun", "nisan", "kina", "soz", "dis_cekim", "bebek", "dogum_gunu", "diger"],
+    suggestedExtras: [
+      { name: "Dış çekim", amount: 12000 },
+      { name: "Drone çekimi", amount: 6000 },
+      { name: "Albüm", amount: 8000 },
+      { name: "Video klip", amount: 10000 },
+      { name: "Save the date", amount: 5000 },
+      { name: "Ekstra saat", amount: 4000 },
+    ],
     usesLocation: true,
     usesTeams: true,
     usesDelivery: true,

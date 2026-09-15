@@ -18,8 +18,9 @@ export const metadata: Metadata = { title: "Teslimat" };
  * Yalnızca teslim akışı kullanan işletmelerde açık; salonda böyle bir süreç
  * yok. Yetkisiz tipte notFound(): yönlendirme sayfanın varlığını doğrular.
  *
- * Liste GEÇMİŞ organizasyonlardan kuruluyor — teslim edilecek bir şey ancak
- * çekim yapıldıktan sonra oluşuyor.
+ * Liste iki kaynaktan besleniyor: tarihi geçmiş çekimler ve teslim durumu
+ * ELLE işaretlenmiş olanlar. İkincisi olmadan, tarihi ileride olan bir işi
+ * "çekim yapıldı" yapan kullanıcı onu burada bulamıyordu.
  */
 export default async function DeliveryPage() {
   const { business } = await requireSession();
@@ -27,7 +28,7 @@ export default async function DeliveryPage() {
   if (!sozluk.usesDelivery) notFound();
 
   const { rows, error } = await getReservationRows({
-    to: todayISO(),
+    deliveryQueueOn: todayISO(),
     ascending: false,
   });
 

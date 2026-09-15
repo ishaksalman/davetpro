@@ -1044,6 +1044,47 @@ await step('ekipler kiracıya kapalı', async () => {
   await asSuper()
 })
 
+// --- Teslimat kuyruğu --------------------------------------------------------
+//
+// Hata: liste yalnızca tarihi geçmiş kayıtları alıyordu. Tarihi İLERİDE olan
+// bir çekimi "çekim yapıldı" yapan kullanıcı onu teslimatta bulamıyordu.
+// Sorgu artık "tarihi geçmiş VEYA durumu işaretlenmiş" diyor.
+await step('ileri tarihli ama işaretlenmiş çekim teslimat kuyruğuna giriyor', async () => {
+  await as(U_FOTO)
+  const v = (await db.query(`insert into venues (name) values ('Kuyruk Platosu') returning id`)).rows[0].id
+  const m = (await db.query(
+    `insert into customers (full_name, phone) values ('Kuyruk Çift','05003334499') returning id`)).rows[0].id
+  const r = (await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2099-01-01','14:00','18:00',
+            null,null,30000,0,null,null,null,null,null) id`, [m, v])).rows[0].id
+  await db.query(`update reservations set delivery_status = 'cekim_yapildi' where id = $1`, [r])
+
+  const bugun = '2026-09-16'
+  // Sayfanın kurduğu koşulun birebir karşılığı.
+  const kuyruk = await db.query(
+    `select id from reservations
+      where (event_date <= $1 or delivery_status is not null)
+        and status <> 'iptal_edildi'
+        and (delivery_status is distinct from 'teslim_edildi')`, [bugun])
+  if (!kuyruk.rows.some((x) => x.id === r)) throw new Error('işaretlenmiş çekim kuyrukta yok')
+
+  // Eski davranış (yalnızca tarih) bunu KAÇIRIYORDU — regresyon koruması.
+  const eski = await db.query(`select id from reservations where event_date <= $1`, [bugun])
+  if (eski.rows.some((x) => x.id === r)) throw new Error('kurulum hatalı: kayıt zaten geçmişte')
+
+  await asSuper()
+})
+
+await step('teslim edilen çekim kuyruktan çıkıyor', async () => {
+  await as(U_FOTO)
+  const r = (await db.query(
+    `select id from reservations where event_date = '2099-01-01'`)).rows[0].id
+  await db.query(`update reservations set delivery_status = 'teslim_edildi' where id = $1`, [r])
+  const x = await db.query(`select delivered_at from reservations where id = $1`, [r])
+  if (x.rows[0].delivered_at === null) throw new Error('teslim anı yazılmadı')
+  await asSuper()
+})
+
 // Aynı kural salonda "organizasyon" demeli.
 await step('salonda mesaj "organizasyon" diyor', async () => {
   await as(U.ownerA)
@@ -1142,12 +1183,20 @@ await step('geri alınınca teslim tarihi siliniyor', async () => {
 await expectFail('tanımsız aşama kabul edilmiyor', () =>
   db.query(`update reservations set delivery_status = 'albumde' where id = $1`, [TR]))
 
-// Salon tarafı bu kolondan etkilenmemeli.
-await step('salon rezervasyonlarında kolon boş kalıyor', async () => {
+// Kolon yalnızca DOKUNULAN kayda yazılmalı, komşulara sızmamalı.
+//
+// Yukarıdaki adımlar bilerek bir salon kaydı (TR) üzerinde koşuyor — kolon
+// şema düzeyinde her iki tipte de var, salonda gösterilmemesi arayüz kararı.
+// Bu yüzden ölçüt "salonda hiç dolu yok" değil, "TR dışında dolu yok".
+await step('teslim durumu yalnızca dokunulan kayda yazılıyor', async () => {
   await asSuper()
   const r = await db.query(
-    `select count(*)::int c from reservations where delivery_status is not null`)
-  if (r.rows[0].c !== 1) throw new Error(`${r.rows[0].c} kayıtta dolu`)
+    `select count(*)::int c
+       from reservations r join businesses b on b.id = r.business_id
+      where b.business_type = 'salon'
+        and r.delivery_status is not null
+        and r.id <> $1`, [TR])
+  if (r.rows[0].c !== 0) throw new Error(`${r.rows[0].c} başka salon kaydında dolu`)
 })
 
 console.log('\n\x1b[1m19) Sözleşmede geçecek ad\x1b[0m')

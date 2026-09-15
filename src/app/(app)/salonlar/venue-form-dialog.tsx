@@ -62,19 +62,23 @@ export function VenueFormDialog({
         <Input id="name" placeholder={sozluk.resourcePlaceholder} {...form.register("name")} />
       </FormField>
 
-      <FormField
-        form={form}
-        name="capacity"
-        label="Kapasite"
-        description="Kişi sayısı. Bilmiyorsanız boş bırakabilirsiniz."
-      >
-        <Input
-          id="capacity"
-          inputMode="numeric"
-          placeholder="500"
-          {...form.register("capacity")}
-        />
-      </FormField>
+      {/* Kapasite salon işi: platoda kaç kişi alacağı değil, hangi çekimin
+          yapılacağı önemli. Şemada opsiyonel, boş kalması sorun değil. */}
+      {sozluk.usesGuestCount && (
+        <FormField
+          form={form}
+          name="capacity"
+          label="Kapasite"
+          description="Kişi sayısı. Bilmiyorsanız boş bırakabilirsiniz."
+        >
+          <Input
+            id="capacity"
+            inputMode="numeric"
+            placeholder="500"
+            {...form.register("capacity")}
+          />
+        </FormField>
+      )}
 
       <FormField
         form={form}

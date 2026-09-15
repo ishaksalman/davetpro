@@ -78,6 +78,15 @@ export type ReservationFilter = {
   limit?: number;
   /** Varsayılan artan; yaklaşan organizasyonlar için uygundur. */
   ascending?: boolean;
+  /**
+   * Teslimat kuyruğu: tarihi geçmiş VEYA teslim durumu elle işaretlenmiş
+   * kayıtlar.
+   *
+   * Yalnızca tarihe bakmak yanlıştı: çekim erken yapılabiliyor, tarih yanlış
+   * girilmiş olabiliyor. Kullanıcı "çekim yapıldı" dediyse bu, tarihten daha
+   * güçlü bir sinyal ve liste onu görmezden gelmemeli.
+   */
+  deliveryQueueOn?: string;
 };
 
 export async function getReservationRows(
@@ -95,6 +104,11 @@ export async function getReservationRows(
   if (filter.id) query = query.eq("id", filter.id);
   if (filter.from) query = query.gte("event_date", filter.from);
   if (filter.to) query = query.lte("event_date", filter.to);
+  if (filter.deliveryQueueOn) {
+    query = query.or(
+      `event_date.lte.${filter.deliveryQueueOn},delivery_status.not.is.null`,
+    );
+  }
   if (filter.customerId) query = query.eq("customer_id", filter.customerId);
   // PostgREST varsayılan satır sınırına takılıp veriyi sessizce kırpmamak için
   // her zaman açık bir üst sınır veriyoruz. Bu sınıra yaklaşan bir işletme için

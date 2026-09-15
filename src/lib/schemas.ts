@@ -1,4 +1,7 @@
 import { z } from "zod";
+// Göreli yol + uzantı: bu dosya node --test altında doğrudan çalıştırılıyor
+// ve orada "@/" takma adı çözülmüyor.
+import { ORGANIZATION_TYPES } from "./constants.ts";
 
 const trimmed = (min: number, max: number, label: string) =>
   z
@@ -225,16 +228,7 @@ export const reservationSchema = z
     customer_id: uuid,
     venue_id: uuid,
     package_id: optionalUuid,
-    organization_type: z.enum([
-      "dugun",
-      "nisan",
-      "kina",
-      "soz",
-      "sunnet",
-      "davet",
-      "kurumsal",
-      "diger",
-    ]),
+    organization_type: z.enum(ORGANIZATION_TYPES),
     status: z.enum(["kesinlesti", "tamamlandi", "iptal_edildi"]),
     event_date: isoDate,
     start_time: time,
@@ -259,7 +253,8 @@ export const reservationSchema = z
     // gerçek kaynaktır; bu alan dökümü gösterebilmek için saklanır.
     pricing_type: z.enum(["sabit", "kisi_basi"]),
     unit_price: moneyField.nullish(),
-    // Yalnızca yeni kayıtta kullanılır: girilirse ilk tahsilat kaydı açılır.
+    // Girilirse bir tahsilat kaydı açılır. Yeni kayıtta da düzenlemede de
+    // kullanılabiliyor; her seferinde AYRI bir tahsilat satırı oluşuyor.
     deposit_amount: moneyField.nullish(),
   })
   .refine(
@@ -284,6 +279,23 @@ export const reservationSchema = z
     {
       message: "Kapora, net satış tutarından büyük olamaz.",
       path: ["deposit_amount"],
+    },
+  )
+  /*
+   * Fiyat ZORUNLU — her iki iş tipinde de.
+   *
+   * moneyField boş metni 0'a çeviriyor, bu yüzden "boş bırakılamaz" kuralı
+   * ayrı bir refine olmak zorunda. Kişi başı fiyatlandırmada paket tutarı
+   * birim fiyattan türediği için orada birim fiyat kontrolü yeterli.
+   */
+  .refine(
+    (v) =>
+      v.pricing_type === "kisi_basi" ||
+      v.package_amount > 0 ||
+      v.items.reduce((sum, i) => sum + i.amount, 0) > 0,
+    {
+      message: "Fiyat girin.",
+      path: ["package_amount"],
     },
   )
   .refine((v) => v.pricing_type !== "kisi_basi" || (v.unit_price ?? 0) > 0, {
@@ -427,16 +439,7 @@ export const leadSchema = z
     phone2: optionalShort(20, "İkinci telefon"),
     email: optionalEmail,
 
-    organization_type: z.enum([
-      "dugun",
-      "nisan",
-      "kina",
-      "soz",
-      "sunnet",
-      "davet",
-      "kurumsal",
-      "diger",
-    ]),
+    organization_type: z.enum(ORGANIZATION_TYPES),
     source: z.enum([
       "whatsapp",
       "instagram",

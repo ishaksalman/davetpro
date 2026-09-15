@@ -28,7 +28,6 @@ import {
 } from "@/components/shared/form-dialog";
 import { MoneyInput } from "@/components/shared/money-input";
 import {
-  enumOptions,
   ORGANIZATION_TYPE_LABELS,
 } from "@/lib/constants";
 import { formatMoney, formatNumber, formatPhone, toNumber } from "@/lib/format";
@@ -45,14 +44,6 @@ import type {
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
 import { buyukHarf } from "@/lib/vertical";
-
-/** Sık eklenen kalemler — tek tıkla satır açar. Teklif formuyla aynı liste. */
-const SUGGESTED_EXTRAS = [
-  { name: "Dış çekim", amount: 12000 },
-  { name: "Fotoğraf & Video", amount: 10000 },
-  { name: "Premium Dekorasyon", amount: 15000 },
-  { name: "Müzik / DJ", amount: 12000 },
-];
 
 export type EditableReservation = Reservation & {
   pricing?: ReservationPricing | null;
@@ -343,7 +334,7 @@ export function ReservationFormDialog({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {enumOptions(ORGANIZATION_TYPE_LABELS).map((o) => (
+              {sozluk.eventTypes.map((t) => ({ value: t, label: ORGANIZATION_TYPE_LABELS[t] })).map((o) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>
@@ -548,7 +539,7 @@ export function ReservationFormDialog({
             </div>
 
             <div className="flex flex-wrap gap-1.5">
-              {SUGGESTED_EXTRAS.filter(
+              {sozluk.suggestedExtras.filter(
                 (extra) => !extraItems.some((item) => item.name === extra.name),
               ).map((extra) => (
                 <button
@@ -627,22 +618,27 @@ export function ReservationFormDialog({
             </div>
           </div>
 
-          {!isEdit && (
-            <FormField
-              form={form}
-              name="deposit_amount"
-              label="Alınan kapora"
-              description="Şimdi tahsil ettiyseniz girin; ilk ödeme kaydı otomatik oluşturulur."
-            >
-              <MoneyInput
-                id="deposit_amount"
-                value={form.watch("deposit_amount")}
-                onValueChange={(v) =>
-                  form.setValue("deposit_amount", v, { shouldDirty: true })
-                }
-              />
-            </FormField>
-          )}
+          {/* Düzenlemede de açık: kapora sonradan da alınabiliyor. Girilen
+              tutar YENİ bir tahsilat satırı açıyor, mevcut olanı değiştirmiyor
+              — tahsilatlar değiştirilemez kayıtlar. */}
+          <FormField
+            form={form}
+            name="deposit_amount"
+            label={isEdit ? "Kapora tahsilatı ekle" : "Alınan kapora"}
+            description={
+              isEdit
+                ? "Boş bırakın; yalnızca yeni bir kapora tahsil ettiyseniz girin. Girilen tutar ayrı bir tahsilat kaydı olarak eklenir."
+                : "Şimdi tahsil ettiyseniz girin; ilk ödeme kaydı otomatik oluşturulur."
+            }
+          >
+            <MoneyInput
+              id="deposit_amount"
+              value={form.watch("deposit_amount")}
+              onValueChange={(v) =>
+                form.setValue("deposit_amount", v, { shouldDirty: true })
+              }
+            />
+          </FormField>
 
           <FormField
             form={form}

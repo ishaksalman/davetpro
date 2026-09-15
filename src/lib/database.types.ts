@@ -23,6 +23,9 @@ export type OrganizationType =
   | "sunnet"
   | "davet"
   | "kurumsal"
+  | "dis_cekim"
+  | "bebek"
+  | "dogum_gunu"
   | "diger";
 
 export type PricingType = "sabit" | "kisi_basi";

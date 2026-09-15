@@ -15,6 +15,24 @@ import type {
   UserRole,
 } from "@/lib/database.types";
 
+/**
+ * Tür listesi tek yerde: şema da, etiketler de buradan besleniyor.
+ * Enum'a değer eklenince (bkz. 0039) yalnızca burası güncelleniyor.
+ */
+export const ORGANIZATION_TYPES = [
+  "dugun",
+  "nisan",
+  "kina",
+  "soz",
+  "sunnet",
+  "davet",
+  "kurumsal",
+  "dis_cekim",
+  "bebek",
+  "dogum_gunu",
+  "diger",
+] as const satisfies readonly OrganizationType[];
+
 export const ORGANIZATION_TYPE_LABELS: Record<OrganizationType, string> = {
   dugun: "Düğün",
   nisan: "Nişan",
@@ -23,6 +41,9 @@ export const ORGANIZATION_TYPE_LABELS: Record<OrganizationType, string> = {
   sunnet: "Sünnet",
   davet: "Davet",
   kurumsal: "Kurumsal Etkinlik",
+  dis_cekim: "Dış çekim",
+  bebek: "Bebek / yeni doğan",
+  dogum_gunu: "Doğum günü",
   diger: "Diğer",
 };
 

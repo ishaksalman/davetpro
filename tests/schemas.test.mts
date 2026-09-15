@@ -326,6 +326,67 @@ test("indirim, ek hizmetler dahil toplamı aşamaz", () => {
   assert.ok(!gecersiz.success);
 });
 
+// Yeni kuralları tek tek sınamak için taban girdi.
+const gecerliRezervasyon = {
+  customer_id: "22222222-2222-2222-2222-222222222222",
+  venue_id: "33333333-3333-3333-3333-333333333333",
+  package_id: "none",
+  organization_type: "dugun",
+  status: "kesinlesti",
+  event_date: "2026-09-12",
+  start_time: "19:00",
+  end_time: "01:00",
+  guest_count: "",
+  notes: "",
+  pricing_type: "sabit",
+  location: "",
+  package_amount: "120.000",
+  items: [],
+  discount_amount: "",
+  due_date: undefined,
+  deposit_amount: 0,
+};
+
+test("fiyat zorunlu: sabit fiyatta 0 kabul edilmiyor", () => {
+  const r = reservationSchema.safeParse({ ...gecerliRezervasyon, package_amount: "" });
+  assert.equal(r.success, false);
+  if (!r.success) {
+    const sorun = r.error.issues.find((i) => i.path[0] === "package_amount");
+    assert.ok(sorun, "package_amount hatası bekleniyordu");
+    assert.equal(sorun.message, "Fiyat girin.");
+  }
+});
+
+test("fiyat zorunlu: paket 0 ama ek hizmet varsa geçerli", () => {
+  const r = reservationSchema.safeParse({
+    ...gecerliRezervasyon,
+    package_amount: "0",
+    items: [{ name: "Dış çekim", amount: "12000" }],
+  });
+  assert.equal(r.success, true, JSON.stringify(r.success ? "" : r.error.issues));
+});
+
+test("fiyat zorunlu: kişi başında birim fiyat kuralı geçerli", () => {
+  const r = reservationSchema.safeParse({
+    ...gecerliRezervasyon,
+    pricing_type: "kisi_basi",
+    package_amount: "0",
+    unit_price: "",
+    guest_count: "100",
+  });
+  assert.equal(r.success, false);
+  if (!r.success) {
+    assert.ok(r.error.issues.some((i) => i.path[0] === "unit_price"));
+  }
+});
+
+test("fotoğrafçıya özel türler şemadan geçiyor", () => {
+  for (const t of ["dis_cekim", "bebek", "dogum_gunu"]) {
+    const r = reservationSchema.safeParse({ ...gecerliRezervasyon, organization_type: t });
+    assert.equal(r.success, true, `${t} reddedildi`);
+  }
+});
+
 test("sözleşmede geçecek ad zorunlu", () => {
   const base = {
     full_name: "Ayşe & Ahmet Salman",

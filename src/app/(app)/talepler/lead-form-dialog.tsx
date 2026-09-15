@@ -275,7 +275,7 @@ export function LeadFormDialog({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(ORGANIZATION_TYPE_LABELS).map(([value, label]) => (
+              {sozluk.eventTypes.map((t) => [t, ORGANIZATION_TYPE_LABELS[t]] as const).map(([value, label]) => (
                 <SelectItem key={value} value={value}>
                   {label}
                 </SelectItem>

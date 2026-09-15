@@ -57,9 +57,11 @@ export async function saveReservation(
   if (error) return actionError(error);
   const reservationId = data as string;
 
-  // Kapora yalnızca yeni kayıtta ve finans yetkisi varken oluşturulur.
+  // Kapora, yeni kayıtta da düzenlemede de tahsilat açabiliyor: para
+  // sonradan da alınabiliyor. Her seferinde AYRI bir satır oluşuyor, mevcut
+  // tahsilat değiştirilmiyor — payments değiştirilemez.
   const deposit = v.deposit_amount ?? 0;
-  if (!v.id && deposit > 0 && canSeeFinance(profile)) {
+  if (deposit > 0 && canSeeFinance(profile)) {
     const { error: paymentError } = await supabase.from("payments").insert({
       reservation_id: reservationId,
       customer_id: v.customer_id,
@@ -67,14 +69,14 @@ export async function saveReservation(
       payment_date: todayISO(),
       category: "kapora",
       method: "nakit",
-      description: "Rezervasyon sırasında alınan kapora",
+      description: v.id ? "Sonradan alınan kapora" : "Rezervasyon sırasında alınan kapora",
     });
 
     if (paymentError) {
       revalidateReservation(reservationId);
       return {
         ok: false,
-        error: `Rezervasyon oluşturuldu ancak kapora kaydedilemedi: ${paymentError.message}`,
+        error: `Kayıt yapıldı ancak kapora tahsilatı eklenemedi: ${paymentError.message}`,
       };
     }
   }
