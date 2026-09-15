@@ -62,12 +62,12 @@ const samples: [string, ZodTypeAny, unknown][] = [
   [
     "customerSchema (yalnızca zorunlu alanlar)",
     customerSchema,
-    { full_name: "Reyhan & Ömer Özdemir", phone: "05389275728", phone2: "", email: "", address: "", national_id: "", notes: "Kır düğünü istiyorlar." },
+    { full_name: "Reyhan & Ömer Özdemir", contract_name: "Ömer Özdemir", phone: "05389275728", phone2: "", email: "", address: "", national_id: "", notes: "Kır düğünü istiyorlar." },
   ],
   [
     "customerSchema (tüm alanlar)",
     customerSchema,
-    { full_name: "Zeynep & Ali", phone: "0532 111 22 33", phone2: "05439998877", email: "a@b.com", address: "Bahçelievler Mah. No:12", national_id: "10000000146", notes: "" },
+    { full_name: "Zeynep & Ali", contract_name: "Ali Kaya", phone: "0532 111 22 33", phone2: "05439998877", email: "a@b.com", address: "Bahçelievler Mah. No:12", national_id: "10000000146", notes: "" },
   ],
   [
     "reservationSchema (paketsiz, kaporasız)",
@@ -203,7 +203,7 @@ for (const [label, schema, input] of samples) {
 }
 
 test("boş metin null'a dönüşür", () => {
-  const out = customerSchema.parse({ full_name: "Ad Soyad", phone: "05321112233", phone2: "", email: "", notes: "" });
+  const out = customerSchema.parse({ full_name: "Ad Soyad", contract_name: "Ad Soyad", phone: "05321112233", phone2: "", email: "", notes: "" });
   assert.equal(out.phone2, null);
   assert.equal(out.email, null);
   assert.equal(out.notes, null);
@@ -313,4 +313,21 @@ test("indirim, ek hizmetler dahil toplamı aşamaz", () => {
     discount_amount: 2500,
   });
   assert.ok(!gecersiz.success);
+});
+
+test("sözleşmede geçecek ad zorunlu", () => {
+  const base = {
+    full_name: "Ayşe & Ahmet Salman",
+    phone: "05389275728",
+    phone2: "", email: "", address: "", national_id: "", notes: "",
+  };
+
+  // Çift adı sözleşmede taraf olamaz; imzalayan ayrıca belirtilmeli.
+  const eksik = customerSchema.safeParse(base);
+  assert.ok(!eksik.success);
+  assert.match(eksik.error.issues[0].message, /Sözleşmede geçecek ad/);
+
+  const tam = customerSchema.safeParse({ ...base, contract_name: "Ahmet Salman" });
+  assert.ok(tam.success);
+  assert.equal(tam.data.contract_name, "Ahmet Salman");
 });

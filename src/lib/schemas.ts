@@ -2,7 +2,9 @@ import { z } from "zod";
 
 const trimmed = (min: number, max: number, label: string) =>
   z
-    .string()
+    // required_error: alan hiç gelmediğinde zod İngilizce "Required" dönüyordu
+    // ve bu metin doğrulama özetinde kullanıcıya çıkabiliyor.
+    .string({ required_error: `${label} zorunlu.` })
     .trim()
     .min(min, `${label} en az ${min} karakter olmalı.`)
     .max(max, `${label} çok uzun.`);
@@ -132,6 +134,12 @@ const phone = z
 export const customerSchema = z.object({
   id: z.string().uuid().optional(),
   full_name: trimmed(2, 160, "Ad soyad"),
+  /*
+   * Formda ZORUNLU, kolonda nullable. Çift adı sözleşmede taraf olamaz;
+   * imzalayan tek kişi olmalı. Mevcut kayıtlar boş kalabiliyor, düzenlenince
+   * doldurulması isteniyor.
+   */
+  contract_name: trimmed(2, 160, "Sözleşmede geçecek ad"),
   phone,
   phone2: z
     .string()

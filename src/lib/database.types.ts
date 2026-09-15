@@ -109,6 +109,11 @@ export type Customer = Timestamps & {
   address: string | null;
   /** T.C. Kimlik No — opsiyonel, KVKK gereği yalnızca gerekliyse doldurulur. */
   national_id: string | null;
+  /**
+   * Sözleşmeyi imzalayacak kişinin tam adı; kimlik numarası ve adres ona ait.
+   * Boşsa sözleşmede full_name kullanılıyor (0034 öncesi kayıtlar).
+   */
+  contract_name: string | null;
   notes: string | null;
 };
 

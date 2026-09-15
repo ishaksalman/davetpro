@@ -979,5 +979,26 @@ await step('salon rezervasyonlarında kolon boş kalıyor', async () => {
   if (r.rows[0].c !== 1) throw new Error(`${r.rows[0].c} kayıtta dolu`)
 })
 
+console.log('\n\x1b[1m19) Sözleşmede geçecek ad\x1b[0m')
+
+await as(U.ownerA)
+await step('mevcut müşterilerde alan boş kalabiliyor', async () => {
+  const r = await db.query(
+    `insert into customers (full_name, phone) values ('Ayşe & Ahmet Salman','05006660001')
+     returning contract_name`)
+  if (r.rows[0].contract_name !== null) throw new Error(JSON.stringify(r.rows[0]))
+})
+
+await step('imzalayan adı yazılabiliyor', async () => {
+  const r = await db.query(
+    `insert into customers (full_name, phone, contract_name)
+     values ('Zeynep & Burak Koç','05006660002','Burak Koç') returning contract_name`)
+  if (r.rows[0].contract_name !== 'Burak Koç') throw new Error(JSON.stringify(r.rows[0]))
+})
+
+await expectFail('tek karakterlik ad reddediliyor', () =>
+  db.query(`insert into customers (full_name, phone, contract_name)
+            values ('Test','05006660003','A')`))
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

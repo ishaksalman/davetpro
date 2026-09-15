@@ -33,6 +33,7 @@ export function CustomerFormDialog({
   const defaultValues: CustomerInput = {
     id: customer?.id,
     full_name: customer?.full_name ?? "",
+    contract_name: customer?.contract_name ?? "",
     phone: customer?.phone ?? "",
     phone2: customer?.phone2 ?? "",
     email: customer?.email ?? "",
@@ -69,6 +70,19 @@ export function CustomerFormDialog({
           id="full_name"
           placeholder="Zeynep & Ali Yılmaz"
           {...form.register("full_name")}
+        />
+      </FormField>
+
+      <FormField
+        form={form}
+        name="contract_name"
+        label="Sözleşmede geçecek ad"
+        description="Sözleşmeyi imzalayacak kişinin tam adı. Kimlik numarası ve adres bu kişiye ait olmalı."
+      >
+        <Input
+          id="contract_name"
+          placeholder="Ahmet Salman"
+          {...form.register("contract_name")}
         />
       </FormField>
 
