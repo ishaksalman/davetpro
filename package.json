@@ -9,10 +9,11 @@
     "lint": "eslint",
     "test:db": "node supabase/tests/schema.test.mjs",
     "test:schemas": "node --test tests/schemas.test.mts",
-    "test": "npm run test:schemas && npm run test:errors && npm run test:trend && npm run test:db",
+    "test": "npm run test:schemas && npm run test:errors && npm run test:trend && npm run test:db && npm run test:salon",
     "test:audit": "node supabase/tests/audit.test.mjs",
     "test:errors": "node --test tests/errors.test.mts",
-    "test:trend": "node --test tests/trend.test.mts"
+    "test:trend": "node --test tests/trend.test.mts",
+    "test:salon": "node supabase/tests/salon-e2e.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
