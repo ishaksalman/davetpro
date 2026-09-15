@@ -11,6 +11,7 @@ import { formatDate, formatMoney, whatsAppLink } from "@/lib/format";
 import type { Package, Quote, QuoteItem, Venue } from "@/lib/database.types";
 import { QuoteFormDialog } from "./quote-form-dialog";
 import { updateQuoteStatus } from "../actions";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 export function QuotePanel({
   leadId,
@@ -262,6 +263,7 @@ function ShareQuoteButton({
   customerPhone: string;
   eventDate: string | null;
 }) {
+  const sozluk = useVertical();
   const [pending, startTransition] = useTransition();
 
   function markSent() {
@@ -276,7 +278,7 @@ function ShareQuoteButton({
   const message =
     `Merhaba ${customerName},\n` +
     (eventDate ? `${formatDate(eventDate)} tarihli ` : "") +
-    `organizasyonunuz için hazırladığımız teklif hazır.\n\n` +
+    `${sozluk.event.possessive} için hazırladığımız teklif hazır.\n\n` +
     `Toplam teklif: ${formatMoney(quote.total_amount)}\n` +
     (quote.valid_until
       ? `Geçerlilik tarihi: ${formatDate(quote.valid_until)}\n`

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CircleAlert, FileText, Phone, Users } from "lucide-react";
 import { canSeeFinance, requireSession } from "@/lib/auth";
-import { vertical } from "@/lib/vertical";
+import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationById } from "@/lib/queries";
 import {
@@ -172,7 +172,7 @@ export default async function ReservationDetailPage({
             {/* Organizasyon bilgileri */}
             <section className="rounded-xl border bg-card">
               <header className="flex items-center justify-between gap-3 border-b px-5 py-4">
-                <h2 className="font-medium">Organizasyon</h2>
+                <h2 className="font-medium">{buyukHarf(sozluk.event.singular)}</h2>
                 <StatusBadge status={reservation.status} />
               </header>
               <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5 sm:grid-cols-3">
@@ -285,7 +285,7 @@ export default async function ReservationDetailPage({
                 <section className="rounded-xl border bg-card">
                   <header className="flex items-center justify-between gap-3 border-b px-5 py-4">
                     <div>
-                      <h2 className="font-medium">Bu organizasyona bağlı giderler</h2>
+                      <h2 className="font-medium">{`Bu ${sozluk.event.dative} bağlı giderler`}</h2>
                       <p className="text-xs text-muted-foreground">
                         Kârlılık hesabına giren kalemler
                       </p>
@@ -305,7 +305,7 @@ export default async function ReservationDetailPage({
 
                   {expenses.length === 0 ? (
                     <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-                      Bu organizasyona bağlı gider yok.
+                      {`Bu ${sozluk.event.dative} bağlı gider yok.`}
                     </p>
                   ) : (
                     <ul className="divide-y">
@@ -445,7 +445,7 @@ export default async function ReservationDetailPage({
                   <p className="mt-2.5 flex items-start gap-2 rounded-lg bg-amber-500/10 px-3 py-2.5 text-sm text-amber-800 dark:text-amber-300">
                     <CircleAlert className="mt-0.5 size-4 shrink-0" />
                     <span>
-                      Bu organizasyona bağlı gider girilmedi. Kâr hesabı için
+                      {`Bu ${sozluk.event.dative} bağlı gider girilmedi. Kâr hesabı için`}
                       önce giderleri ekleyin.
                     </span>
                   </p>

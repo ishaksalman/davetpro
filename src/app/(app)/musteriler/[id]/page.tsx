@@ -23,6 +23,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import type { Customer } from "@/lib/database.types";
 import { CustomerFormDialog } from "../customer-form-dialog";
+import { vertical, buyukHarf } from "@/lib/vertical";
 
 export const metadata: Metadata = { title: "Müşteri" };
 
@@ -30,7 +31,8 @@ export default async function CustomerDetailPage({
   params,
 }: PageProps<"/musteriler/[id]">) {
   const { id } = await params;
-  const { profile } = await requireSession();
+  const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
   const showFinance = canSeeFinance(profile);
 
   const supabase = await createClient();
@@ -62,7 +64,7 @@ export default async function CustomerDetailPage({
     <>
       <PageHeader
         title={customer.full_name}
-        description={`${active.length} organizasyon`}
+        description={`${active.length} ${sozluk.event.singular}`}
         back={{ href: "/musteriler", label: "Tüm müşteriler" }}
         actions={
           <CustomerFormDialog
@@ -98,7 +100,7 @@ export default async function CustomerDetailPage({
 
             <section className="rounded-xl border bg-card">
               <header className="border-b px-5 py-4">
-                <h2 className="font-medium">Organizasyonlar</h2>
+                <h2 className="font-medium">{buyukHarf(sozluk.event.plural)}</h2>
               </header>
 
               {rowsError ? (
@@ -108,8 +110,8 @@ export default async function CustomerDetailPage({
               ) : rows.length === 0 ? (
                 <div className="p-5">
                   <EmptyState
-                    title="Bu müşteriye ait organizasyon yok"
-                    description="Rezervasyonlar sayfasından yeni bir organizasyon oluşturabilirsiniz."
+                    title={`Bu müşteriye ait ${sozluk.event.singular} yok`}
+                    description={`Rezervasyonlar sayfasından yeni bir ${sozluk.event.singular} oluşturabilirsiniz.`}
                     className="border-0 py-8"
                   />
                 </div>

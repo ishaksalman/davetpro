@@ -24,6 +24,33 @@ export type Vertical = {
   resourceEmpty: string;
   /** Rezervasyon formunda kaynak alanının etiketi. */
   resourceField: string;
+  /**
+   * Etkinliğin adı. Salonda "organizasyon", fotoğrafçıda "çekim".
+   *
+   * NEDEN ÇEKİM TABLOSU: Türkçe ekleri ünlü uyumuna göre değişiyor —
+   * "organizasyona" ama "çekime", "organizasyonlardan" ama "çekimlerden".
+   * Ek üreten bir yardımcı yazmak iki kelime için fazla; biçimler burada
+   * açıkça duruyor, yanlış çekim gözle görülüyor.
+   *
+   * Küçük harfle tutuluyor; cümle başında `buyukHarf()` ile büyütülüyor
+   * ("i" → "İ" olduğu için düz `toUpperCase()` kullanılmıyor).
+   */
+  event: {
+    /** organizasyon */
+    singular: string;
+    /** organizasyonlar */
+    plural: string;
+    /** organizasyona — "… bağlı gider" */
+    dative: string;
+    /** organizasyonun — "o …n kârlılığı" */
+    genitive: string;
+    /** organizasyonlardan — "bu ayki …" */
+    ablativePlural: string;
+    /** organizasyonları — "hangi tür …" */
+    accusativePlural: string;
+    /** organizasyonunuz — müşteriye giden mesajlarda */
+    possessive: string;
+  };
   /** İşletme adı için örnek metin. */
   businessPlaceholder: string;
   /** Kaynak adı için örnek metin. */
@@ -56,6 +83,15 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceNew: "Yeni salon",
     resourceEmpty: "Henüz salon eklenmemiş",
     resourceField: "Salon",
+    event: {
+      singular: "organizasyon",
+      plural: "organizasyonlar",
+      dative: "organizasyona",
+      genitive: "organizasyonun",
+      ablativePlural: "organizasyonlardan",
+      accusativePlural: "organizasyonları",
+      possessive: "organizasyonunuz",
+    },
     businessPlaceholder: "Gül Düğün Salonu",
     resourcePlaceholder: "Balo Salonu",
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
@@ -71,6 +107,15 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceNew: "Yeni ekip",
     resourceEmpty: "Henüz ekip eklenmemiş",
     resourceField: "Ekip",
+    event: {
+      singular: "çekim",
+      plural: "çekimler",
+      dative: "çekime",
+      genitive: "çekimin",
+      ablativePlural: "çekimlerden",
+      accusativePlural: "çekimleri",
+      possessive: "çekiminiz",
+    },
     businessPlaceholder: "Ela Fotoğrafçılık",
     resourcePlaceholder: "1. Ekip",
     resourceDescPlaceholder: "İki fotoğrafçı, bir video operatörü",
@@ -86,3 +131,8 @@ export function vertical(type: BusinessType | undefined | null): Vertical {
 
 /** Seçim ekranında gösterilecek sıra. */
 export const BUSINESS_TYPES: BusinessType[] = ["salon", "fotografci"];
+
+/** Türkçe'ye uygun baş harf büyütme ("i" → "İ"). */
+export function buyukHarf(s: string): string {
+  return s.charAt(0).toLocaleUpperCase("tr") + s.slice(1);
+}

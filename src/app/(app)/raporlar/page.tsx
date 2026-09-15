@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BarChart3 } from "lucide-react";
 import { canSeeFinance, requireSession } from "@/lib/auth";
-import { vertical } from "@/lib/vertical";
+import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { parseDateRange } from "@/lib/date-range";
 import { ORGANIZATION_TYPE_LABELS, WEEKDAY_LABELS } from "@/lib/constants";
@@ -148,11 +148,11 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
           />
 
           <StatCard
-            label="Organizasyon"
+            label={buyukHarf(sozluk.event.singular)}
             value={formatNumber(s?.reservation_count)}
             hint={
               s?.avg_sale
-                ? `Organizasyon başına ortalama ${formatMoney(s.avg_sale)}`
+                ? `${buyukHarf(sozluk.event.singular)} başına ortalama ${formatMoney(s.avg_sale)}`
                 : undefined
             }
           />
@@ -162,7 +162,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
           <EmptyState
             icon={BarChart3}
             title="Bu dönemde veri yok"
-            description="Seçtiğiniz tarih aralığında organizasyon bulunmuyor. Farklı bir dönem seçmeyi deneyin."
+            description={`Seçtiğiniz tarih aralığında ${sozluk.event.singular} bulunmuyor. Farklı bir dönem seçmeyi deneyin.`}
           />
         ) : (
           <>
@@ -177,14 +177,14 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                 value={
                   topType ? ORGANIZATION_TYPE_LABELS[topType.organization_type] : "—"
                 }
-                hint={topType ? `${topType.reservation_count} organizasyon` : undefined}
+                hint={topType ? `${topType.reservation_count} ${sozluk.event.singular}` : undefined}
               />
               <Highlight
                 label="En çok satılan paket"
                 value={topPackage?.package_name ?? "—"}
                 hint={
                   topPackage
-                    ? `${topPackage.reservation_count} organizasyon`
+                    ? `${topPackage.reservation_count} ${sozluk.event.singular}`
                     : "Paket kullanılmamış"
                 }
               />
@@ -197,7 +197,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                 label="En yoğun gün"
                 value={topWeekday ? WEEKDAY_LABELS[topWeekday.weekday] : "—"}
                 hint={
-                  topWeekday ? `${topWeekday.reservation_count} organizasyon` : undefined
+                  topWeekday ? `${topWeekday.reservation_count} ${sozluk.event.singular}` : undefined
                 }
               />
             </div>
@@ -206,7 +206,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
               <header className="mb-4">
                 <h2 className="font-medium">Aylık gelir-gider</h2>
                 <p className="text-xs text-muted-foreground">
-                  Satış organizasyon tarihine, tahsilat ve gider işlem tarihine göredir.
+                  {`Satış ${sozluk.event.singular} tarihine, tahsilat ve gider işlem tarihine göredir.`}
                 </p>
               </header>
               <MonthlyPerformanceChart data={monthly} />
@@ -231,9 +231,9 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
 
               <section className="rounded-xl border bg-card p-5">
                 <header className="mb-4">
-                  <h2 className="font-medium">Organizasyon türleri</h2>
+                  <h2 className="font-medium">{buyukHarf(sozluk.event.singular)} türleri</h2>
                   <p className="text-xs text-muted-foreground">
-                    Hangi tür organizasyonları daha çok yapıyorsunuz?
+                    {`Hangi tür ${sozluk.event.accusativePlural} daha çok yapıyorsunuz?`}
                   </p>
                 </header>
                 <TypeDistributionChart data={typeRows} />
@@ -245,7 +245,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                 <header className="mb-4">
                   <h2 className="font-medium">En yoğun günler</h2>
                   <p className="text-xs text-muted-foreground">
-                    Haftanın günlerine göre organizasyon sayısı
+                    {`Haftanın günlerine göre ${sozluk.event.singular} sayısı`}
                   </p>
                 </header>
                 <WeekdayChart data={weekdayRows} />

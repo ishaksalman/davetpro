@@ -7,6 +7,7 @@ import {
   formatTimeRange,
 } from "@/lib/format";
 import type { Business, OrganizationType } from "@/lib/database.types";
+import { vertical, buyukHarf } from "@/lib/vertical";
 
 export type QuoteDocumentData = {
   quote_number: string;
@@ -42,6 +43,7 @@ export function QuoteDocument({
   business: Business;
   quote: QuoteDocumentData;
 }) {
+  const sozluk = vertical(business.business_type);
   return (
     <article className="contract-sheet">
       <header className="contract-header">
@@ -99,7 +101,7 @@ export function QuoteDocument({
       </section>
 
       <section className="contract-section">
-        <h2 className="contract-section-title">Organizasyon</h2>
+        <h2 className="contract-section-title">{buyukHarf(sozluk.event.singular)}</h2>
         <dl className="contract-rows">
           <div>
             <dt>Tür</dt>

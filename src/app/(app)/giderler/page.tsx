@@ -12,11 +12,13 @@ import { StatCard } from "@/components/shared/stat-card";
 import type { Expense, ExpenseCategory } from "@/lib/database.types";
 import { ExpenseFormDialog } from "./expense-form-dialog";
 import { ExpenseTable, type ExpenseRow } from "./expense-table";
+import { vertical, buyukHarf } from "@/lib/vertical";
 
 export const metadata: Metadata = { title: "Giderler" };
 
 export default async function ExpensesPage({ searchParams }: PageProps<"/giderler">) {
-  const { profile } = await requireSession();
+  const { profile, business } = await requireSession();
+  const sozluk = vertical(business.business_type);
   if (!canSeeFinance(profile)) notFound();
 
   const params = await searchParams;
@@ -82,7 +84,7 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/giderle
     <>
       <PageHeader
         title="Giderler"
-        description="Organizasyona bağlı ve genel giderler"
+        description={`${buyukHarf(sozluk.event.dative)} bağlı ve genel giderler`}
         actions={
           <>
             <DateRangeFilter range={{ from, to }} preset={preset} />
@@ -115,7 +117,7 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/giderle
                 tone="negative"
               />
               <StatCard
-                label="Organizasyona bağlı"
+                label={`${buyukHarf(sozluk.event.dative)} bağlı`}
                 value={formatMoney(linked)}
                 hint={`Genel gider: ${formatMoney(total - linked)}`}
               />

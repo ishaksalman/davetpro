@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { canSeeFinance, requireSession } from "@/lib/auth";
-import { vertical } from "@/lib/vertical";
+import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationRows } from "@/lib/queries";
 import { today as businessToday, todayISO } from "@/lib/time";
@@ -205,7 +205,7 @@ export default async function DashboardPage() {
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <StatCard
-                label="Bu ayki organizasyon"
+                label={`Bu ayki ${sozluk.event.singular}`}
                 value={formatNumber(summary.reservation_count)}
                 hint={
                   orgTrend ? (
@@ -223,7 +223,7 @@ export default async function DashboardPage() {
                   satisTrend ? (
                     <TrendHint trend={satisTrend} />
                   ) : (
-                    "Organizasyon tarihine göre"
+                    `${buyukHarf(sozluk.event.singular)} tarihine göre`
                   )
                 }
                 icon={TrendingUp}
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
               <StatCard
                 label="Bekleyen tahsilat"
                 value={formatMoney(summary.outstanding)}
-                hint="Bu ayki organizasyonlardan"
+                hint={`Bu ayki ${sozluk.event.ablativePlural}`}
                 tone={Number(summary.outstanding) > 0 ? "pending" : "default"}
                 icon={Wallet}
               />
@@ -282,11 +282,11 @@ export default async function DashboardPage() {
             )}
 
             <Panel
-              title="Bugünkü organizasyonlar"
-              hint={todayEvents.length ? `${todayEvents.length} organizasyon` : undefined}
+              title={`Bugünkü ${sozluk.event.plural}`}
+              hint={todayEvents.length ? `${todayEvents.length} ${sozluk.event.singular}` : undefined}
             >
               {todayEvents.length === 0 ? (
-                <Empty text="Bugün planlanmış organizasyon yok." />
+                <Empty text={`Bugün planlanmış ${sozluk.event.singular} yok.`} />
               ) : (
                 <ul className="divide-y">
                   {todayEvents.map((r) => (
@@ -341,7 +341,7 @@ export default async function DashboardPage() {
 
           <aside className="space-y-6">
             <Panel
-              title="Yaklaşan organizasyonlar"
+              title={`Yaklaşan ${sozluk.event.plural}`}
               action={
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/takvim">
@@ -352,7 +352,7 @@ export default async function DashboardPage() {
               }
             >
               {nextEvents.length === 0 ? (
-                <Empty text="Planlanmış organizasyon yok." />
+                <Empty text={`Planlanmış ${sozluk.event.singular} yok.`} />
               ) : (
                 <ul className="divide-y">
                   {nextEvents.map((r) => (
@@ -385,7 +385,7 @@ export default async function DashboardPage() {
                         <Money value={r.balance_amount} tone="pending" className="text-sm" />
                         <WhatsAppButton
                           phone={r.customer?.phone}
-                          message={`Merhaba ${r.customer?.full_name ?? ""}, ${formatDate(r.event_date)} tarihli organizasyonunuz için kalan ödemeniz ${formatMoney(r.balance_amount)}.`}
+                          message={`Merhaba ${r.customer?.full_name ?? ""}, ${formatDate(r.event_date)} tarihli ${sozluk.event.possessive} için kalan ödemeniz ${formatMoney(r.balance_amount)}.`}
                         />
                       </li>
                     ))}

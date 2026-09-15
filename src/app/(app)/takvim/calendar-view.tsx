@@ -44,6 +44,7 @@ import type { ReservationRow } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { useVertical } from "@/components/layout/vertical-provider";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
+import { buyukHarf, Vertical } from "@/lib/vertical";
 
 const localizer = dateFnsLocalizer({
   format,
@@ -53,7 +54,7 @@ const localizer = dateFnsLocalizer({
   locales: { tr },
 });
 
-const MESSAGES = {
+const mesajlar = (sozluk: Vertical) => ({
   today: "Bugün",
   previous: "Önceki",
   next: "Sonraki",
@@ -63,10 +64,10 @@ const MESSAGES = {
   agenda: "Ajanda",
   date: "Tarih",
   time: "Saat",
-  event: "Organizasyon",
-  noEventsInRange: "Bu aralıkta organizasyon yok.",
-  showMore: (count: number) => `+${count} organizasyon`,
-};
+  event: buyukHarf(sozluk.event.singular),
+  noEventsInRange: `Bu aralıkta ${sozluk.event.singular} yok.`,
+  showMore: (count: number) => `+${count} ${sozluk.event.singular}`,
+});
 
 const VIEW_LABELS: Record<string, string> = {
   [Views.MONTH]: "Ay",
@@ -136,6 +137,7 @@ export function CalendarView({
   showFinance: boolean;
 }) {
   const sozluk = useVertical();
+  const mesajlarMemo = useMemo(() => mesajlar(sozluk), [sozluk]);
   const router = useRouter();
   const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState(new Date());
@@ -401,7 +403,7 @@ export function CalendarView({
           onNavigate={setDate}
           onView={setView}
           views={[Views.MONTH, Views.WEEK, Views.DAY]}
-          messages={MESSAGES}
+          messages={mesajlarMemo}
           toolbar={false}
           selectable
           popup

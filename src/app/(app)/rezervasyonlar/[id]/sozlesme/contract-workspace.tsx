@@ -26,6 +26,7 @@ import { formatDate, formatDateTime, whatsAppLink } from "@/lib/format";
 import type { Contract, ContractSnapshot } from "@/lib/database.types";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
 import { cancelContract, createContract, updateContractStatus } from "./actions";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 export function ContractWorkspace({
   reservationId,
@@ -341,7 +342,8 @@ function ShareButton({
   customerPhone: string;
   eventDate: string;
 }) {
-  const message = `Merhaba ${customerName}, ${formatDate(eventDate)} tarihli organizasyonunuz için hazırladığımız ${contractNumber} numaralı sözleşmeyi paylaşıyorum.`;
+  const sozluk = useVertical();
+  const message = `Merhaba ${customerName}, ${formatDate(eventDate)} tarihli ${sozluk.event.possessive} için hazırladığımız ${contractNumber} numaralı sözleşmeyi paylaşıyorum.`;
 
   async function share() {
     if (typeof navigator !== "undefined" && navigator.share) {

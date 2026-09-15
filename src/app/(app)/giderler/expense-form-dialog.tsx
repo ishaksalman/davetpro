@@ -26,6 +26,8 @@ import { expenseSchema, type ExpenseInput } from "@/lib/schemas";
 import type { ExpenseCategory } from "@/lib/database.types";
 import type { ReservationRow } from "@/lib/queries";
 import { createExpense } from "./actions";
+import { buyukHarf } from "@/lib/vertical";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 export function ExpenseFormDialog({
   categories,
@@ -40,6 +42,7 @@ export function ExpenseFormDialog({
   trigger?: React.ReactElement;
   triggerButton?: TriggerButton;
 }) {
+  const sozluk = useVertical();
   const activeCategories = categories.filter((c) => c.is_active);
 
   const defaultValues: ExpenseInput = {
@@ -62,7 +65,7 @@ export function ExpenseFormDialog({
       trigger={trigger}
       triggerButton={triggerButton}
       title="Gider ekle"
-      description="Gideri bir organizasyona bağlarsanız o organizasyonun kârlılığına yansır."
+      description={`Gideri bir ${sozluk.event.dative} bağlarsanız o ${sozluk.event.genitive} kârlılığına yansır.`}
       submitLabel="Gideri kaydet"
       form={form}
       defaultValues={defaultValues}
@@ -113,13 +116,13 @@ export function ExpenseFormDialog({
         <FormField
           form={form}
           name="reservation_id"
-          label="Bağlı organizasyon"
+          label={`Bağlı ${sozluk.event.singular}`}
           description="Genel giderler (kira, elektrik…) için boş bırakın."
         >
           <Combobox
             id="reservation_id"
             options={[
-              { value: "none", label: "Organizasyona bağlı değil (genel gider)" },
+              { value: "none", label: `${buyukHarf(sozluk.event.dative)} bağlı değil (genel gider)` },
               ...reservations.map((r) => ({
                 value: r.id,
                 label: `${r.customer?.full_name ?? "—"} · ${formatDateShort(r.event_date)}`,

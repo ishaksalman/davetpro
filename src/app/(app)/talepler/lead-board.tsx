@@ -28,6 +28,7 @@ import type { LeadRow } from "@/lib/leads";
 import type { Profile, Venue } from "@/lib/database.types";
 import { MessagesSquare } from "lucide-react";
 import { LeadCard } from "./lead-card";
+import { buyukHarf } from "@/lib/vertical";
 
 const ALL = "hepsi";
 
@@ -198,6 +199,7 @@ function FilterSelect({
 
 
 function ListView({ leads, narrow }: { leads: LeadRow[]; narrow: boolean }) {
+  const sozluk = useVertical();
   const router = useRouter();
 
   // Telefonda 7 sütunlu tablo yatay kaydırma demek ve durumu değiştirmenin
@@ -219,8 +221,8 @@ function ListView({ leads, narrow }: { leads: LeadRow[]; narrow: boolean }) {
         <thead className="sticky top-0 bg-muted/60 backdrop-blur-sm">
           <tr className="text-left text-xs text-muted-foreground">
             <Th>Müşteri</Th>
-            <Th>Organizasyon</Th>
-            <Th>Salon</Th>
+            <Th>{buyukHarf(sozluk.event.singular)}</Th>
+            <Th>{sozluk.resourceField}</Th>
             <Th className="text-right">Kişi</Th>
             <Th className="text-right">Teklif</Th>
             <Th>Son görüşme</Th>

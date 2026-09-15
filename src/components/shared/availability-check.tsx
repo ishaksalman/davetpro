@@ -7,6 +7,7 @@ import { relativeDay } from "@/lib/relative-date";
 import { SCHEMA_OUTDATED_MESSAGE } from "@/lib/errors";
 import type { VenueAvailability } from "@/lib/database.types";
 import { checkAvailability } from "@/lib/availability-actions";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 type Outcome =
   | { key: string; ok: true; rows: VenueAvailability[] }
@@ -40,6 +41,7 @@ export function AvailabilityCheck({
   /** Seçilen salonun dolu olup olmadığını üst forma bildirir. */
   onConflictChange?: (conflict: VenueAvailability | null) => void;
 }) {
+  const sozluk = useVertical();
   // Sonuç, hangi sorguya ait olduğuyla birlikte saklanıyor. Böylece girdi
   // değiştiğinde effect içinde state sıfırlamak gerekmiyor; eski sonucun
   // güncel girdiye ait olmadığı render sırasında anlaşılıyor.
@@ -152,7 +154,7 @@ export function AvailabilityCheck({
         <CircleAlert className="mt-0.5 size-4 shrink-0" />
         <span>
           Aynı gün bu salonda {selected.conflict_label} adına bir{" "}
-          {selected.conflict_kind === "opsiyon" ? "opsiyon" : "organizasyon"} var
+          {selected.conflict_kind === "opsiyon" ? "opsiyon" : sozluk.event.singular} var
           {neighbourTime && ` (${neighbourTime})`}. Arada{" "}
           <strong>{selected.gap_minutes} dakika</strong> kalıyor — hazırlık için
           yeterli olduğundan emin olun. Kaydetmenize engel değil.
@@ -175,7 +177,7 @@ export function AvailabilityCheck({
       <p className="flex items-start gap-2 rounded-lg bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
         <CircleAlert className="mt-0.5 size-4 shrink-0" />
         <span>
-          İki organizasyon arasında en az 1 saat olmalı
+          {`İki ${sozluk.event.singular} arasında en az 1 saat olmalı`}
           {selected.conflict_label && (
             <>
               {" "}

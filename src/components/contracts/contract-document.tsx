@@ -9,6 +9,7 @@ import {
 } from "@/lib/format";
 import type { ContractSnapshot } from "@/lib/database.types";
 import { IssuerLogo } from "./issuer-logo";
+import { vertical, buyukHarf } from "@/lib/vertical";
 
 /**
  * A4 sözleşme belgesi. Hem ekrandaki önizlemede hem yazdırma sayfasında aynı
@@ -27,6 +28,7 @@ export function ContractDocument({
   contractNumber: string | null;
 }) {
   const { business: b, customer: c, organization: o, finance: f } = snapshot;
+  const sozluk = vertical(b.business_type);
   const blocks = parseContractBody(content);
 
   return (
@@ -75,10 +77,10 @@ export function ContractDocument({
         />
       </Section>
 
-      <Section title="Organizasyon Bilgileri">
+      <Section title={`${buyukHarf(sozluk.event.singular)} Bilgileri`}>
         <Rows
           items={[
-            ["Organizasyon türü", ORGANIZATION_TYPE_LABELS[o.type]],
+            [`${buyukHarf(sozluk.event.singular)} türü`, ORGANIZATION_TYPE_LABELS[o.type]],
             ["Salon / Ekip", o.venue_name],
             // Adres yalnızca doluysa çıkıyor; Rows null satırları atlıyor.
             ["Etkinlik adresi", o.location ?? null],

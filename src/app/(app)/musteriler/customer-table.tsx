@@ -21,6 +21,8 @@ import { formatDateShort, formatPhone, initials } from "@/lib/format";
 import type { Customer, CustomerBalance } from "@/lib/database.types";
 import { deleteCustomer } from "./actions";
 import { CustomerFormDialog } from "./customer-form-dialog";
+import { buyukHarf } from "@/lib/vertical";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 export type CustomerRow = Customer & {
   balance: CustomerBalance | undefined;
@@ -33,6 +35,7 @@ export function CustomerTable({
   customers: CustomerRow[];
   showFinance: boolean;
 }) {
+  const sozluk = useVertical();
   const router = useRouter();
 
   const columns = useMemo<ColumnDef<CustomerRow, unknown>[]>(() => {
@@ -85,7 +88,7 @@ export function CustomerTable({
       },
       {
         id: "reservation_count",
-        header: "Organizasyon",
+        header: buyukHarf(sozluk.event.singular),
         accessorFn: (row) => row.balance?.reservation_count ?? 0,
         cell: ({ getValue, row }) => (
           <div className="tabular">
@@ -171,7 +174,7 @@ export function CustomerTable({
     });
 
     return base;
-  }, [showFinance]);
+  }, [showFinance, sozluk.event.singular]);
 
   return (
     <DataTable

@@ -31,7 +31,7 @@ export default async function ReservationsPage() {
     <>
       <PageHeader
         title="Rezervasyonlar"
-        description={`${rows.length} organizasyon kaydı`}
+        description={`${rows.length} ${sozluk.event.singular} kaydı`}
         actions={
           hasVenue && (
             <ReservationFormDialog

@@ -873,6 +873,19 @@ await step('sözleşme şablonu işin cinsine göre', async () => {
   if (foto.telif !== true || salon.telif !== false) throw new Error('telif maddesi yanlış yerde')
 })
 
+// İmzalanan metinde de kelime doğru olmalı: fotoğrafçı "çekim" yapıyor.
+await step('sözleşme metninde salon dili sızmıyor', async () => {
+  const r = await db.query(
+    `select b.name, t.body from contract_templates t join businesses b on b.id = t.business_id
+      where b.name = 'Foto Ela'`)
+  const body = r.rows[0].body
+  if (!body.includes('çekiminde')) throw new Error('"çekiminde" yok')
+  if (/organizasyon/i.test(body)) {
+    const satir = body.split('\n').find((l) => /organizasyon/i.test(l))
+    throw new Error('salon dili sızmış: ' + satir)
+  }
+})
+
 // Çakışma mantığı tipten BAĞIMSIZ: fotoğrafçıda da aynı kısıt işliyor.
 await step('fotoğrafçıda da çakışan saat engelleniyor', async () => {
   await as(U_FOTO)
@@ -888,7 +901,29 @@ await step('fotoğrafçıda da çakışan saat engelleniyor', async () => {
               null,null,20000,0,null,null,null)`, [m, ekip])
     throw new Error('çakışan kayıt kabul edildi')
   } catch (e) {
-    if (!/organizasyon var|no_overlap|çakış/i.test(e.message)) throw e
+    // Mesaj işin cinsine göre kelime seçiyor: fotoğrafçıda "çekim".
+    if (!/çekim var/i.test(e.message)) throw new Error(e.message)
+    if (/organizasyon/i.test(e.message)) throw new Error('salon dili sızmış: ' + e.message)
+  }
+  await asSuper()
+})
+
+// Aynı kural salonda "organizasyon" demeli.
+await step('salonda mesaj "organizasyon" diyor', async () => {
+  await as(U.ownerA)
+  const v = (await db.query(`insert into venues (name) values ('Mesaj Salonu') returning id`)).rows[0].id
+  const c = (await db.query(
+    `insert into customers (full_name, phone) values ('Mesaj Müşteri','05007770001') returning id`)).rows[0].id
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-12-04','14:00','20:00',
+            null,null,40000,0,null,null,null)`, [c, v])
+  try {
+    await db.query(
+      `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-12-04','16:00','19:00',
+              null,null,20000,0,null,null,null)`, [c, v])
+    throw new Error('çakışan kayıt kabul edildi')
+  } catch (e) {
+    if (!/organizasyon var/i.test(e.message)) throw new Error(e.message)
   }
   await asSuper()
 })

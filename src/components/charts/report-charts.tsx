@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/chart";
 import { ORGANIZATION_TYPE_LABELS, WEEKDAY_LABELS } from "@/lib/constants";
 import { formatMoneyCompact } from "@/lib/format";
+import { buyukHarf } from "@/lib/vertical";
+import { useVertical } from "@/components/layout/vertical-provider";
 import type {
   MonthlySeriesRow,
   TypeBreakdownRow,
@@ -176,11 +178,12 @@ export function TypeDistributionChart({ data }: { data: TypeBreakdownRow[] }) {
 
 // --- En yoğun günler ------------------------------------------------------
 
-const weekdayConfig = {
-  count: { label: "Organizasyon", color: "var(--chart-1)" },
-} satisfies ChartConfig;
-
 export function WeekdayChart({ data }: { data: WeekdayBreakdownRow[] }) {
+  const sozluk = useVertical();
+  // Etiket işin cinsine bağlı olduğu için yapılandırma bileşenin içinde.
+  const weekdayConfig = {
+    count: { label: buyukHarf(sozluk.event.singular), color: "var(--chart-1)" },
+  } satisfies ChartConfig;
   const counts = new Map(data.map((d) => [d.weekday, Number(d.reservation_count)]));
   // Hafta Pazartesi'den başlasın (Türkiye kullanımı).
   const order = [1, 2, 3, 4, 5, 6, 0];

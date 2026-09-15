@@ -37,6 +37,7 @@ import type {
 } from "@/lib/database.types";
 import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { findCustomerByPhone, saveLead } from "./actions";
+import { buyukHarf } from "@/lib/vertical";
 
 export function LeadFormDialog({
   lead,
@@ -150,7 +151,7 @@ export function LeadFormDialog({
         // gerekçe göstermek kullanıcıyı yanıltıyor.
         conflict
           ? conflict.gap_minutes !== null
-            ? "İki organizasyon arasında en az 1 saat olmalı."
+            ? `İki ${sozluk.event.singular} arasında en az 1 saat olmalı.`
             : conflict.conflict_kind === "opsiyon"
               ? `Seçilen ${kucuk} ve saat opsiyonlu. Farklı bir tarih veya ${kucuk} seçin.`
               : `Seçilen ${kucuk} ve saatte kesin rezervasyon var. Farklı bir tarih veya ${kucuk} seçin.`
@@ -261,7 +262,7 @@ export function LeadFormDialog({
           </Select>
         </FormField>
 
-        <FormField form={form} name="organization_type" label="Organizasyon türü">
+        <FormField form={form} name="organization_type" label={`${buyukHarf(sozluk.event.singular)} türü`}>
           <Select
             value={form.watch("organization_type")}
             onValueChange={(v) =>

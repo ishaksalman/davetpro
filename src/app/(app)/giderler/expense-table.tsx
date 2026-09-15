@@ -29,6 +29,8 @@ import type { Expense, ExpenseCategory } from "@/lib/database.types";
 import type { ReservationRow } from "@/lib/queries";
 import { voidExpense } from "./actions";
 import { ExpenseFormDialog } from "./expense-form-dialog";
+import { buyukHarf } from "@/lib/vertical";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 export type ExpenseRow = Expense & {
   category_name: string;
@@ -44,6 +46,7 @@ export function ExpenseTable({
   categories: ExpenseCategory[];
   reservations: ReservationRow[];
 }) {
+  const sozluk = useVertical();
   const [categoryId, setCategoryId] = useState("all");
   const [linkage, setLinkage] = useState<"all" | "linked" | "general">("all");
   const [showVoided, setShowVoided] = useState(false);
@@ -198,7 +201,7 @@ export function ExpenseTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tüm giderler</SelectItem>
-              <SelectItem value="linked">Organizasyona bağlı</SelectItem>
+              <SelectItem value="linked">{`${buyukHarf(sozluk.event.dative)} bağlı`}</SelectItem>
               <SelectItem value="general">Genel giderler</SelectItem>
             </SelectContent>
           </Select>
@@ -216,7 +219,7 @@ export function ExpenseTable({
         <EmptyState
           icon={Receipt}
           title="Bu dönemde gider kaydı yok"
-          description="Personel, catering, dekorasyon gibi giderleri ekleyin; organizasyona bağladıklarınız kârlılık hesabına girer."
+          description={`Personel, ekipman, ulaşım gibi giderleri ekleyin; ${sozluk.event.dative} bağladıklarınız kârlılık hesabına girer.`}
           action={
             <ExpenseFormDialog
               categories={categories}

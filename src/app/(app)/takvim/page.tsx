@@ -53,7 +53,7 @@ export default async function CalendarPage() {
           <>
             {truncated && (
               <Notice>
-                Takvim üst sınıra ulaştı; bazı organizasyonlar görünmüyor olabilir.
+                {`Takvim üst sınıra ulaştı; bazı ${sozluk.event.plural} görünmüyor olabilir.`}
               </Notice>
             )}
             <CalendarView

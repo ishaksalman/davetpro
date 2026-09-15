@@ -247,7 +247,7 @@ export default async function LeadDetailPage({
                     </a>
                     <WhatsAppButton
                       phone={customer.phone}
-                      message={`Merhaba ${customer.full_name}, organizasyonunuz hakkında yazıyorum.`}
+                      message={`Merhaba ${customer.full_name}, ${sozluk.event.possessive} hakkında yazıyorum.`}
                     />
                   </div>
                   {customer.email && (

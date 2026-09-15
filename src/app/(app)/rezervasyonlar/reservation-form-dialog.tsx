@@ -43,6 +43,7 @@ import type {
   VenueAvailability,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
+import { buyukHarf } from "@/lib/vertical";
 
 /** Sık eklenen kalemler — tek tıkla satır açar. Teklif formuyla aynı liste. */
 const SUGGESTED_EXTRAS = [
@@ -250,7 +251,7 @@ export function ReservationFormDialog({
         // Kart neyi söylüyorsa düğmenin yanında da o yazsın.
         conflict
           ? conflict.gap_minutes !== null
-            ? "İki organizasyon arasında en az 1 saat olmalı."
+            ? `İki ${sozluk.event.singular} arasında en az 1 saat olmalı.`
             : conflict.conflict_kind === "opsiyon"
               ? `Seçilen ${kucuk} ve saat opsiyonlu. Farklı bir tarih veya ${kucuk} seçin.`
               : `Seçilen ${kucuk} ve saatte kesin rezervasyon var. Farklı bir tarih veya ${kucuk} seçin.`
@@ -324,7 +325,7 @@ export function ReservationFormDialog({
           </Select>
         </FormField>
 
-        <FormField form={form} name="organization_type" label="Organizasyon türü">
+        <FormField form={form} name="organization_type" label={`${buyukHarf(sozluk.event.singular)} türü`}>
           <Select
             value={form.watch("organization_type")}
             onValueChange={(v) =>
@@ -614,7 +615,7 @@ export function ReservationFormDialog({
             form={form}
             name="due_date"
             label="Kalan ödeme tarihi"
-            description="Organizasyon tarihiyle aynı geliyor; farklıysa değiştirin. Boş bırakılırsa yaklaşan ödemeler listesinde hatırlatılmaz."
+            description={`${buyukHarf(sozluk.event.singular)} tarihiyle aynı geliyor; farklıysa değiştirin. Boş bırakılırsa yaklaşan ödemeler listesinde hatırlatılmaz.`}
           >
             <DatePicker
               id="due_date"

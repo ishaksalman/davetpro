@@ -69,6 +69,7 @@ export function buildContractSnapshot({
   return {
     business: {
       name: business.name,
+      business_type: business.business_type,
       authorized_person: business.authorized_person,
       phone: business.phone,
       email: business.email,

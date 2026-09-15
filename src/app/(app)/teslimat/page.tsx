@@ -50,7 +50,7 @@ export default async function DeliveryPage() {
             title="Teslim bekleyen iş yok"
             description={
               rows.length === 0
-                ? "Çekimi yapılmış bir organizasyon olduğunda burada görünecek."
+                ? "Çekimi yapılmış bir kayıt olduğunda burada görünecek."
                 : "Geçmiş işlerin tamamı teslim edildi."
             }
           />

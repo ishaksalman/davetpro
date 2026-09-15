@@ -317,6 +317,14 @@ export type Contract = Timestamps & {
 export type ContractSnapshot = {
   business: {
     name: string;
+    /**
+     * Belgedeki kelimeyi seçiyor ("organizasyon" / "çekim").
+     *
+     * Opsiyonel: bu alan eklenmeden önce imzalanmış sözleşmelerin anlık
+     * görüntüsünde yok. Donmuş belge değiştirilemeyeceği için okuyan taraf
+     * salon diline düşüyor — eski sözleşmeler zaten salon sözleşmesiydi.
+     */
+    business_type?: BusinessType;
     authorized_person: string | null;
     phone: string | null;
     email: string | null;
