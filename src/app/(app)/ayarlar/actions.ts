@@ -214,3 +214,41 @@ export async function cancelInvite(profileId: string): Promise<ActionResult> {
   revalidatePath("/ayarlar");
   return { ok: true };
 }
+
+// --- Düğünce entegrasyonu ----------------------------------------------------
+
+const linkCodeSchema = z.object({
+  venueId: z.union([z.string().uuid(), z.literal("")]).optional(),
+});
+
+/**
+ * Düğünce'de profil bağlamak için tek kullanımlık kod üretir.
+ *
+ * Kod 15 dakika geçerli ve tek kullanımlık; kalıcı bir sır değil, yalnızca
+ * iki hesabın aynı kişiye ait olduğunu kanıtlıyor. Üretim sırasında
+ * işletmenin bekleyen kodları geçersiz kılınıyor — ekranda tek geçerli kod
+ * olsun, kullanıcı hangisini gireceğini düşünmesin.
+ */
+export async function generateDugunceLinkCode(
+  input: { venueId?: string },
+): Promise<ActionResult<{ code: string; validUntil: string }>> {
+  const { profile } = await requireSession();
+  if (!isAdmin(profile)) {
+    return { ok: false, error: "Bu işlem için yönetici olmanız gerekir." };
+  }
+
+  const parsed = linkCodeSchema.safeParse(input);
+  if (!parsed.success) return validationError(parsed.error.issues);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .rpc("generate_integration_link_code", {
+      p_venue_id: parsed.data.venueId || null,
+    })
+    .maybeSingle<{ link_code: string; valid_until: string }>();
+
+  if (error) return actionError(error);
+  if (!data) return { ok: false, error: "Kod üretilemedi. Lütfen tekrar deneyin." };
+
+  return { ok: true, data: { code: data.link_code, validUntil: data.valid_until } };
+}

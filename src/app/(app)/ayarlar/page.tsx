@@ -8,11 +8,13 @@ import type {
   ContractTemplate,
   ExpenseCategory,
   Profile,
+  Venue,
 } from "@/lib/database.types";
 import { BusinessForm } from "./business-form";
 import { ContractTemplateForm } from "./contract-template-form";
 import { CategoryManager } from "./category-manager";
 import { TeamManager } from "./team-manager";
+import { DugunceLink } from "./dugunce-link";
 
 export const metadata: Metadata = { title: "Ayarlar" };
 
@@ -22,7 +24,7 @@ export default async function SettingsPage() {
   const showFinance = canSeeFinance(profile);
 
   const supabase = await createClient();
-  const [categoriesResult, membersResult, templateResult] = await Promise.all([
+  const [categoriesResult, membersResult, templateResult, venuesResult] = await Promise.all([
     showFinance
       ? supabase
           .from("expense_categories")
@@ -42,6 +44,12 @@ export default async function SettingsPage() {
       .select("*")
       .eq("is_default", true)
       .maybeSingle<ContractTemplate>(),
+    supabase
+      .from("venues")
+      .select("*")
+      .eq("is_active", true)
+      .order("name")
+      .returns<Venue[]>(),
   ]);
 
   // Daveti kabul etmemiş hesaplar: auth tarafında last_sign_in_at boş olanlar.
@@ -67,6 +75,7 @@ export default async function SettingsPage() {
               <TabsTrigger value="sozlesme">Sözleşme</TabsTrigger>
             )}
             <TabsTrigger value="kullanicilar">Kullanıcılar</TabsTrigger>
+            {admin && <TabsTrigger value="dugunce">Düğünce&apos;de yayınla</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="isletme" forceMount className="pt-6">
@@ -127,6 +136,16 @@ export default async function SettingsPage() {
               canManage={admin}
             />
           </TabsContent>
+
+          {admin && (
+            <TabsContent value="dugunce" forceMount className="pt-6">
+              <SectionTitle
+                title="Düğünce'de yayınla"
+                description="Düğünce'deki mekan profilinizi bu hesaba bağlayın; gelen teklif talepleri doğrudan buraya düşsün."
+              />
+              <DugunceLink venues={venuesResult.data ?? []} />
+            </TabsContent>
+          )}
         </Tabs>
       </PageBody>
     </>

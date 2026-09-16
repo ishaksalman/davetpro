@@ -492,6 +492,20 @@ await step('yeni kod üretmek eskisini geçersiz kılıyor', async () => {
   if (tuketim.rows[0].r.ok !== false) throw new Error('eski kod hâlâ geçerli')
 })
 
+await step('salona özel kod üretilebiliyor', async () => {
+  const salon = (await db.query(
+    'select id from venues where business_id = current_business_id() limit 1')).rows[0]
+  const r = await db.query('select * from generate_integration_link_code($1)', [salon.id])
+  kod = r.rows[0].link_code
+  // Tabloyu super ile okuyoruz: `integration_link_codes` üzerinde
+  // authenticated'a GRANT verilmemiş (okuma politikası var ama yetki yok).
+  await asSuper()
+  const kayit = await db.query(
+    'select venue_id from integration_link_codes where code = $1', [kod])
+  await as(U.ownerA)
+  if (kayit.rows[0].venue_id !== salon.id) throw new Error('salon eşleşmedi')
+})
+
 await step('kendi işletmesinde olmayan salon için kod üretilemiyor', async () => {
   try {
     await db.query('select * from generate_integration_link_code($1)',
@@ -500,6 +514,20 @@ await step('kendi işletmesinde olmayan salon için kod üretilemiyor', async ()
   } catch (e) {
     if (!e.message.includes('bu işletmeye ait değil')) throw e
   }
+})
+
+await step('PERSONEL bağlama kodu üretemiyor', async () => {
+  // Bağlama, işletmenin taleplerini dış bir ürüne akıtıyor ve geçmişi de
+  // aktarıyor — sahip/yönetici kararı. Ayarlar sekmesi zaten personele
+  // görünmüyor ama asıl kapı burası.
+  await as(U.staffA)
+  try {
+    await db.query('select * from generate_integration_link_code(null)')
+    throw new Error('personel kod üretebildi')
+  } catch (e) {
+    if (!e.message.includes('yönetici olmanız gerekir')) throw e
+  }
+  await as(U.ownerA)
 })
 
 await asSuper()
