@@ -1,6 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
-import { APP_TIME_ZONE } from "@/lib/time";
+import { APP_TIME_ZONE } from "./time.ts";
 
 const currency = new Intl.NumberFormat("tr-TR", {
   style: "currency",

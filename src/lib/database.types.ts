@@ -366,6 +366,15 @@ export type ContractSnapshot = {
   };
   customer: {
     full_name: string;
+    /**
+     * Sözleşmede taraf olarak yazılan ad. Çift adı ("Ayşe & Ahmet") taraf
+     * olamaz; imzalayan tek kişidir.
+     *
+     * Opsiyonel: bu alan eklenmeden önce imzalanmış sözleşmelerin anlık
+     * görüntüsünde yok. Donmuş belge değiştirilemeyeceği için okuyan taraf
+     * full_name'e düşüyor.
+     */
+    contract_name?: string | null;
     phone: string;
     email: string | null;
     address: string | null;

@@ -1,4 +1,5 @@
 import { ORGANIZATION_TYPE_LABELS } from "@/lib/constants";
+import { sozlesmeAdi } from "@/lib/contracts";
 import { parseContractBody } from "@/lib/contracts";
 import {
   formatDate,
@@ -68,7 +69,7 @@ export function ContractDocument({
       <Section title="Müşteri Bilgileri">
         <Rows
           items={[
-            ["Ad Soyad", c.full_name],
+            ["Ad Soyad", sozlesmeAdi(c)],
             ["Telefon", formatPhone(c.phone)],
             ["E-posta", c.email],
             ["Adres", c.address],
@@ -197,7 +198,7 @@ export function ContractDocument({
         </div>
         <div>
           <p className="contract-signature-role">MÜŞTERİ</p>
-          <p className="contract-signature-name">{c.full_name}</p>
+          <p className="contract-signature-name">{sozlesmeAdi(c)}</p>
           <p className="contract-signature-sub">&nbsp;</p>
           <p className="contract-signature-line">İmza</p>
         </div>

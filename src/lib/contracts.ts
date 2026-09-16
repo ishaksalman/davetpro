@@ -1,12 +1,12 @@
-import { ORGANIZATION_TYPE_LABELS } from "@/lib/constants";
-import { formatDate, formatMoney, formatNumber, formatTime } from "@/lib/format";
+import { ORGANIZATION_TYPE_LABELS } from "./constants.ts";
+import { formatDate, formatMoney, formatNumber, formatTime } from "./format.ts";
 import type {
   Business,
   ContractSnapshot,
   Customer,
   Profile,
-} from "@/lib/database.types";
-import type { ReservationRow } from "@/lib/queries";
+} from "./database.types.ts";
+import type { ReservationRow } from "./queries.ts";
 
 /**
  * Şablonda kullanılabilecek değişkenler. Ayarlar ekranında kullanıcıya bu
@@ -53,6 +53,19 @@ export const CONTRACT_VARIABLES: { key: string; label: string }[] = [
  * finans görünümünden (reservation_financials) olduğu gibi alınıyor. Sözleşme
  * oluşturmak hiçbir tahsilat/gelir kaydı üretmez.
  */
+/**
+ * Sözleşmede taraf olarak yazılacak ad.
+ *
+ * Eski anlık görüntülerde alan yok; orada full_name'e düşülüyor — donmuş
+ * belgeyi sonradan değiştiremeyiz, o sözleşme zaten öyle imzalandı.
+ */
+export function sozlesmeAdi(c: {
+  full_name: string;
+  contract_name?: string | null;
+}): string {
+  return c.contract_name?.trim() || c.full_name;
+}
+
 export function buildContractSnapshot({
   business,
   customer,
@@ -81,6 +94,7 @@ export function buildContractSnapshot({
     },
     customer: {
       full_name: customer.full_name,
+      contract_name: customer.contract_name,
       phone: customer.phone,
       email: customer.email,
       address: customer.address,
@@ -139,7 +153,7 @@ export function contractVariableValues(
     business_tax_office: b.tax_office ?? EMPTY,
     business_tax_number: b.tax_number ?? EMPTY,
 
-    customer_name: c.full_name,
+    customer_name: sozlesmeAdi(c),
     customer_phone: c.phone,
     customer_email: c.email ?? EMPTY,
     customer_address: c.address ?? EMPTY,
