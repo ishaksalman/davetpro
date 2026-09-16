@@ -24,7 +24,7 @@ import {
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StageBadge } from "@/components/shared/stage-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { reservationNoticeMessage } from "@/lib/reservation-notice";
 import { Badge } from "@/components/ui/badge";
@@ -180,7 +180,7 @@ export default async function ReservationDetailPage({
                 <h2 className="font-medium">
                   {buyukHarf(sozluk.event.singular)}
                 </h2>
-                <StatusBadge status={reservation.status} />
+                <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
               </header>
               <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5 sm:grid-cols-3">
                 <Detail label="Tür">

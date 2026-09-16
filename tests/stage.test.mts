@@ -60,3 +60,27 @@ test("her aşamanın yazdığı değerler kendi anlamıyla tutarlı", () => {
     assert.equal(w.delivery_status, s === "olusturuldu" ? null : s);
   }
 });
+
+// Filtre iki eksende çalışıyor. Salonda birleşik ekseni kullansaydık
+// 'tamamlandi' kayıtları hiçbir seçeneğe düşmezdi: Stage'de karşılığı yok.
+test("salonun 'tamamlandi' kaydı birleşik eksende karşılıksız", () => {
+  // Bu, tabloda salon için ham status'e düşmemizin sebebi.
+  assert.equal(reservationStage("tamamlandi", null), "olusturuldu");
+  assert.equal(STAGE_FLOW.includes("tamamlandi" as never), false);
+});
+
+test("fotoğrafçıda her aşama filtrede karşılık buluyor", () => {
+  const secenekler = [...STAGE_FLOW, "iptal_edildi"];
+  const ornekler: [Parameters<typeof reservationStage>[0], Parameters<typeof reservationStage>[1]][] = [
+    ["kesinlesti", null],
+    ["kesinlesti", "cekim_yapildi"],
+    ["kesinlesti", "secim_bekleniyor"],
+    ["kesinlesti", "duzenleniyor"],
+    ["kesinlesti", "baskida"],
+    ["tamamlandi", "teslim_edildi"],
+    ["iptal_edildi", null],
+  ];
+  for (const [st, d] of ornekler) {
+    assert.ok(secenekler.includes(reservationStage(st, d)), `${st}/${d}`);
+  }
+});

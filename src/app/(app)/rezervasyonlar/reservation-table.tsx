@@ -29,13 +29,18 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Money } from "@/components/shared/money";
-import { StatusBadge } from "@/components/shared/status-badge";
 import { StageBadge } from "@/components/shared/stage-badge";
 import {
   ORGANIZATION_TYPE_LABELS,
   RESERVATION_STATUS_FLOW,
   RESERVATION_STATUS_LABELS,
 } from "@/lib/constants";
+import {
+  STAGES,
+  STAGE_FLOW,
+  reservationStage,
+  type Stage,
+} from "@/lib/stage";
 import { formatDateShort, formatNumber, formatTimeRange } from "@/lib/format";
 import type {
   Customer,
@@ -72,7 +77,10 @@ export function ReservationTable({
   const sozluk = useVertical();
   const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
   const router = useRouter();
-  const [status, setStatus] = useState<ReservationStatus | "all">("all");
+  // Filtre değeri işin cinsine göre iki farklı eksende: fotoğrafçıda
+  // birleşik aşama, salonda düz durum. Tek eksene zorlasaydık salonun
+  // 'tamamlandi' kayıtları hiçbir seçeneğe düşmezdi — Stage'de karşılığı yok.
+  const [status, setStatus] = useState<Stage | ReservationStatus | "all">("all");
   const [venueId, setVenueId] = useState<string>("all");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("upcoming");
 
@@ -83,11 +91,16 @@ export function ReservationTable({
   const byOtherFilters = useMemo(
     () =>
       reservations.filter((r) => {
-        if (status !== "all" && r.status !== status) return false;
+        if (status !== "all") {
+          const gecerli = sozluk.usesDelivery
+            ? reservationStage(r.status, r.delivery_status)
+            : r.status;
+          if (gecerli !== status) return false;
+        }
         if (venueId !== "all" && r.venue_id !== venueId) return false;
         return true;
       }),
-    [reservations, status, venueId],
+    [reservations, status, venueId, sozluk.usesDelivery],
   );
 
   const counts = useMemo(
@@ -107,6 +120,21 @@ export function ReservationTable({
         return true;
       }),
     [byOtherFilters, timeFilter, today],
+  );
+
+  // Fotoğrafçıda teslim aşamaları dahil tam liste, salonda düz durumlar.
+  const secenekler = useMemo(
+    () =>
+      sozluk.usesDelivery
+        ? [...STAGE_FLOW, "iptal_edildi" as const].map((v) => ({
+            value: v as string,
+            label: STAGES[v].label,
+          }))
+        : RESERVATION_STATUS_FLOW.map((v) => ({
+            value: v as string,
+            label: RESERVATION_STATUS_LABELS[v],
+          })),
+    [sozluk.usesDelivery],
   );
 
   const columns = useMemo<ColumnDef<ReservationRow, unknown>[]>(() => {
@@ -165,17 +193,12 @@ export function ReservationTable({
       {
         accessorKey: "status",
         header: "Durum",
-        // Fotoğrafçıda rozet birleşik ekseni gösteriyor: baskıdaki iş
-        // listede de "Baskıda" yazsın, "Oluşturuldu" değil.
-        cell: ({ row }) =>
-          sozluk.usesDelivery ? (
-            <StageBadge
-              status={row.original.status}
-              deliveryStatus={row.original.delivery_status}
-            />
-          ) : (
-            <StatusBadge status={row.original.status} />
-          ),
+        cell: ({ row }) => (
+          <StageBadge
+            status={row.original.status}
+            deliveryStatus={row.original.delivery_status}
+          />
+        ),
       },
     ];
 
@@ -297,7 +320,6 @@ export function ReservationTable({
     teams,
     packages,
     sozluk.resourceField,
-    sozluk.usesDelivery,
   ]);
 
   return (
@@ -339,10 +361,7 @@ export function ReservationTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tüm durumlar</SelectItem>
-              {RESERVATION_STATUS_FLOW.map((v) => ({
-                value: v,
-                label: RESERVATION_STATUS_LABELS[v],
-              })).map((o) => (
+              {secenekler.map((o) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>

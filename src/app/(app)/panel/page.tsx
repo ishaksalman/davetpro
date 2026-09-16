@@ -34,7 +34,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
 import { StatCard } from "@/components/shared/stat-card";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StageBadge } from "@/components/shared/stage-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import type {
@@ -518,10 +518,10 @@ function EventRow({
         </div>
 
         {compact ? (
-          <StatusBadge status={reservation.status} />
+          <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
         ) : (
           <>
-            <StatusBadge status={reservation.status} />
+            <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
             {showFinance && reservation.balance_amount > 0 && (
               <Money
                 value={reservation.balance_amount}

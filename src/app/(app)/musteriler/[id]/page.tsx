@@ -19,7 +19,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
 import { StatCard } from "@/components/shared/stat-card";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StageBadge } from "@/components/shared/stage-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import type { Customer } from "@/lib/database.types";
 import { CustomerFormDialog } from "../customer-form-dialog";
@@ -149,7 +149,7 @@ export default async function CustomerDetailPage({
                           </p>
                         </div>
 
-                        <StatusBadge status={reservation.status} />
+                        <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
 
                         {showFinance && (
                           <div className="w-28 text-right">
