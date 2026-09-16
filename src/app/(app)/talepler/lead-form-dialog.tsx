@@ -37,7 +37,6 @@ import type {
 } from "@/lib/database.types";
 import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { findCustomerByPhone, saveLead } from "./actions";
-import { buyukHarf } from "@/lib/vertical";
 
 export function LeadFormDialog({
   lead,
@@ -262,7 +261,7 @@ export function LeadFormDialog({
           </Select>
         </FormField>
 
-        <FormField form={form} name="organization_type" label={`${buyukHarf(sozluk.event.singular)} türü`}>
+        <FormField form={form} name="organization_type" label={sozluk.eventTypeLabel}>
           <Select
             value={form.watch("organization_type")}
             onValueChange={(v) =>

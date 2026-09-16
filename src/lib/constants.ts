@@ -28,8 +28,12 @@ export const ORGANIZATION_TYPES = [
   "davet",
   "kurumsal",
   "dis_cekim",
-  "bebek",
-  "dogum_gunu",
+  "dugun_nisan",
+  "vesikalik",
+  "portre",
+  "studyo",
+  "urun",
+  "video_etkinlik",
   "diger",
 ] as const satisfies readonly OrganizationType[];
 
@@ -41,9 +45,13 @@ export const ORGANIZATION_TYPE_LABELS: Record<OrganizationType, string> = {
   sunnet: "Sünnet",
   davet: "Davet",
   kurumsal: "Kurumsal Etkinlik",
-  dis_cekim: "Dış çekim",
-  bebek: "Bebek / yeni doğan",
-  dogum_gunu: "Doğum günü",
+  dis_cekim: "Dış Çekim",
+  dugun_nisan: "Düğün / Nişan",
+  vesikalik: "Biyometrik / Vesikalık",
+  portre: "Portre",
+  studyo: "Stüdyo Çekimi",
+  urun: "Ürün Çekimi",
+  video_etkinlik: "Video / Etkinlik",
   diger: "Diğer",
 };
 

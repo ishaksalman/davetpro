@@ -75,6 +75,13 @@ export type Vertical = {
    */
   eventTypes: OrganizationType[];
   /**
+   * Tür alanının etiketi.
+   *
+   * Stüdyoda "Tür" yeterli; işin adı zaten seçeneklerde ("Vesikalık",
+   * "Ürün Çekimi"). Salonda "Organizasyon türü" bilgilendirici kalıyor.
+   */
+  eventTypeLabel: string;
+  /**
    * Ek hizmet bölümünde tek tıkla eklenen öneriler.
    * Tutarlar yalnızca başlangıç değeri; kullanıcı değiştiriyor.
    */
@@ -117,6 +124,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
     usesGuestCount: true,
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
+    eventTypeLabel: "Organizasyon türü",
     suggestedExtras: [
       { name: "Fotoğraf & Video", amount: 10000 },
       { name: "Premium Dekorasyon", amount: 15000 },
@@ -148,9 +156,19 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourcePlaceholder: "A Platosu",
     resourceDescPlaceholder: "120 m², sonsuz fon, stüdyo aydınlatması",
     usesGuestCount: false,
-    // Düğün/nişan/kına fotoğrafçıda da olay; eksik olan düğüne bağlı
-    // olmayan işlerdi (0039).
-    eventTypes: ["dugun", "nisan", "kina", "soz", "dis_cekim", "bebek", "dogum_gunu", "diger"],
+    // Stüdyonun kendi iş listesi (0039). Salonun organizasyon kalemleri
+    // burada yok; düğün ile nişan tek kalemde birleşiyor.
+    eventTypes: [
+      "dis_cekim",
+      "dugun_nisan",
+      "vesikalik",
+      "portre",
+      "studyo",
+      "urun",
+      "video_etkinlik",
+      "diger",
+    ],
+    eventTypeLabel: "Tür",
     suggestedExtras: [
       { name: "Dış çekim", amount: 12000 },
       { name: "Drone çekimi", amount: 6000 },

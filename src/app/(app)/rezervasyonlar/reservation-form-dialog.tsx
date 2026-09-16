@@ -323,7 +323,7 @@ export function ReservationFormDialog({
           </Select>
         </FormField>
 
-        <FormField form={form} name="organization_type" label={`${buyukHarf(sozluk.event.singular)} türü`}>
+        <FormField form={form} name="organization_type" label={sozluk.eventTypeLabel}>
           <Select
             value={form.watch("organization_type")}
             onValueChange={(v) =>

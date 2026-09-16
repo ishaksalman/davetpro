@@ -109,7 +109,7 @@ export function LeadBoard({
           value={type}
           onChange={setType}
           placeholder="Tür"
-          options={Object.entries(ORGANIZATION_TYPE_LABELS).map(([value, label]) => ({
+          options={sozluk.eventTypes.map((t) => [t, ORGANIZATION_TYPE_LABELS[t]] as const).map(([value, label]) => ({
             value,
             label,
           }))}

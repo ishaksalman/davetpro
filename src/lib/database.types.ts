@@ -24,8 +24,12 @@ export type OrganizationType =
   | "davet"
   | "kurumsal"
   | "dis_cekim"
-  | "bebek"
-  | "dogum_gunu"
+  | "dugun_nisan"
+  | "vesikalik"
+  | "portre"
+  | "studyo"
+  | "urun"
+  | "video_etkinlik"
   | "diger";
 
 export type PricingType = "sabit" | "kisi_basi";

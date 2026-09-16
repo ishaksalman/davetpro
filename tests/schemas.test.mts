@@ -380,8 +380,16 @@ test("fiyat zorunlu: kişi başında birim fiyat kuralı geçerli", () => {
   }
 });
 
-test("fotoğrafçıya özel türler şemadan geçiyor", () => {
-  for (const t of ["dis_cekim", "bebek", "dogum_gunu"]) {
+test("stüdyo iş türleri şemadan geçiyor", () => {
+  for (const t of [
+    "dis_cekim",
+    "dugun_nisan",
+    "vesikalik",
+    "portre",
+    "studyo",
+    "urun",
+    "video_etkinlik",
+  ]) {
     const r = reservationSchema.safeParse({ ...gecerliRezervasyon, organization_type: t });
     assert.equal(r.success, true, `${t} reddedildi`);
   }
