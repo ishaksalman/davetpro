@@ -43,7 +43,6 @@ import type {
   Team,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
-import { buyukHarf } from "@/lib/vertical";
 
 export type EditableReservation = Reservation & {
   pricing?: ReservationPricing | null;
@@ -618,42 +617,36 @@ export function ReservationFormDialog({
             </div>
           </div>
 
-          {/* Düzenlemede de açık: kapora sonradan da alınabiliyor. Girilen
-              tutar YENİ bir tahsilat satırı açıyor, mevcut olanı değiştirmiyor
-              — tahsilatlar değiştirilemez kayıtlar. */}
-          <FormField
-            form={form}
-            name="deposit_amount"
-            label={isEdit ? "Kapora tahsilatı ekle" : "Alınan kapora"}
-            description={
-              isEdit
-                ? "Boş bırakın; yalnızca yeni bir kapora tahsil ettiyseniz girin. Girilen tutar ayrı bir tahsilat kaydı olarak eklenir."
-                : "Şimdi tahsil ettiyseniz girin; ilk ödeme kaydı otomatik oluşturulur."
-            }
-          >
-            <MoneyInput
-              id="deposit_amount"
-              value={form.watch("deposit_amount")}
-              onValueChange={(v) =>
-                form.setValue("deposit_amount", v, { shouldDirty: true })
-              }
-            />
-          </FormField>
+          {/* Kapora düzenlemede de açık: para sonradan da alınabiliyor ve
+              girilen tutar YENİ bir tahsilat satırı açıyor, mevcut olanı
+              değiştirmiyor — tahsilatlar değiştirilemez kayıtlar. */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              form={form}
+              name="deposit_amount"
+              label={isEdit ? "Kapora tahsilatı ekle" : "Alınan kapora"}
+            >
+              <MoneyInput
+                id="deposit_amount"
+                value={form.watch("deposit_amount")}
+                onValueChange={(v) =>
+                  form.setValue("deposit_amount", v, { shouldDirty: true })
+                }
+              />
+            </FormField>
 
-          <FormField
-            form={form}
-            name="due_date"
-            label="Kalan ödeme tarihi"
-            description={`${buyukHarf(sozluk.event.singular)} tarihiyle aynı geliyor; farklıysa değiştirin. Boş bırakılırsa yaklaşan ödemeler listesinde hatırlatılmaz.`}
-          >
-            <DatePicker
-              id="due_date"
-              value={form.watch("due_date")}
-              onChange={(v) => form.setValue("due_date", v ?? undefined, { shouldDirty: true })}
-              placeholder="Belirtilmedi"
-              clearable
-            />
-          </FormField>
+            <FormField form={form} name="due_date" label="Kalan ödeme tarihi">
+              <DatePicker
+                id="due_date"
+                value={form.watch("due_date")}
+                onChange={(v) =>
+                  form.setValue("due_date", v ?? undefined, { shouldDirty: true })
+                }
+                placeholder="Belirtilmedi"
+                clearable
+              />
+            </FormField>
+          </div>
         </>
       )}
 
