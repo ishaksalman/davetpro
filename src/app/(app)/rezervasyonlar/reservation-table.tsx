@@ -30,6 +30,7 @@ import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Money } from "@/components/shared/money";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { StageBadge } from "@/components/shared/stage-badge";
 import {
   ORGANIZATION_TYPE_LABELS,
   RESERVATION_STATUS_FLOW,
@@ -164,7 +165,17 @@ export function ReservationTable({
       {
         accessorKey: "status",
         header: "Durum",
-        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        // Fotoğrafçıda rozet birleşik ekseni gösteriyor: baskıdaki iş
+        // listede de "Baskıda" yazsın, "Oluşturuldu" değil.
+        cell: ({ row }) =>
+          sozluk.usesDelivery ? (
+            <StageBadge
+              status={row.original.status}
+              deliveryStatus={row.original.delivery_status}
+            />
+          ) : (
+            <StatusBadge status={row.original.status} />
+          ),
       },
     ];
 
@@ -286,6 +297,7 @@ export function ReservationTable({
     teams,
     packages,
     sozluk.resourceField,
+    sozluk.usesDelivery,
   ]);
 
   return (

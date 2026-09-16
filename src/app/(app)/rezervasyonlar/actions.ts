@@ -6,7 +6,8 @@ import { canSeeFinance, requireSession } from "@/lib/auth";
 import { reservationSchema, type ReservationInput } from "@/lib/schemas";
 import { actionError, validationError, type ActionResult } from "@/lib/action-result";
 import { todayISO } from "@/lib/time";
-import type { DeliveryStatus, ReservationStatus } from "@/lib/database.types";
+import { STAGES, type Stage } from "@/lib/stage";
+import type { ReservationStatus } from "@/lib/database.types";
 
 function revalidateReservation(id?: string) {
   revalidatePath("/rezervasyonlar");
@@ -100,25 +101,32 @@ export async function updateReservationStatus(
 }
 
 /**
- * Teslim aşaması. Ayrı eylem: rezervasyon durumundan bağımsız ilerliyor —
- * iş "tamamlandı" olsa da albüm hâlâ baskıda olabilir.
+ * Fotoğrafçıda tek menüden gelen birleşik aşama.
+ *
+ * İki kolonu TEK update ile yazıyor: ayrı ayrı yazılsaydı arada kalan an
+ * tutarsız görünürdü (ör. durum tamamlandı ama teslim aşaması boş).
  *
  * delivered_at elle yazılmıyor; veritabanı tetikleyicisi damgalıyor.
  */
-export async function updateDeliveryStatus(
+export async function updateReservationStage(
   id: string,
-  status: DeliveryStatus | null,
+  stage: Stage,
 ): Promise<ActionResult> {
   await requireSession();
+
+  const hedef = STAGES[stage];
+  if (!hedef) return { ok: false, error: "Geçersiz durum." };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("reservations")
-    .update({ delivery_status: status })
+    .update(hedef.writes)
     .eq("id", id);
   if (error) return actionError(error);
 
   revalidateReservation(id);
+  // Teslimat panosu bu kayda göre değişiyor.
+  revalidatePath("/teslimat");
   return { ok: true };
 }
 

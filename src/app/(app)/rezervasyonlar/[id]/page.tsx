@@ -39,8 +39,8 @@ import type {
 import { ExpenseFormDialog } from "../../giderler/expense-form-dialog";
 import { PaymentFormDialog } from "../../gelirler/payment-form-dialog";
 import { ReservationFormDialog } from "../reservation-form-dialog";
-import { DeliveryMenu } from "./delivery-menu";
 import { ReservationStatusMenu } from "./status-menu";
+import { StageMenu } from "./stage-menu";
 import { VoidPaymentButton, VoidExpenseButton } from "./void-buttons";
 
 export const metadata: Metadata = { title: "Rezervasyon" };
@@ -139,16 +139,18 @@ export default async function ReservationDetailPage({
         back={{ href: "/rezervasyonlar", label: "Tüm rezervasyonlar" }}
         actions={
           <>
-            <ReservationStatusMenu
-              reservationId={reservation.id}
-              status={reservation.status}
-            />
-            {/* Teslim akışı yalnızca fotoğrafçıda: salonda organizasyon
-                biter, iş biter. */}
-            {sozluk.usesDelivery && (
-              <DeliveryMenu
+            {/* Fotoğrafçıda tek eksen: çekim → seçim → düzenleme → baskı →
+                teslim. Salonda teslim akışı yok, klasik durum menüsü kalıyor. */}
+            {sozluk.usesDelivery ? (
+              <StageMenu
                 reservationId={reservation.id}
-                status={reservation.delivery_status}
+                status={reservation.status}
+                deliveryStatus={reservation.delivery_status}
+              />
+            ) : (
+              <ReservationStatusMenu
+                reservationId={reservation.id}
+                status={reservation.status}
               />
             )}
             <ReservationFormDialog

@@ -14,14 +14,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DELIVERY_STATUS_FLOW, DELIVERY_STATUS_LABELS } from "@/lib/constants";
 import type { DeliveryStatus } from "@/lib/database.types";
-import { updateDeliveryStatus } from "../actions";
+import { updateReservationStage } from "../actions";
 
 /**
- * Çekim sonrası teslim aşaması.
+ * Teslimat panosundaki aşama menüsü.
  *
- * Rezervasyon durumundan ayrı: iş "tamamlandı" olsa da albüm hâlâ baskıda
- * olabilir. Aşamalar sıralı ama zorlayıcı değil — albüm satmayan fotoğrafçı
- * baskı adımını atlayabiliyor.
+ * Detaydaki StageMenu ile AYNI eylemi çağırıyor: "Teslim edildi" iki yerden
+ * de aynı kolonları yazsın diye. Ayrı bir yazma yolu bıraksaydık panodan
+ * teslim edilen iş 'tamamlandi'ya geçmez, detaydan edilen geçerdi.
+ *
+ * Aşamalar sıralı ama zorlayıcı değil — albüm satmayan fotoğrafçı baskı
+ * adımını atlayabiliyor.
  */
 export function DeliveryMenu({
   reservationId,
@@ -35,7 +38,10 @@ export function DeliveryMenu({
   function change(next: DeliveryStatus | null) {
     if (next === status) return;
     startTransition(async () => {
-      const result = await updateDeliveryStatus(reservationId, next);
+      const result = await updateReservationStage(
+        reservationId,
+        next ?? "olusturuldu",
+      );
       if (result.ok) toast.success("Teslim aşaması güncellendi.");
       else toast.error(result.error);
     });
