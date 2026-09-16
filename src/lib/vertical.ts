@@ -87,6 +87,12 @@ export type Vertical = {
    */
   suggestedExtras: { name: string; amount: number }[];
   /**
+   * Paket tanımlarken "dahil olan hizmetler" bölümünde tek tıkla eklenen
+   * öneriler. Salonun menü kalemleriyle stüdyonun teslim kalemleri
+   * birbirinin yerine geçmiyor.
+   */
+  packageServices: string[];
+  /**
    * Ekip kavramı kullanılıyor mu.
    *
    * Plato ile karıştırılmamalı: plato kısıtlı kaynak (aynı saatte tek çekim),
@@ -125,6 +131,15 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     usesGuestCount: true,
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
     eventTypeLabel: "Organizasyon türü",
+    packageServices: [
+      "Yemek",
+      "İçecek",
+      "Pasta",
+      "DJ",
+      "Fotoğraf",
+      "Video çekimi",
+      "Servis personeli",
+    ],
     suggestedExtras: [
       { name: "Fotoğraf & Video", amount: 10000 },
       { name: "Premium Dekorasyon", amount: 15000 },
@@ -169,6 +184,12 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
       "diger",
     ],
     eventTypeLabel: "Tür",
+    packageServices: [
+      "2 saat fotoğraf çekimi",
+      "1 adet albüm",
+      "500 adet dijital fotoğraf",
+      "1 adet klip",
+    ],
     suggestedExtras: [
       { name: "Dış çekim", amount: 12000 },
       { name: "Drone çekimi", amount: 6000 },

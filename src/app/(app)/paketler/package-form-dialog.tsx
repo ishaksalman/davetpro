@@ -76,8 +76,13 @@ export function PackageFormDialog({
         <Input id="name" placeholder="Gold Paket" {...form.register("name")} />
       </FormField>
 
+      {/* Kişi başı fiyat salon işi: paket bir menü ve kişi sayısıyla
+          çarpılıyor. Stüdyoda paketin tek bir fiyatı var. Sekme
+          gösterilmiyor, tip 'sabit' kalıyor — şema zorunlu tuttuğu için
+          değer yine gönderiliyor, yalnızca seçim sunulmuyor. */}
       <Tabs
         value={pricingType}
+        className={sozluk.usesGuestCount ? undefined : "hidden"}
         onValueChange={(v) =>
           form.setValue("pricing_type", v as "sabit" | "kisi_basi", {
             shouldDirty: true,

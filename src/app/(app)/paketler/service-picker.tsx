@@ -4,20 +4,7 @@ import { useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
-/**
- * Düğün salonlarında en sık geçen hizmetler. Tek tıkla eklenir; listede
- * olmayan bir hizmet alttaki kutudan yazılıp eklenebilir.
- */
-const SUGGESTIONS = [
-  "Yemek",
-  "İçecek",
-  "Pasta",
-  "DJ",
-  "Fotoğraf",
-  "Video çekimi",
-  "Servis personeli",
-];
+import { useVertical } from "@/components/layout/vertical-provider";
 
 const MAX_SERVICES = 30;
 
@@ -34,6 +21,9 @@ export function ServicePicker({
   onChange: (update: (current: string[]) => string[]) => void;
 }) {
   const [draft, setDraft] = useState("");
+  // Öneriler işin cinsine göre: salonda menü kalemleri, stüdyoda teslim
+  // kalemleri. Listede olmayan hizmet alttaki kutudan yazılıp eklenebiliyor.
+  const SUGGESTIONS = useVertical().packageServices;
 
   // Kullanıcının kendi eklediği hizmetler önerilerin ardına eklenir.
   const extras = value.filter((v) => !SUGGESTIONS.includes(v));
