@@ -38,6 +38,12 @@ export const metadata: Metadata = {
     title: BASLIK,
     description: ACIKLAMA,
   },
+  // Google Search Console mülk doğrulaması. Ham <meta> yerine metadata API:
+  // Next zaten <head>'i buradan kuruyor, elle eklenen etiket sıralamaya göre
+  // ezilebiliyor.
+  verification: {
+    google: "Rj79muUWatiHusoN6ePijs1kTForPnjmircOtJGg0xY",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
