@@ -16,7 +16,7 @@ yüksek niyet**.
 
 1. ~~Fotoğrafçı iniş sayfası~~ — tamam
 2. ~~Blog altyapısı~~ — tamam
-3. 1. dalga yazılar — 3/3 yazıldı, teklif örneği eklenebilir
+3. ~~1. dalga yazılar~~ — tamam (4 yazı)
 4. Sonraki dalgalar
 
 ## Blog altyapısı (yazılardan önce)
@@ -37,7 +37,7 @@ En yüksek dönüşüm. Ürün bunları zaten üretiyor, yani özgün ve dürüs
 | Yazı | Bağlandığı özellik |
 |---|---|
 | ~~Düğün salonu sözleşmesinde neler bulunmalı~~ | Sözleşme şablonu |
-| Organizasyon fiyat teklifi örneği | Teklif modülü — **yazılmadı** |
+| ~~Organizasyon fiyat teklifinde neler olmalı~~ | Teklif modülü |
 | ~~Fotoğrafçı sözleşmesinde telif ve kullanım hakkı~~ | Telif maddesi — rakiplerde yok |
 
 ## 2. dalga — Problem içerikleri
@@ -72,6 +72,15 @@ En yüksek dönüşüm. Ürün bunları zaten üretiyor, yani özgün ve dürüs
 **Arama hacimleri doğrulanmadı.** Yukarıdaki konular ürün ve pazar mantığına
 dayanıyor, veriye değil. Yazmadan önce bir anahtar kelime aracıyla kontrol
 edilmeli; yoksa kimsenin aramadığı konuya emek gider.
+
+## Search Console durumu
+
+Dizine ekleme talebi gönderilenler: `/fotografci-programi`, `/blog`,
+`/blog/ayni-gune-iki-dugun-cakisma`, `/blog/dugun-salonu-sozlesmesi`.
+
+Bekleyenler (günlük kota doldu): `kapora-ne-kadar-alinmali`,
+`fotografci-sozlesmesi-telif`, `organizasyon-fiyat-teklifi`. Acil değil —
+sitemap hepsini içeriyor, talep yalnızca sırayı öne alıyor.
 
 ## Ritim
 

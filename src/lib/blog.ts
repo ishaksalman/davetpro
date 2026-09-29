@@ -64,6 +64,15 @@ const YAZILAR: Kayit[] = [
     kitle: "fotografci",
     icerik: () => import("@/content/blog/fotografci-sozlesmesi-telif.mdx"),
   },
+  {
+    slug: "organizasyon-fiyat-teklifi",
+    baslik: "Organizasyon fiyat teklifinde neler olmalı?",
+    ozet:
+      "WhatsApp'tan atılan rakam teklif değildir. Numara, geçerlilik süresi, kapsam dökümü ve gönderdikten sonraki takip — teklifi kazandıran yedi başlık.",
+    tarih: "2026-10-03",
+    kitle: "salon",
+    icerik: () => import("@/content/blog/organizasyon-fiyat-teklifi.mdx"),
+  },
 ];
 
 /** Yayındakiler, yeniden eskiye. */
