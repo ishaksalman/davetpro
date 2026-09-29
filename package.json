@@ -9,17 +9,21 @@
     "lint": "eslint",
     "test:db": "node supabase/tests/schema.test.mjs",
     "test:schemas": "node --test tests/schemas.test.mts",
-    "test": "npm run test:schemas && npm run test:errors && npm run test:trend && npm run test:stage && npm run test:robots && npm run test:db && npm run test:salon",
+    "test": "npm run test:schemas && npm run test:errors && npm run test:trend && npm run test:stage && npm run test:robots && npm run test:blog && npm run test:db && npm run test:salon",
     "test:audit": "node supabase/tests/audit.test.mjs",
     "test:errors": "node --test tests/errors.test.mts",
     "test:trend": "node --test tests/trend.test.mts",
     "test:salon": "node supabase/tests/salon-e2e.test.mjs",
     "test:stage": "node --test tests/stage.test.mts",
     "test:contract": "node --test tests/contract-name.test.mts",
-    "test:robots": "node --test tests/robots.test.mts"
+    "test:robots": "node --test tests/robots.test.mts",
+    "test:blog": "node --test tests/blog.test.mts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.3.7",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "@tanstack/react-query": "^5.102.8",
@@ -49,6 +53,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@tailwindcss/postcss": "^4",
+    "@types/mdx": "^2.0.14",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

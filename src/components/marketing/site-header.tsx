@@ -16,6 +16,7 @@ const NAV = [
   { label: "Nasıl çalışır", href: "/#nasil-calisir" },
   { label: "Fotoğrafçılar", href: "/fotografci-programi" },
   { label: "Fiyatlar", href: "/fiyatlar" },
+  { label: "Rehber", href: "/blog" },
 ];
 
 /**

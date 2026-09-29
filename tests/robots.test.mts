@@ -13,7 +13,7 @@ import path from "node:path";
 const KOK = path.join(import.meta.dirname, "..", "src", "app");
 
 /** Tanıtım sayfaları — bunlar BİLEREK taranabilir. */
-const ACIK = new Set(["fiyatlar", "fotografci-programi"]);
+const ACIK = new Set(["fiyatlar", "fotografci-programi", "blog"]);
 
 function altYollar(grup: string): string[] {
   const d = path.join(KOK, grup);

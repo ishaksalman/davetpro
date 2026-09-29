@@ -18,6 +18,7 @@ const OPEN_ROUTES = [
   "/sifre-yenile",
   "/fiyatlar",
   "/fotografci-programi",
+  "/blog",
 ];
 
 /** Oturumu tazeler ve korumalı rotalara erişimi denetler. */

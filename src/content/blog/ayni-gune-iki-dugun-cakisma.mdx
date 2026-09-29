@@ -1,0 +1,83 @@
+Bir salon sahibinin en pahalı hatası, aynı saate iki iş almaktır. Maliyeti
+sadece bir organizasyonun iptali değil: müşteri kaybı, iade edilen kapora ve
+kulaktan kulağa yayılan bir hikâye.
+
+Bu yazı, çakışmanın neden dikkatle çözülemeyecek bir problem olduğunu ve
+gerçek çözümün nerede durması gerektiğini anlatıyor.
+
+## Çakışma nasıl oluşuyor?
+
+Neredeyse hiçbir zaman "unutkanlık" değil. Tekrar eden üç senaryo var:
+
+**İki kişi aynı anda kayıt yapıyor.** Biri telefonda tarih veriyor, diğeri
+salonda müşteriyle oturuyor. İkisi de deftere bakıp "boş" görüyor. Aradaki
+otuz saniyede iki kayıt açılıyor.
+
+**Opsiyon takip edilmiyor.** Müşteriye "tarihi üç gün tutalım" deniyor, üç gün
+geçiyor, kimse silmiyor. Tarih hem tutuluyor hem de başkasına satılabiliyor
+gibi duruyor.
+
+**Arka arkaya iki iş sığmıyor.** Öğlen nişanı 15:00'te bitiyor, akşam düğünü
+18:00'de başlıyor. Takvimde çakışma yok ama salonun toplanıp yeniden
+kurulması iki saat sürüyor. Kâğıt üzerinde sorun görünmüyor, sahada var.
+
+## Neden dikkat yetmiyor?
+
+Çünkü sorun bir hafıza sorunu değil, **eşzamanlılık** sorunu. İki kişi aynı
+anda karar verdiğinde, ikisi de o an için doğru davranmış oluyor. Çakışma,
+kararların birleştiği anda doğuyor.
+
+İnsan dikkatiyle çözülemeyen bu duruma yazılımda da sık rastlanır. Çoğu
+program şöyle çalışır: kayıt açılmadan önce "bu saat dolu mu?" diye sorar,
+boşsa kaydı yazar. Soru ile yazma arasında geçen milisaniyelerde ikinci bir
+istek aynı soruyu sorup aynı cevabı alabilir. **İkisi de geçer.**
+
+Ekranda uyarı çıkaran bir sistem de aynı açığı taşır: uyarı, kaydı
+engellemez; sadece kullanıcıyı bilgilendirir. Aceleyle "tamam" denince kayıt
+yine açılır.
+
+## Gerçek çözüm nerede durmalı?
+
+Kural, uygulamada değil **veritabanında** olmalı. Veritabanı, kaydı yazarken
+kısıtı kendisi denetlerse iki eşzamanlı isteğin ikisi birden geçemez; biri
+mutlaka reddedilir. Arada soru sorup cevap bekleyen bir boşluk kalmaz.
+
+Pratikte bunun anlamı şu: çakışan kaydı **kimse** açamaz. Acelesi olan
+kullanıcı da, iki farklı bilgisayardan aynı anda çalışan iki personel de, bir
+yerde takılıp tekrar gönderilen bir form da.
+
+## Peki ya arada bırakılması gereken süre?
+
+Çakışma yasağı tek başına yetmiyor, çünkü üçüncü senaryoyu çözmüyor. İki iş
+üst üste gelmese bile aralarında toplanma ve kurulum süresi kalmalı.
+
+Bunu da kurala bağlamak gerekiyor: iki organizasyon arasında **en az bir saat**
+boşluk zorunlu olsun, daha yakın bir kayıt hiç açılmasın. Uyarı verilecek eşik
+ise daha geniş tutulabilir — iki saatten yakın işlerde kullanıcı bilgilendirilir
+ama engellenmez.
+
+## Opsiyonlu tarihler ne olacak?
+
+Opsiyon, satılmamış ama tutulmuş tarihtir. İki şeyi aynı anda yapması gerekir:
+
+- Başkasına satılmasını engellemeli
+- Süresi dolduğunda **kendiliğinden** serbest kalmalı
+
+İkincisi olmazsa takvim zamanla sahte doluluklarla dolar; bir süre sonra
+kimse opsiyonlara güvenmez ve herkes yine deftere bakar.
+
+## Özet
+
+Çakışma, daha dikkatli çalışarak çözülecek bir problem değil. Kural nerede
+duruyorsa güvence oradan gelir:
+
+| Kuralın yeri | Güvence |
+|---|---|
+| Personelin hafızası | Yok |
+| Ekranda uyarı | Zayıf — "tamam" denince geçilir |
+| Uygulama kodu | Eşzamanlı isteklerde açık verir |
+| Veritabanı kısıtı | Kesin |
+
+DavetPro'da bu kural veritabanı düzeyinde duruyor: aynı salona aynı saate
+ikinci kayıt açılmıyor ve iki organizasyon arasında en az bir saat boşluk
+zorunlu. Fotoğraf stüdyolarında aynı kural plato bazında işliyor.
