@@ -17,6 +17,7 @@ yüksek niyet**.
 1. ~~Fotoğrafçı iniş sayfası~~ — tamam
 2. ~~Blog altyapısı~~ — tamam
 3. ~~1. dalga yazılar~~ — tamam (4 yazı)
+4. 2. dalga — kârlılık ve Excel yazıldı; gider kalemleri ve çakışma kaldı
 4. Sonraki dalgalar
 
 ## Blog altyapısı (yazılardan önce)
@@ -44,14 +45,14 @@ En yüksek dönüşüm. Ürün bunları zaten üretiyor, yani özgün ve dürüs
 
 | Yazı | Bağlandığı özellik |
 |---|---|
-| Düğün salonunda kârlılık nasıl hesaplanır | Organizasyon bazlı kâr, "ciro ≠ kâr" |
+| ~~Düğün salonunda kârlılık nasıl hesaplanır~~ | Organizasyon bazlı kâr, "ciro ≠ kâr" |
 | ~~Kapora ne kadar alınmalı, sözleşmede nasıl yazılır~~ | Kapora ve tahsilat takibi |
 | Düğün salonu gider kalemleri listesi | Gider kategorileri |
 | ~~Aynı güne iki düğün: çakışma nasıl önlenir~~ | Veritabanı düzeyinde engel |
 
 ## 3. dalga — Ticari niyet
 
-- Excel ile düğün salonu takibi nerede tıkanıyor
+- ~~Excel ile düğün salonu takibi nerede tıkanır~~
 - Düğün salonu programı seçerken bakılacak 7 şey (rakip ismi vermeden)
 
 ## 4. dalga — Fotoğrafçı serisi

@@ -40,6 +40,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     a: (props) => (
       <a className="text-mk-ink underline underline-offset-4" {...props} />
     ),
+    // Formül kutusu. Dar ekranda taşmasın diye kendi içinde kayıyor.
+    pre: (props) => (
+      <pre
+        className="mt-6 overflow-x-auto rounded-xl bg-mk-soft px-5 py-4 text-[0.9375rem] leading-relaxed text-mk-ink"
+        {...props}
+      />
+    ),
+    code: (props) => <code className="font-mono" {...props} />,
     table: (props) => (
       <div className="mt-6 overflow-x-auto">
         <table className="w-full border-collapse text-left text-[0.9375rem]" {...props} />

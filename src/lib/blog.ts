@@ -73,6 +73,24 @@ const YAZILAR: Kayit[] = [
     kitle: "salon",
     icerik: () => import("@/content/blog/organizasyon-fiyat-teklifi.mdx"),
   },
+  {
+    slug: "dugun-salonu-karlilik-hesabi",
+    baslik: "Düğün salonunda kârlılık nasıl hesaplanır?",
+    ozet:
+      "Ciro, tahsilat ve kâr üç ayrı rakamdır. Satışın organizasyon tarihine, paranın işlem tarihine yazılması gerektiğini ve en büyük işin neden en kârlı olmadığını anlatıyoruz.",
+    tarih: "2026-10-06",
+    kitle: "salon",
+    icerik: () => import("@/content/blog/dugun-salonu-karlilik-hesabi.mdx"),
+  },
+  {
+    slug: "excel-ile-dugun-salonu-takibi",
+    baslik: "Excel ile düğün salonu takibi nerede tıkanır?",
+    ozet:
+      "Excel kötü bir araç değil ve çoğu işletmede yeterli. Ama altı belirli noktada tıkanıyor. Hangisi sizde varsa sorun sizde değil, aracın sınırında.",
+    tarih: "2026-10-08",
+    kitle: "ikisi",
+    icerik: () => import("@/content/blog/excel-ile-dugun-salonu-takibi.mdx"),
+  },
 ];
 
 /** Yayındakiler, yeniden eskiye. */
