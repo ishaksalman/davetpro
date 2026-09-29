@@ -40,6 +40,20 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     a: (props) => (
       <a className="text-mk-ink underline underline-offset-4" {...props} />
     ),
+    table: (props) => (
+      <div className="mt-6 overflow-x-auto">
+        <table className="w-full border-collapse text-left text-[0.9375rem]" {...props} />
+      </div>
+    ),
+    th: (props) => (
+      <th
+        className="border-b border-mk-line py-2.5 pr-4 font-semibold text-mk-ink"
+        {...props}
+      />
+    ),
+    td: (props) => (
+      <td className="border-b border-mk-line py-2.5 pr-4 text-mk-body" {...props} />
+    ),
     blockquote: (props) => (
       <blockquote
         className="mt-6 border-l-2 border-mk-line pl-5 text-[1.0625rem] leading-[1.75] text-mk-body italic"

@@ -37,6 +37,33 @@ const YAZILAR: Kayit[] = [
     kitle: "salon",
     icerik: () => import("@/content/blog/ayni-gune-iki-dugun-cakisma.mdx"),
   },
+  {
+    slug: "dugun-salonu-sozlesmesi",
+    baslik: "Düğün salonu sözleşmesinde neler bulunmalı?",
+    ozet:
+      "Taraflardan iptal koşullarına, sözleşmede eksik kaldığında sonradan tartışma çıkaran yedi başlık. Hazır bir kontrol listesi gibi okuyun.",
+    tarih: "2026-09-30",
+    kitle: "salon",
+    icerik: () => import("@/content/blog/dugun-salonu-sozlesmesi.mdx"),
+  },
+  {
+    slug: "kapora-ne-kadar-alinmali",
+    baslik: "Kapora ne kadar alınmalı, sözleşmede nasıl yazılır?",
+    ozet:
+      "Yaygın aralık, tarihe kalan süreye göre ayarlama ve asıl belirleyici olan iade koşulu. Kalan ödemenin tarihini yazmamanın bedeli de var.",
+    tarih: "2026-10-01",
+    kitle: "salon",
+    icerik: () => import("@/content/blog/kapora-ne-kadar-alinmali.mdx"),
+  },
+  {
+    slug: "fotografci-sozlesmesi-telif",
+    baslik: "Fotoğrafçı sözleşmesinde telif ve kullanım hakkı",
+    ozet:
+      "Eser sahipliği ile kullanım hakkı aynı şey değil. Müşteri ne yapabilir, fotoğrafçı portfolyosunda kullanabilir mi, ham dosya verilecek mi — hepsi sözleşmede netleşmeli.",
+    tarih: "2026-10-02",
+    kitle: "fotografci",
+    icerik: () => import("@/content/blog/fotografci-sozlesmesi-telif.mdx"),
+  },
 ];
 
 /** Yayındakiler, yeniden eskiye. */

@@ -10,10 +10,14 @@ const nextConfig: NextConfig = {
  * MDX için @next/mdx: Next ile birlikte sürülüyor, sürüm yükseltmelerinde
  * kırılma riski üçüncü parti derleyicilere göre düşük.
  *
- * Eklenti listesi bilerek boş — remark/rehype eklentileri Turbopack'te
- * serileştirilebilir olmak zorunda ve her biri ayrı bir bağımlılık. İhtiyaç
- * doğmadan eklenmiyor.
+ * remark-gfm tablo ve şerit üstü metin için. Turbopack eklentileri paket ADI
+ * olarak istiyor (fonksiyon referansı serileştirilemiyor), o yüzden dizi
+ * biçiminde veriliyor.
  */
-const withMDX = createMDX({});
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [["remark-gfm", {}]],
+  },
+});
 
 export default withMDX(nextConfig);

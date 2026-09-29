@@ -15,8 +15,8 @@ yüksek niyet**.
 ## Sıra
 
 1. ~~Fotoğrafçı iniş sayfası~~ — tamam
-2. Blog altyapısı
-3. 1. dalga yazılar
+2. ~~Blog altyapısı~~ — tamam
+3. 1. dalga yazılar — 3/3 yazıldı, teklif örneği eklenebilir
 4. Sonraki dalgalar
 
 ## Blog altyapısı (yazılardan önce)
@@ -36,18 +36,18 @@ En yüksek dönüşüm. Ürün bunları zaten üretiyor, yani özgün ve dürüs
 
 | Yazı | Bağlandığı özellik |
 |---|---|
-| Düğün salonu sözleşme örneği | Sözleşme şablonu; "her rezervasyonda otomatik üretilsin mi?" |
-| Organizasyon fiyat teklifi örneği | Teklif modülü |
-| Fotoğrafçı hizmet sözleşmesi örneği | Telif ve kullanım hakları maddesi — rakiplerde yok |
+| ~~Düğün salonu sözleşmesinde neler bulunmalı~~ | Sözleşme şablonu |
+| Organizasyon fiyat teklifi örneği | Teklif modülü — **yazılmadı** |
+| ~~Fotoğrafçı sözleşmesinde telif ve kullanım hakkı~~ | Telif maddesi — rakiplerde yok |
 
 ## 2. dalga — Problem içerikleri
 
 | Yazı | Bağlandığı özellik |
 |---|---|
 | Düğün salonunda kârlılık nasıl hesaplanır | Organizasyon bazlı kâr, "ciro ≠ kâr" |
-| Kapora ne kadar alınmalı, sözleşmede nasıl yazılır | Kapora ve tahsilat takibi |
+| ~~Kapora ne kadar alınmalı, sözleşmede nasıl yazılır~~ | Kapora ve tahsilat takibi |
 | Düğün salonu gider kalemleri listesi | Gider kategorileri |
-| Aynı güne iki düğün: çakışma nasıl önlenir | Veritabanı düzeyinde engel |
+| ~~Aynı güne iki düğün: çakışma nasıl önlenir~~ | Veritabanı düzeyinde engel |
 
 ## 3. dalga — Ticari niyet
 
