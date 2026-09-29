@@ -10,6 +10,10 @@ import { env } from "@/lib/env";
  *
  * Not: bu yolun proxy matcher'ından çıkarılması gerekiyor, aksi hâlde
  * oturumsuz istek /giris'e yönlendiriliyor ve robot 307 alıyor.
+ *
+ * Liste elle tutuluyor ve yeni ekran eklendiğinde kaçıyor (nitekim /ekipler,
+ * /yonetim ve /abonelik kaçmıştı). tests/robots.test.mts dosya sistemindeki
+ * yollarla karşılaştırıp bunu yakalıyor.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -18,6 +22,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: [
         "/panel",
+        "/abonelik",
         "/takvim",
         "/talepler",
         "/teslimat",
@@ -28,7 +33,9 @@ export default function robots(): MetadataRoute.Robots {
         "/raporlar",
         "/paketler",
         "/salonlar",
+        "/ekipler",
         "/ayarlar",
+        "/yonetim",
         "/isletme-kur",
         "/giris",
         "/kayit",
