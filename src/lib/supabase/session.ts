@@ -13,7 +13,12 @@ const GUEST_ONLY_ROUTES = ["/giris", "/kayit", "/sifre-sifirla"];
  * /fiyatlar herkese açık bir tanıtım sayfası; burada olmazsa oturumsuz
  * ziyaretçi giriş ekranına yönlendirilir ve arama motoru sayfayı hiç göremez.
  */
-const OPEN_ROUTES = ["/auth", "/sifre-yenile", "/fiyatlar"];
+const OPEN_ROUTES = [
+  "/auth",
+  "/sifre-yenile",
+  "/fiyatlar",
+  "/fotografci-programi",
+];
 
 /** Oturumu tazeler ve korumalı rotalara erişimi denetler. */
 export async function updateSession(request: NextRequest) {

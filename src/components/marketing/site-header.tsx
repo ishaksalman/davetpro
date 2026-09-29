@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { label: "Özellikler", href: "/#ozellikler" },
   { label: "Nasıl çalışır", href: "/#nasil-calisir" },
+  { label: "Fotoğrafçılar", href: "/fotografci-programi" },
   { label: "Fiyatlar", href: "/fiyatlar" },
 ];
 
