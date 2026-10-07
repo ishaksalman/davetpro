@@ -51,6 +51,16 @@ const samples: [string, ZodTypeAny, unknown][] = [
     { id: "11111111-1111-1111-1111-111111111111", name: "Kır Bahçesi", capacity: "300", description: "Açık alan", color: "#14b8a6", is_active: false },
   ],
   [
+    "businessSchema (kapasite boş = sınırsız)",
+    businessSchema,
+    { name: "Elit Organizasyon", authorized_person: "", email: "", address: "", tax_office: "", tax_number: "", logo_url: "", phone: "", city: "", concurrent_capacity: "" },
+  ],
+  [
+    "businessSchema (kapasite dolu)",
+    businessSchema,
+    { name: "Elit Organizasyon", authorized_person: "Kerem", email: "a@b.com", address: "Adres", tax_office: "Kadıköy", tax_number: "1234567890", logo_url: "", phone: "05001112233", city: "İstanbul", concurrent_capacity: "3" },
+  ],
+  [
     "teamSchema (boş opsiyoneller)",
     teamSchema,
     { name: "1. Ekip", members: "", phone: "", note: "", color: "#0ea5e9", is_active: true },
@@ -346,6 +356,18 @@ const gecerliRezervasyon = {
   due_date: undefined,
   deposit_amount: 0,
 };
+
+test("kapasite sınırları: 0 ve 1000 reddediliyor", () => {
+  const taban = { name: "Elit Organizasyon", authorized_person: "", email: "", address: "", tax_office: "", tax_number: "", logo_url: "", phone: "", city: "" };
+  for (const v of ["0", "1000", "-1", "2,5"]) {
+    const r = businessSchema.safeParse({ ...taban, concurrent_capacity: v });
+    assert.equal(r.success, false, `${v} kabul edildi`);
+  }
+  for (const v of ["1", "999", 7]) {
+    const r = businessSchema.safeParse({ ...taban, concurrent_capacity: v });
+    assert.equal(r.success, true, `${v} reddedildi`);
+  }
+});
 
 test("fiyat zorunlu: sabit fiyatta 0 kabul edilmiyor", () => {
   const r = reservationSchema.safeParse({ ...gecerliRezervasyon, package_amount: "" });

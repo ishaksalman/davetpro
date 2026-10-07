@@ -93,6 +93,16 @@ export type Vertical = {
    */
   packageServices: string[];
   /**
+   * Rezervasyon formunda "nerede yapılacak" seçimi sunulsun mu.
+   *
+   * Organizasyon firmasına özel: işlerin bir kısmı kendi mekânında, çoğu
+   * dışarıda. Seçim mekân alanını belirliyor — dış mekân, çakışma kuralının
+   * işlemediği satıra düşüyor.
+   */
+  usesLocationChoice: boolean;
+  /** Ayarlarda eş zamanlı kapasite alanı gösterilsin mi. */
+  usesCapacity: boolean;
+  /**
    * Ekip kavramı kullanılıyor mu.
    *
    * Plato ile karıştırılmamalı: plato kısıtlı kaynak (aynı saatte tek çekim),
@@ -147,6 +157,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
       { name: "Ekstra saat", amount: 5000 },
     ],
     usesLocation: false,
+    usesLocationChoice: false,
+    usesCapacity: false,
     usesTeams: false,
     usesDelivery: false,
   },
@@ -199,8 +211,61 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
       { name: "Ekstra saat", amount: 4000 },
     ],
     usesLocation: true,
+    usesLocationChoice: false,
+    usesCapacity: false,
     usesTeams: true,
     usesDelivery: true,
+  },
+  organizasyon: {
+    label: "Organizasyon firması",
+    description:
+      "Düğün, nişan ve kurumsal etkinlik organize ediyorsanız. İşler kendi mekânınızda veya dış mekânda olabilir.",
+    // Kaynak "mekân": hem kendi salonu hem de kurulumda açılan "Dış mekân"
+    // satırı aynı listede duruyor.
+    resource: { singular: "Mekân", plural: "Mekânlar" },
+    resourceNew: "Yeni mekân",
+    resourceEmpty: "Henüz mekân eklenmemiş",
+    resourceField: "Mekân",
+    event: {
+      singular: "organizasyon",
+      plural: "organizasyonlar",
+      dative: "organizasyona",
+      genitive: "organizasyonun",
+      ablativePlural: "organizasyonlardan",
+      accusativePlural: "organizasyonları",
+      possessive: "organizasyonunuz",
+    },
+    businessPlaceholder: "Elit Organizasyon",
+    resourcePlaceholder: "Kendi Salonumuz",
+    resourceDescPlaceholder: "Kapalı, 300 kişilik kendi salonumuz",
+    eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
+    eventTypeLabel: "Organizasyon türü",
+    packageServices: [
+      "Yemek",
+      "İçecek",
+      "Pasta",
+      "DJ",
+      "Fotoğraf",
+      "Video çekimi",
+      "Servis personeli",
+      "Ses ve ışık",
+    ],
+    suggestedExtras: [
+      { name: "Ses ve ışık sistemi", amount: 15000 },
+      { name: "Fotoğraf & Video", amount: 12000 },
+      { name: "Premium Dekorasyon", amount: 18000 },
+      { name: "Müzik / DJ", amount: 12000 },
+      { name: "Ulaşım / Nakliye", amount: 6000 },
+      { name: "Ekstra saat", amount: 5000 },
+    ],
+    usesGuestCount: true,
+    // Dış mekânda adres şart; kendi salonunda alan gizleniyor.
+    usesLocation: true,
+    usesLocationChoice: true,
+    usesCapacity: true,
+    // Ekip/personel/araç yönetimi bilerek kapsam dışı.
+    usesTeams: false,
+    usesDelivery: false,
   },
 };
 
@@ -209,7 +274,11 @@ export function vertical(type: BusinessType | undefined | null): Vertical {
 }
 
 /** Seçim ekranında gösterilecek sıra. */
-export const BUSINESS_TYPES: BusinessType[] = ["salon", "fotografci"];
+export const BUSINESS_TYPES: BusinessType[] = [
+  "salon",
+  "fotografci",
+  "organizasyon",
+];
 
 /** Türkçe'ye uygun baş harf büyütme ("i" → "İ"). */
 export function buyukHarf(s: string): string {

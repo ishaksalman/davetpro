@@ -8,7 +8,7 @@ export type UserRole = "owner" | "manager" | "staff";
  * kategorileri ile sözleşme şablonu buna göre değişiyor. Çakışma mantığı
  * tipten bağımsız — her iki işte de aynı venues satırı ve aynı kısıt.
  */
-export type BusinessType = "salon" | "fotografci";
+export type BusinessType = "salon" | "fotografci" | "organizasyon";
 
 export type ReservationStatus =
   | "kesinlesti"
@@ -69,6 +69,11 @@ export type Business = Timestamps & {
   tax_office: string | null;
   tax_number: string | null;
   logo_url: string | null;
+  /**
+   * Aynı anda yürütülebilecek rezervasyon sayısı. null = sınırsız.
+   * Yalnızca organizasyon firmalarında kullanılıyor.
+   */
+  concurrent_capacity: number | null;
 };
 
 export type Profile = Timestamps & {

@@ -391,6 +391,25 @@ export const businessSchema = z.object({
     .max(80)
     .nullish()
     .transform((v) => (v ? v : null)),
+  /*
+   * Eş zamanlı rezervasyon kapasitesi. Boş = sınırsız.
+   *
+   * optionalPositiveInt kullanılmıyor: burada 0 da anlamsız ve üst sınır
+   * veritabanındaki check ile aynı olmalı, yoksa form kabul edip kayıt
+   * reddediyor.
+   */
+  concurrent_capacity: z
+    .union([z.number(), z.string()])
+    .nullish()
+    .transform((v) => {
+      if (v === null || v === undefined) return null;
+      const t = String(v).trim();
+      return t === "" ? null : Number(t);
+    })
+    .refine(
+      (v) => v === null || (Number.isInteger(v) && v >= 1 && v <= 999),
+      "Kapasite 1 ile 999 arasında bir sayı olmalı.",
+    ),
 });
 export type BusinessInput = z.input<typeof businessSchema>;
 

@@ -14,6 +14,7 @@ import type { Business } from "@/lib/database.types";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
 import { LogoUpload } from "./logo-upload";
 import { saveBusiness } from "./actions";
+import { useVertical } from "@/components/layout/vertical-provider";
 
 export function BusinessForm({
   business,
@@ -22,6 +23,7 @@ export function BusinessForm({
   business: Business;
   disabled: boolean;
 }) {
+  const sozluk = useVertical();
   const [pending, startTransition] = useTransition();
 
   const form = useForm<BusinessInput>({
@@ -36,6 +38,7 @@ export function BusinessForm({
       tax_office: business.tax_office ?? "",
       tax_number: business.tax_number ?? "",
       logo_url: business.logo_url ?? "",
+      concurrent_capacity: business.concurrent_capacity ?? "",
     },
   });
 
@@ -165,6 +168,35 @@ export function BusinessForm({
             <FieldError errors={[{ message: errors.tax_number.message }]} />
           )}
         </Field>
+
+        {/* Eş zamanlı kapasite yalnızca organizasyon firmasında: salon ve
+            fotoğrafçıda aynı anda tek iş zaten mekân/plato kuralıyla
+            sınırlı. */}
+        {sozluk.usesCapacity && (
+          <Field
+            className="sm:col-span-2"
+            data-invalid={errors.concurrent_capacity ? true : undefined}
+          >
+            <FieldLabel htmlFor="concurrent_capacity">
+              Eş zamanlı rezervasyon kapasitesi
+            </FieldLabel>
+            <Input
+              id="concurrent_capacity"
+              inputMode="numeric"
+              placeholder="Sınırsız"
+              disabled={disabled}
+              {...form.register("concurrent_capacity")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Aynı anda kaç organizasyon yürütebilirsiniz? Boş bırakırsanız
+              sınır uygulanmaz. Kendi mekânınızdaki çakışma kuralı bundan
+              bağımsız olarak işlemeye devam eder.
+            </p>
+            {errors.concurrent_capacity && (
+              <FieldError errors={[{ message: errors.concurrent_capacity.message }]} />
+            )}
+          </Field>
+        )}
 
         <Field
           className="sm:col-span-2"

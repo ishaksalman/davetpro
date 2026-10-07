@@ -1113,6 +1113,128 @@ await step('teslim edilen çekim kuyruktan çıkıyor', async () => {
   await asSuper()
 })
 
+// --- Organizasyon firması ----------------------------------------------------
+
+const U_ORG = '66666666-6666-6666-6666-666666666666'
+await asSuper()
+await db.query(`insert into auth.users (id, email) values ($1, 'org@test.local')`, [U_ORG])
+await as(U_ORG)
+await step('organizasyon firması açılıyor', () =>
+  db.query(`select create_business_with_owner('Elit Organizasyon', 'Kerem', 'organizasyon')`))
+
+await step('kurulumda "Dış mekân" satırı açılıyor ve çakışmaya açık', async () => {
+  await asSuper()
+  const r = await db.query(
+    `select v.allows_overlap from venues v join businesses b on b.id = v.business_id
+      where b.name = 'Elit Organizasyon' and v.name = 'Dış mekân'`)
+  if (r.rows.length !== 1) throw new Error('"Dış mekân" yok')
+  if (r.rows[0].allows_overlap !== true) throw new Error('çakışmaya kapalı')
+})
+
+await step('organizasyon firmasına kendi gider kategorileri açılıyor', async () => {
+  const r = await db.query(
+    `select string_agg(c.name, '|' order by c.name) k
+       from expense_categories c join businesses b on b.id = c.business_id
+      where b.name = 'Elit Organizasyon'`)
+  if (!r.rows[0].k.includes('Mekân Kirası')) throw new Error(r.rows[0].k)
+  if (!r.rows[0].k.includes('Ses ve Işık')) throw new Error(r.rows[0].k)
+})
+
+// Dış mekânda aynı saate birden fazla iş olabilmeli (madde 5).
+await step('dış mekânda aynı saate birden fazla rezervasyon açılıyor', async () => {
+  await as(U_ORG)
+  const dis = (await db.query(`select id from venues where name = 'Dış mekân'`)).rows[0].id
+  const m = (await db.query(
+    `insert into customers (full_name, phone) values ('Org Müşteri','05009990001') returning id`)).rows[0].id
+  for (const t of ['dugun', 'nisan', 'kina']) {
+    await db.query(
+      `select save_reservation(null,$1,$2,null,$3,'kesinlesti','2027-05-05','18:00','23:00',
+              null,null,50000,0,null,null,null,'Grand Otel',null)`, [m, dis, t])
+  }
+  const r = await db.query(
+    `select count(*)::int c from reservations where venue_id = $1 and event_date = '2027-05-05'`, [dis])
+  if (r.rows[0].c !== 3) throw new Error(`3 bekleniyordu, ${r.rows[0].c}`)
+  await asSuper()
+})
+
+// Kendi salonunda kural KORUNMALI (madde 7).
+await step('kendi salonunda çakışma hâlâ engelleniyor', async () => {
+  await as(U_ORG)
+  const salon = (await db.query(
+    `insert into venues (name) values ('Kendi Salonumuz') returning id`)).rows[0].id
+  const m = (await db.query(`select id from customers where full_name = 'Org Müşteri'`)).rows[0].id
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'dugun','kesinlesti','2027-05-06','18:00','23:00',
+            null,null,60000,0,null,null,null,null,null)`, [m, salon])
+  try {
+    await db.query(
+      `select save_reservation(null,$1,$2,null,'nisan','kesinlesti','2027-05-06','19:00','22:00',
+              null,null,40000,0,null,null,null,null,null)`, [m, salon])
+    throw new Error('kendi salonunda çakışma kabul edildi')
+  } catch (e) {
+    if (!/organizasyon var|dakika/i.test(e.message)) throw new Error(e.message)
+  }
+  await asSuper()
+})
+
+// --- Eş zamanlı kapasite (madde 6) -------------------------------------------
+
+await step('kapasite null iken sınır yok', async () => {
+  const r = await db.query(
+    `select concurrent_capacity from businesses where name = 'Elit Organizasyon'`)
+  if (r.rows[0].concurrent_capacity !== null) throw new Error('varsayılan sınırsız değil')
+})
+
+await step('kapasite dolunca yeni rezervasyon engelleniyor', async () => {
+  await asSuper()
+  await db.query(
+    `update businesses set concurrent_capacity = 3 where name = 'Elit Organizasyon'`)
+  await as(U_ORG)
+  const dis = (await db.query(`select id from venues where name = 'Dış mekân'`)).rows[0].id
+  const m = (await db.query(`select id from customers where full_name = 'Org Müşteri'`)).rows[0].id
+  // 2027-05-05'te zaten 3 iş var; dördüncü geçmemeli.
+  try {
+    await db.query(
+      `select save_reservation(null,$1,$2,null,'davet','kesinlesti','2027-05-05','19:00','22:00',
+              null,null,30000,0,null,null,null,'Başka Otel',null)`, [m, dis])
+    throw new Error('kapasite aşıldı ama kabul edildi')
+  } catch (e) {
+    if (!/kapasiteniz/i.test(e.message)) throw new Error(e.message)
+  }
+  await asSuper()
+})
+
+await step('kapasite dışındaki saatte rezervasyon açılabiliyor', async () => {
+  await as(U_ORG)
+  const dis = (await db.query(`select id from venues where name = 'Dış mekân'`)).rows[0].id
+  const m = (await db.query(`select id from customers where full_name = 'Org Müşteri'`)).rows[0].id
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'davet','kesinlesti','2027-05-09','18:00','22:00',
+            null,null,30000,0,null,null,null,'Üçüncü Otel',null)`, [m, dis])
+  await asSuper()
+})
+
+await step('iptal edilen kayıt kapasiteden düşüyor', async () => {
+  await as(U_ORG)
+  const r = (await db.query(
+    `select id from reservations where event_date = '2027-05-05' limit 1`)).rows[0].id
+  await db.query(`update reservations set status = 'iptal_edildi' where id = $1`, [r])
+  const dis = (await db.query(`select id from venues where name = 'Dış mekân'`)).rows[0].id
+  const m = (await db.query(`select id from customers where full_name = 'Org Müşteri'`)).rows[0].id
+  // Yer açıldı: dördüncü iş artık geçmeli.
+  await db.query(
+    `select save_reservation(null,$1,$2,null,'davet','kesinlesti','2027-05-05','19:00','22:00',
+            null,null,30000,0,null,null,null,'Başka Otel',null)`, [m, dis])
+  await asSuper()
+})
+
+await step('kapasite salon ve fotoğrafçıyı etkilemiyor', async () => {
+  const r = await db.query(
+    `select count(*)::int c from businesses
+      where business_type <> 'organizasyon' and concurrent_capacity is not null`)
+  if (r.rows[0].c !== 0) throw new Error(`${r.rows[0].c} işletmede kapasite dolu`)
+})
+
 // Aynı kural salonda "organizasyon" demeli.
 await step('salonda mesaj "organizasyon" diyor', async () => {
   await as(U.ownerA)

@@ -43,6 +43,7 @@ import type {
   Team,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
+import { cn } from "@/lib/utils";
 
 export type EditableReservation = Reservation & {
   pricing?: ReservationPricing | null;
@@ -86,6 +87,15 @@ export function ReservationFormDialog({
   const [customerOpen, setCustomerOpen] = useState(false);
 
   const activeVenues = venues.filter((v) => v.is_active || v.id === reservation?.venue_id);
+  /*
+   * Organizasyon firmasında "nerede yapılacak" seçimi.
+   *
+   * Dış mekân, kurulumda açılan ve çakışma kuralının işlemediği satır
+   * (allows_overlap). Ayrı bir rezervasyon altyapısı yok: seçim yalnızca
+   * hangi mekân satırının yazılacağını belirliyor.
+   */
+  const disMekan = activeVenues.find((v) => v.allows_overlap);
+  const kendiMekanlari = activeVenues.filter((v) => !v.allows_overlap);
   // Pasif ekip yalnızca zaten atanmışsa listede kalıyor — aksi halde
   // düzenlemede mevcut atama sessizce kaybolurdu.
   const activeTeams = teams.filter((t) => t.is_active || t.id === reservation?.team_id);
@@ -141,6 +151,7 @@ export function ReservationFormDialog({
 
   const packageId = form.watch("package_id");
   const pricingType = form.watch("pricing_type");
+  const venueId = form.watch("venue_id");
   const perGuest = pricingType === "kisi_basi";
   const unitPrice = toNumber(form.watch("unit_price"));
   const guestCount = toNumber(form.watch("guest_count"));
@@ -298,7 +309,57 @@ export function ReservationFormDialog({
         </div>
       </FormField>
 
+      {/* Organizasyon konumu: kendi mekânı mı, dışarısı mı. Seçim mekân
+          satırını belirliyor; dış mekânda çakışma kuralı işlemiyor ve adres
+          alanı açılıyor. */}
+      {sozluk.usesLocationChoice && disMekan && (
+        <FormField
+          form={form}
+          name="venue_id"
+          label="Organizasyon konumu"
+          className="sm:col-span-2"
+        >
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[
+              { dis: false, baslik: "Kendi mekânımızda", alt: "Aynı mekâna aynı saate ikinci iş alınmaz." },
+              { dis: true, baslik: "Dış mekânda / müşteri adresinde", alt: "Aynı saatte birden fazla iş olabilir." },
+            ].map((o) => {
+              const secili = o.dis ? venueId === disMekan.id : venueId !== disMekan.id;
+              return (
+                <button
+                  key={String(o.dis)}
+                  type="button"
+                  role="radio"
+                  aria-checked={secili}
+                  onClick={() =>
+                    form.setValue(
+                      "venue_id",
+                      o.dis ? disMekan.id : (kendiMekanlari[0]?.id ?? ""),
+                      { shouldDirty: true },
+                    )
+                  }
+                  className={cn(
+                    "rounded-lg border px-4 py-3 text-left transition-colors",
+                    secili
+                      ? "border-primary bg-primary/5"
+                      : "hover:border-primary/40 hover:bg-muted/50",
+                  )}
+                >
+                  <span className="block text-sm font-medium">{o.baslik}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {o.alt}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </FormField>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
+        {/* Dış mekân seçiliyken mekân listesi gizleniyor: seçilecek bir şey
+            yok, satır zaten belli. */}
+        {!(sozluk.usesLocationChoice && disMekan && venueId === disMekan.id) && (
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id")}
@@ -308,7 +369,7 @@ export function ReservationFormDialog({
               <SelectValue placeholder={`${sozluk.resource.singular} seçin`} />
             </SelectTrigger>
             <SelectContent>
-              {activeVenues.map((venue) => (
+              {(sozluk.usesLocationChoice ? kendiMekanlari : activeVenues).map((venue) => (
                 <SelectItem key={venue.id} value={venue.id}>
                   <span
                     aria-hidden
@@ -321,6 +382,7 @@ export function ReservationFormDialog({
             </SelectContent>
           </Select>
         </FormField>
+        )}
 
         <FormField form={form} name="organization_type" label={sozluk.eventTypeLabel}>
           <Select
@@ -438,13 +500,22 @@ export function ReservationFormDialog({
           </FormField>
         )}
 
-        {sozluk.usesLocation && (
+        {/* Adres, organizasyon firmasında yalnızca dış mekân seçiliyken
+            anlamlı: kendi mekânında adres zaten belli. Fotoğrafçıda her
+            çekimde sorulmaya devam ediyor. */}
+        {sozluk.usesLocation &&
+          (!sozluk.usesLocationChoice ||
+            (disMekan != null && venueId === disMekan.id)) && (
           <FormField
             form={form}
             name="location"
-            label="Etkinlik adresi"
+            label={sozluk.usesLocationChoice ? "Organizasyon adresi" : "Etkinlik adresi"}
             className="sm:col-span-2"
-            description="Çekimin yapılacağı yer. Takvimde ve sözleşmede görünür."
+            description={
+              sozluk.usesLocationChoice
+                ? "Organizasyonun yapılacağı yer. Takvimde ve sözleşmede görünür."
+                : "Çekimin yapılacağı yer. Takvimde ve sözleşmede görünür."
+            }
           >
             <Input
               id="location"
