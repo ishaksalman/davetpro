@@ -93,6 +93,15 @@ export type Vertical = {
    */
   packageServices: string[];
   /**
+   * Kişi başı fiyatlandırma sunulsun mu.
+   *
+   * usesGuestCount'tan AYRI: organizasyon firması kişi sayısını tutuyor ama
+   * fiyatı paket üzerinden veriyor, kişiyle çarpmıyor. İkisini tek bayrakta
+   * birleştirmek "kişi sayısı varsa kişi başı fiyat da vardır" varsayımı
+   * olurdu ve bu doğru değil.
+   */
+  usesPerGuestPricing: boolean;
+  /**
    * Rezervasyon formunda "nerede yapılacak" seçimi sunulsun mu.
    *
    * Organizasyon firmasına özel: işlerin bir kısmı kendi mekânında, çoğu
@@ -139,6 +148,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourcePlaceholder: "Balo Salonu",
     resourceDescPlaceholder: "Kapalı, klimalı, 500 kişilik balo salonu",
     usesGuestCount: true,
+    usesPerGuestPricing: true,
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
     eventTypeLabel: "Organizasyon türü",
     packageServices: [
@@ -183,6 +193,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourcePlaceholder: "A Platosu",
     resourceDescPlaceholder: "120 m², sonsuz fon, stüdyo aydınlatması",
     usesGuestCount: false,
+    usesPerGuestPricing: false,
     // Stüdyonun kendi iş listesi (0039). Salonun organizasyon kalemleri
     // burada yok; düğün ile nişan tek kalemde birleşiyor.
     eventTypes: [
@@ -259,6 +270,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
       { name: "Ekstra saat", amount: 5000 },
     ],
     usesGuestCount: true,
+    // Kişi sayısı tutuluyor ama fiyat paket üzerinden: kişiyle çarpılmıyor.
+    usesPerGuestPricing: false,
     // Dış mekânda adres şart; kendi salonunda alan gizleniyor.
     usesLocation: true,
     usesLocationChoice: true,

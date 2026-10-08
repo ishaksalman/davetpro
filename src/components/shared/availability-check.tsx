@@ -131,6 +131,13 @@ export function AvailabilityCheck({
     );
   }
 
+  /*
+   * Serbest alanda müsaitlik bilgisi yok: orada çakışma kuralı işlemiyor,
+   * sonuç her zaman "müsait" çıkardı ve kullanıcıya hiçbir şey anlatmazdı.
+   * Karar burada veriliyor; üç ayrı ekranın ayrı ayrı bakmasına gerek yok.
+   */
+  if (selected.allows_overlap) return null;
+
   if (selected.severity === null) {
     return (
       <p className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-700 dark:text-emerald-400">

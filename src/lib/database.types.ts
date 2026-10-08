@@ -572,6 +572,11 @@ export type VenueAvailability = {
   severity: "engel" | "uyari" | null;
   /** Komşu organizasyonla arada kalan dakika; gerçek çakışmada null. */
   gap_minutes: number | null;
+  /**
+   * Serbest alan mı ("Dış mekân", "Diğer"). Orada çakışma kuralı işlemediği
+   * için müsaitlik bilgisi gösterilmiyor — her zaman müsait demek olurdu.
+   */
+  allows_overlap: boolean;
 };
 
 /**

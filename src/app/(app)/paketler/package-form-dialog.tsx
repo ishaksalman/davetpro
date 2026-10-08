@@ -82,7 +82,7 @@ export function PackageFormDialog({
           değer yine gönderiliyor, yalnızca seçim sunulmuyor. */}
       <Tabs
         value={pricingType}
-        className={sozluk.usesGuestCount ? undefined : "hidden"}
+        className={sozluk.usesPerGuestPricing ? undefined : "hidden"}
         onValueChange={(v) =>
           form.setValue("pricing_type", v as "sabit" | "kisi_basi", {
             shouldDirty: true,
