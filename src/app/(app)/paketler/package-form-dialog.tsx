@@ -46,7 +46,8 @@ export function PackageFormDialog({
     name: pkg?.name ?? "",
     description: pkg?.description ?? "",
     venue_id: pkg?.venue_id ?? "none",
-    base_price: pkg?.base_price ?? 0,
+    // Yeni pakette boş: 0 göstermek fiyat girilmiş izlenimi veriyordu.
+    base_price: pkg?.base_price ?? "",
     pricing_type: pkg?.pricing_type ?? "sabit",
     included_services: pkg?.included_services ?? [],
     is_active: pkg?.is_active ?? true,
@@ -104,6 +105,7 @@ export function PackageFormDialog({
           form={form}
           name="base_price"
           label={perGuest ? "Kişi başı fiyat" : "Paket fiyatı"}
+          description="Boş bırakabilirsiniz; fiyatı her işte ayrı girersiniz."
         >
           <MoneyInput
             id="base_price"

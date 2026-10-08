@@ -369,6 +369,24 @@ test("kapasite sınırları: 0 ve 1000 reddediliyor", () => {
   }
 });
 
+// Paket fiyatı OPSİYONEL: fiyatı işe göre belirlenen paketler var.
+// Rezervasyondaki fiyat zorunluluğundan ayrı bir kural.
+test("paket fiyatı boş bırakılabiliyor", () => {
+  const taban = {
+    name: "Gold",
+    description: "",
+    venue_id: "none",
+    pricing_type: "sabit" as const,
+    included_services: [],
+    is_active: true,
+  };
+  for (const v of ["", "0", 0]) {
+    const r = packageSchema.safeParse({ ...taban, base_price: v });
+    assert.equal(r.success, true, `${JSON.stringify(v)} reddedildi`);
+    if (r.success) assert.equal(r.data.base_price, 0);
+  }
+});
+
 test("fiyat zorunlu: sabit fiyatta 0 kabul edilmiyor", () => {
   const r = reservationSchema.safeParse({ ...gecerliRezervasyon, package_amount: "" });
   assert.equal(r.success, false);

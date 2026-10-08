@@ -25,7 +25,7 @@ export function AvailabilityCheck({
   eventDate,
   startTime,
   endTime,
-  venueId,
+  venue,
   ignoreLeadId,
   ignoreReservationId,
   onConflictChange,
@@ -33,7 +33,15 @@ export function AvailabilityCheck({
   eventDate: string | null;
   startTime: string | null;
   endTime: string | null;
-  venueId: string | null;
+  /**
+   * Seçili mekân. Yalnızca id DEĞİL: serbest alanda sorgu hiç atılmamalı ve
+   * "kontrol ediliyor" şeridi bile görünmemeli. Bayrağı yanıtla öğrenseydik
+   * yükleniyor durumu zaten çizilmiş olurdu.
+   *
+   * Nesne istenmesi bilerek: çağıran ekranın bayrağı geçmeyi unutması
+   * TypeScript hatası veriyor.
+   */
+  venue: { id: string; allows_overlap: boolean } | null;
   /** Düzenlenen talebin kendi opsiyonu çakışma sayılmasın. */
   ignoreLeadId?: string | null;
   /** Düzenlenen rezervasyon kendi kendisiyle çakışıyor görünmesin. */
@@ -42,6 +50,9 @@ export function AvailabilityCheck({
   onConflictChange?: (conflict: VenueAvailability | null) => void;
 }) {
   const sozluk = useVertical();
+  // Serbest alanda ("Dış mekân", "Diğer") çakışma kuralı işlemiyor: sorgu da
+  // atılmıyor, yükleniyor şeridi de çıkmıyor.
+  const serbest = venue?.allows_overlap === true;
   // Sonuç, hangi sorguya ait olduğuyla birlikte saklanıyor. Böylece girdi
   // değiştiğinde effect içinde state sıfırlamak gerekmiyor; eski sonucun
   // güncel girdiye ait olmadığı render sırasında anlaşılıyor.
@@ -51,7 +62,7 @@ export function AvailabilityCheck({
   // Saat aralığı tamamlanmadan sorgu atılmıyor: yarım girdiyle "müsait" demek
   // yanıltıcı olur. Gün bazlı denetim sunucu tarafında zaten duruyor —
   // saatsiz kaydetmeye çalışırsanız trigger engelliyor.
-  const ready = Boolean(eventDate && startTime && endTime);
+  const ready = Boolean(eventDate && startTime && endTime) && !serbest;
   const key = `${eventDate}|${startTime}|${endTime}|${ignoreLeadId ?? ""}|${ignoreReservationId ?? ""}`;
 
   useEffect(() => {
@@ -74,8 +85,8 @@ export function AvailabilityCheck({
 
   const current = outcome?.key === key ? outcome : null;
   const rows = current?.ok ? current.rows : null;
-  const forVenue = rows && venueId
-    ? (rows.find((r) => r.venue_id === venueId) ?? null)
+  const forVenue = rows && venue
+    ? (rows.find((r) => r.venue_id === venue.id) ?? null)
     : null;
   // Yalnızca 'engel' gönderimi kilitler; 'uyari' bilgilendirme.
   const conflictForVenue = forVenue?.severity === "engel" ? forVenue : null;
@@ -86,6 +97,7 @@ export function AvailabilityCheck({
     onConflictChange?.(conflictForVenue);
   }, [conflictForVenue, onConflictChange]);
 
+  // serbest alanda `ready` zaten false: ne sorgu atılıyor ne de şerit çiziliyor.
   if (!ready) return null;
 
   // Sorgu hatası yutulmaz: "müsait" gibi görünüp kullanıcıyı yanıltmasın.
@@ -117,8 +129,8 @@ export function AvailabilityCheck({
     );
   }
 
-  const selected = venueId ? rows.find((r) => r.venue_id === venueId) : null;
-  const alternatives = rows.filter((r) => r.is_available && r.venue_id !== venueId);
+  const selected = venue ? rows.find((r) => r.venue_id === venue.id) : null;
+  const alternatives = rows.filter((r) => r.is_available && r.venue_id !== venue?.id);
   const period = `${formatDate(eventDate!)} ${formatTimeRange(startTime!, endTime!)}`;
 
   if (!selected) {
@@ -136,8 +148,6 @@ export function AvailabilityCheck({
    * sonuç her zaman "müsait" çıkardı ve kullanıcıya hiçbir şey anlatmazdı.
    * Karar burada veriliyor; üç ayrı ekranın ayrı ayrı bakmasına gerek yok.
    */
-  if (selected.allows_overlap) return null;
-
   if (selected.severity === null) {
     return (
       <p className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-700 dark:text-emerald-400">

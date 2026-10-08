@@ -214,7 +214,7 @@ export function ConvertDialog({
         eventDate={eventDate || null}
         startTime={startTime || null}
         endTime={endTime || null}
-        venueId={venueId || null}
+        venue={venues.find((v) => v.id === venueId) ?? null}
         ignoreLeadId={lead.id}
       />
 

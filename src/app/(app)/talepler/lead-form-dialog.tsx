@@ -312,7 +312,7 @@ export function LeadFormDialog({
             eventDate={eventDate || null}
             startTime={startTime || null}
             endTime={endTime || null}
-            venueId={venueId && venueId !== "none" ? venueId : null}
+            venue={activeVenues.find((v) => v.id === venueId) ?? null}
             ignoreLeadId={lead?.id ?? null}
             onConflictChange={handleConflict}
           />

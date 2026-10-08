@@ -464,7 +464,7 @@ export function ReservationFormDialog({
             eventDate={eventDate || null}
             startTime={startTime || null}
             endTime={endTime || null}
-            venueId={selectedVenue || null}
+            venue={activeVenues.find((v) => v.id === selectedVenue) ?? null}
             ignoreReservationId={reservation?.id ?? null}
             onConflictChange={handleConflict}
           />
@@ -484,7 +484,8 @@ export function ReservationFormDialog({
               <SelectItem value="none">Paketsiz</SelectItem>
               {selectablePackages.map((pkg) => (
                 <SelectItem key={pkg.id} value={pkg.id}>
-                  {pkg.name} · {formatMoney(pkg.base_price)}
+                  {pkg.name}
+                  {pkg.base_price > 0 && ` · ${formatMoney(pkg.base_price)}`}
                   {pkg.pricing_type === "kisi_basi" && " / kişi"}
                 </SelectItem>
               ))}

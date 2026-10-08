@@ -62,6 +62,13 @@ export function PackageList({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="truncate font-medium">{pkg.name}</h3>
+              {/* Fiyatsız paket "₺0" diye görünmemeli: sıfır lira değil,
+                  fiyatı işe göre belirleniyor demek. */}
+              {pkg.base_price === 0 ? (
+                <p className="mt-1 text-base text-muted-foreground">
+                  Fiyat girilmemiş
+                </p>
+              ) : (
               <p className="mt-1 text-2xl font-semibold tracking-tight tabular">
                 {formatMoney(pkg.base_price)}
                 {pkg.pricing_type === "kisi_basi" && (
@@ -70,6 +77,7 @@ export function PackageList({
                   </span>
                 )}
               </p>
+              )}
               {/* Yalnızca bir salona ait paketlerde gösteriliyor; tüm
                   salonlarda geçerli olanlarda söylenecek bir şey yok. */}
               {pkg.venue_id && (
