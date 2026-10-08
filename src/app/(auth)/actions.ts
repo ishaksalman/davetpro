@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { BUSINESS_TYPES } from "@/lib/vertical";
+import type { BusinessType } from "@/lib/database.types";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
@@ -34,9 +36,19 @@ const registerSchema = z.object({
     .trim()
     .min(2, "Ad soyad en az 2 karakter olmalı.")
     .max(120, "Ad soyad çok uzun."),
-  // İşin cinsi kurulum adımında seçiliyor; kayıt formunda sorulmuyor.
-  // Geçersiz ya da eksik gelirse salon kabul ediliyor: mevcut davranış bu.
-  businessType: z.enum(["salon", "fotografci"]).catch("salon"),
+  /*
+   * İşin cinsi kurulum adımında seçiliyor; kayıt formunda sorulmuyor.
+   * Geçersiz ya da eksik gelirse salon kabul ediliyor — eski istemciler bu
+   * alanı hiç göndermiyor.
+   *
+   * Liste BUSINESS_TYPES'tan türetiliyor, elle yazılmıyor: üçüncü dikey
+   * eklenince burası güncellenmedi ve .catch() yeni tipi sessizce salona
+   * çevirdi. Hata vermediği için kurulum başarılı göründü, işletme yanlış
+   * tiple açıldı. tests/vertical.test.mts bunu bir daha kaçırmıyor.
+   */
+  businessType: z
+    .enum(BUSINESS_TYPES as [BusinessType, ...BusinessType[]])
+    .catch("salon"),
   email: z.string().trim().email("Geçerli bir e-posta adresi girin."),
   password: z.string().min(8, "Şifre en az 8 karakter olmalı."),
   // Ticari ileti rızası: işaretlenmemiş gelir, zorunlu değildir.

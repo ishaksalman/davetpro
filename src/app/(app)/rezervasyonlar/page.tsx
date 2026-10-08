@@ -55,7 +55,7 @@ export default async function ReservationsPage() {
             description={`Rezervasyonlar mutlaka bir ${kucuk} ile ilişkilendirilir. ${sozluk.resource.plural} bölümünü doldurduktan sonra buraya dönebilirsiniz.`}
             action={
               <Button asChild>
-                <Link href="/salonlar">Salon ekle</Link>
+                <Link href="/salonlar">{sozluk.resourceNew}</Link>
               </Button>
             }
           />

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2, UserPlus } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -321,7 +322,14 @@ export function ReservationFormDialog({
         >
           <div className="grid gap-2 sm:grid-cols-2">
             {[
-              { dis: false, baslik: "Kendi mekânımızda", alt: "Aynı mekâna aynı saate ikinci iş alınmaz." },
+              {
+                dis: false,
+                baslik: "Kendi mekânımızda",
+                alt:
+                  kendiMekanlari.length === 0
+                    ? "Önce bir mekân tanımlamanız gerekir."
+                    : "Aynı mekâna aynı saate ikinci iş alınmaz.",
+              },
               { dis: true, baslik: "Dış mekânda / müşteri adresinde", alt: "Aynı saatte birden fazla iş olabilir." },
             ].map((o) => {
               const secili = o.dis ? venueId === disMekan.id : venueId !== disMekan.id;
@@ -359,7 +367,28 @@ export function ReservationFormDialog({
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Dış mekân seçiliyken mekân listesi gizleniyor: seçilecek bir şey
             yok, satır zaten belli. */}
-        {!(sozluk.usesLocationChoice && disMekan && venueId === disMekan.id) && (
+        {/* Organizasyon firmasının kendi mekânı olmayabilir — işlerin hepsi
+            dışarıda olabiliyor. O durumda boş bir seçim kutusu göstermek
+            yerine ne yapılacağı söyleniyor. */}
+        {sozluk.usesLocationChoice &&
+          disMekan &&
+          venueId !== disMekan.id &&
+          kendiMekanlari.length === 0 && (
+            <div className="rounded-lg border border-dashed p-4 text-sm sm:col-span-2">
+              <p className="font-medium">Tanımlı mekânınız yok</p>
+              <p className="mt-1 text-muted-foreground">
+                Kendi mekânınızda yapılan işler için önce {sozluk.resource.plural}{" "}
+                bölümünden bir mekân ekleyin. Dış mekânda yapılan işler için
+                buna gerek yok.
+              </p>
+              <Button asChild variant="outline" size="sm" className="mt-3">
+                <Link href="/salonlar">{sozluk.resourceNew}</Link>
+              </Button>
+            </div>
+          )}
+
+        {!(sozluk.usesLocationChoice && disMekan && venueId === disMekan.id) &&
+          !(sozluk.usesLocationChoice && kendiMekanlari.length === 0) && (
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id")}

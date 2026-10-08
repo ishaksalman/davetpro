@@ -203,7 +203,7 @@ export default async function DashboardPage() {
             description={`${sozluk.resource.plural} bölümünü doldurun, ardından paketlerinizi ekleyin. Sonrasında rezervasyon almaya başlayabilirsiniz.`}
             action={
               <Button asChild>
-                <Link href="/salonlar">Salonları tanımla</Link>
+                <Link href="/salonlar">{sozluk.resourceNew}</Link>
               </Button>
             }
           />

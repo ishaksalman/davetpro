@@ -71,7 +71,7 @@ export default async function LeadsPage() {
             description={`Talep alırken müşteriye hangi ${kucuk} kaydını önerdiğinizi kaydedebilmek için en az bir ${kucuk} gerekir.`}
             action={
               <Button asChild>
-                <Link href="/salonlar">Salon ekle</Link>
+                <Link href="/salonlar">{sozluk.resourceNew}</Link>
               </Button>
             }
           />

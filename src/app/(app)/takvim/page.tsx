@@ -47,7 +47,7 @@ export default async function CalendarPage() {
             description={`Takvim, ${sozluk.resource.plural.toLocaleLowerCase("tr-TR")} göre renklendirilmiş rezervasyonları gösterir.`}
             action={
               <Button asChild>
-                <Link href="/salonlar">Salon ekle</Link>
+                <Link href="/salonlar">{sozluk.resourceNew}</Link>
               </Button>
             }
           />
