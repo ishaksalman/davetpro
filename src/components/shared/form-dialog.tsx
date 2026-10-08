@@ -194,6 +194,16 @@ export function FormDialog<TValues extends FieldValues>({
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    /*
+     * stopPropagation ŞART: React olayları portal sınırını aşıp REACT
+     * ağacı boyunca kabarıyor, DOM ağacı boyunca değil. İç içe FormDialog'lar
+     * — rezervasyon formunun içindeki "yeni müşteri" penceresi gibi — JSX'te
+     * dış formun çocuğu olduğu için, iç formun gönderimi dış formun submit'ini
+     * de tetikliyordu. Dış form "gönderildi" sayılıp doldurulmamış alanları
+     * kırmızıya boyuyordu: kullanıcı müşteri ekliyor, hiçbir şey göndermeden
+     * hata mesajlarıyla karşılaşıyordu.
+     */
+    event.stopPropagation();
     if (submitBlockedReason) return;
     if (!guard.begin()) return;
     void runSubmit(event);

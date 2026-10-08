@@ -45,6 +45,7 @@ import type {
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
 import { cn } from "@/lib/utils";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 export type EditableReservation = Reservation & {
   pricing?: ReservationPricing | null;
@@ -314,13 +315,14 @@ export function ReservationFormDialog({
           satırını belirliyor; dış mekânda çakışma kuralı işlemiyor ve adres
           alanı açılıyor. */}
       {sozluk.usesLocationChoice && disMekan && (
-        <FormField
-          form={form}
-          name="venue_id"
-          label="Organizasyon konumu"
-          className="sm:col-span-2"
-        >
-          <div className="grid gap-2 sm:grid-cols-2">
+        /*
+         * FormField DEĞİL: bu bir seçici, kendi alanı yok — venue_id'yi
+         * yazıyor. FormField olsaydı aynı hatayı hem burada hem Mekân
+         * alanında iki kez gösterirdi.
+         */
+        <Field className="sm:col-span-2">
+          <FieldLabel htmlFor="organizasyon-konumu">Organizasyon konumu</FieldLabel>
+          <div id="organizasyon-konumu" className="grid gap-2 sm:grid-cols-2">
             {[
               {
                 dis: false,
@@ -361,7 +363,7 @@ export function ReservationFormDialog({
               );
             })}
           </div>
-        </FormField>
+        </Field>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
