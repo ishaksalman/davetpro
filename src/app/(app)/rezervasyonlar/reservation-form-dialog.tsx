@@ -21,6 +21,7 @@ import { useVertical } from "@/components/layout/vertical-provider";
 import { AvailabilityCheck } from "@/components/shared/availability-check";
 import { Combobox } from "@/components/shared/combobox";
 import { CustomerFormDialog } from "../musteriler/customer-form-dialog";
+import { PackageFormDialog } from "../paketler/package-form-dialog";
 import { DatePicker } from "@/components/shared/date-picker";
 import {
   FormDialog,
@@ -472,7 +473,33 @@ export function ReservationFormDialog({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField form={form} name="package_id" label="Paket">
+        <FormField
+          form={form}
+          name="package_id"
+          label="Paket"
+          /*
+           * Tanımlı paket yoksa buradan eklenebiliyor: kullanıcıyı Paketler
+           * ekranına göndermek yarım kalan rezervasyon formunu kaybettirirdi.
+           * Paket varsa buton çıkmıyor — her formda duran bir bağlantıya
+           * gerek yok.
+           */
+          labelAction={
+            activePackages.length === 0 ? (
+              <PackageFormDialog
+                venues={venues}
+                trigger={
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    <Plus className="size-3.5" />
+                    Paket ekle
+                  </button>
+                }
+              />
+            ) : undefined
+          }
+        >
           <Select
             value={form.watch("package_id") ?? "none"}
             onValueChange={(v) => form.setValue("package_id", v, { shouldDirty: true })}

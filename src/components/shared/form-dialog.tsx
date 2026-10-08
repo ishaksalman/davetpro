@@ -298,6 +298,7 @@ export function FormField<TValues extends FieldValues>({
   name,
   label,
   description,
+  labelAction,
   className,
   children,
 }: {
@@ -305,6 +306,13 @@ export function FormField<TValues extends FieldValues>({
   name: Path<TValues>;
   label: string;
   description?: string;
+  /**
+   * Etiketin sağında duran küçük eylem — "paket ekle" gibi.
+   *
+   * Alanın kendi içine değil etikete yaslanıyor: seçim kutusunun yanına
+   * konsaydı dar ekranda kutuyu daraltırdı.
+   */
+  labelAction?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -340,7 +348,14 @@ export function FormField<TValues extends FieldValues>({
 
   return (
     <Field data-invalid={error ? true : undefined} className={className}>
-      <FieldLabel htmlFor={name}>{label}</FieldLabel>
+      {labelAction ? (
+        <div className="flex items-center justify-between gap-2">
+          <FieldLabel htmlFor={name}>{label}</FieldLabel>
+          {labelAction}
+        </div>
+      ) : (
+        <FieldLabel htmlFor={name}>{label}</FieldLabel>
+      )}
       {children}
       {description && !error && (
         <p className="text-xs text-muted-foreground">{description}</p>
