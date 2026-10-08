@@ -89,6 +89,7 @@ export function ReservationFormDialog({
   // Dialog gömmek yerine böyle daha sağlam.
   const [customerOpen, setCustomerOpen] = useState(false);
 
+  const sozluk = useVertical();
   const activeVenues = venues.filter((v) => v.is_active || v.id === reservation?.venue_id);
   /*
    * Organizasyon firmasında "nerede yapılacak" seçimi.
@@ -112,10 +113,19 @@ export function ReservationFormDialog({
     // Salon yalnızca TEK salon varsa otomatik seçiliyor. Birden fazlaysa
     // seçilmiş gelmesi, kullanıcının farkında olmadan yanlış salona kayıt
     // açmasına yol açıyordu — üstelik müsaitlik de o salona göre sorgulanır.
+    /*
+     * Organizasyon firmasında varsayılan DIŞ MEKÂN: işlerin çoğu dışarıda.
+     * Takvimden bir mekâna tıklayarak açıldıysa (defaults.venue_id) o
+     * kazanıyor, düzenlemede kayıtlı mekân kalıyor.
+     */
     venue_id:
       reservation?.venue_id ??
       defaults?.venue_id ??
-      (activeVenues.length === 1 ? activeVenues[0].id : ""),
+      (sozluk.usesLocationChoice && disMekan
+        ? disMekan.id
+        : activeVenues.length === 1
+          ? activeVenues[0].id
+          : ""),
     package_id: reservation?.package_id ?? "none",
     organization_type: reservation?.organization_type ?? "dugun",
     // Durum formda seçilmiyor: satış hattı Talepler'de, rezervasyon
@@ -149,7 +159,6 @@ export function ReservationFormDialog({
     name: "items",
   });
 
-  const sozluk = useVertical();
   const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
 
   const packageId = form.watch("package_id");
@@ -325,6 +334,12 @@ export function ReservationFormDialog({
           <FieldLabel htmlFor="organizasyon-konumu">Organizasyon konumu</FieldLabel>
           <div id="organizasyon-konumu" className="grid gap-2 sm:grid-cols-2">
             {[
+              // Sık kullanılan önce: işlerin çoğu dış mekânda.
+              {
+                dis: true,
+                baslik: "Dış mekânda / müşteri adresinde",
+                alt: "Aynı saatte birden fazla iş olabilir.",
+              },
               {
                 dis: false,
                 baslik: "Kendi mekânımızda",
@@ -333,7 +348,6 @@ export function ReservationFormDialog({
                     ? "Önce bir mekân tanımlamanız gerekir."
                     : "Aynı mekâna aynı saate ikinci iş alınmaz.",
               },
-              { dis: true, baslik: "Dış mekânda / müşteri adresinde", alt: "Aynı saatte birden fazla iş olabilir." },
             ].map((o) => {
               const secili = o.dis ? venueId === disMekan.id : venueId !== disMekan.id;
               return (
