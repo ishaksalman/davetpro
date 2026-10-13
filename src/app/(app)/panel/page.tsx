@@ -1,50 +1,51 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowDownCircle,
+  ArrowDownLeft,
   ArrowRight,
-  ArrowUpCircle,
-  CalendarClock,
+  ArrowUpRight,
   CalendarDays,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
 } from "lucide-react";
-import { endOfMonth, startOfMonth, subMonths } from "date-fns";
+import {
+  differenceInCalendarDays,
+  endOfMonth,
+  format,
+  parseISO,
+  startOfMonth,
+  subMonths,
+} from "date-fns";
+import { tr } from "date-fns/locale";
 import { canSeeFinance, requireSession } from "@/lib/auth";
 import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationRows } from "@/lib/queries";
-import { today as businessToday, todayISO } from "@/lib/time";
-import {
-  ORGANIZATION_TYPE_LABELS,
-  PAYMENT_METHOD_LABELS,
-} from "@/lib/constants";
+import { today as businessToday, minutesNow, todayISO } from "@/lib/time";
+import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
 import {
   formatDate,
   formatDateShort,
   formatMoney,
-  formatNumber,
-  formatTimeRange,
   toISODate,
 } from "@/lib/format";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
-import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
-import { StatCard } from "@/components/shared/stat-card";
 import { StageBadge } from "@/components/shared/stage-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   Expense,
   FinanceSummary,
   MonthlySeriesRow,
   Payment,
 } from "@/lib/database.types";
-import { monthOverMonth, type Trend } from "@/lib/trend";
+import { monthOverMonth } from "@/lib/trend";
 import { cn } from "@/lib/utils";
+import { DashboardChart } from "./dashboard-chart";
+import { KpiCards } from "./kpi-cards";
+import { TodayStrip } from "./today-strip";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -209,117 +210,31 @@ export default async function DashboardPage() {
           />
         )}
 
-        {showFinance && summary && (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <StatCard
-                label={`Bu ayki ${sozluk.event.singular}`}
-                value={formatNumber(summary.reservation_count)}
-                hint={
-                  orgTrend ? (
-                    <TrendHint trend={orgTrend} />
-                  ) : summary.avg_sale ? (
-                    `Ortalama ${formatMoney(summary.avg_sale)}`
-                  ) : undefined
-                }
-                icon={CalendarDays}
-              />
-              <StatCard
-                label="Bu ayki toplam satış"
-                value={formatMoney(summary.total_sales)}
-                hint={
-                  satisTrend ? (
-                    <TrendHint trend={satisTrend} />
-                  ) : (
-                    `${buyukHarf(sozluk.event.singular)} tarihine göre`
-                  )
-                }
-                icon={TrendingUp}
-              />
-              <StatCard
-                label="Bu ay tahsil edilen"
-                value={formatMoney(summary.collected_in_range)}
-                hint={
-                  tahsilTrend ? (
-                    <TrendHint trend={tahsilTrend} />
-                  ) : (
-                    "Kasaya giren"
-                  )
-                }
-                tone="positive"
-                icon={ArrowDownCircle}
-              />
-              <StatCard
-                label="Bekleyen tahsilat"
-                value={formatMoney(summary.outstanding)}
-                hint={`Bu ayki ${sozluk.event.ablativePlural}`}
-                tone={Number(summary.outstanding) > 0 ? "pending" : "default"}
-                icon={Wallet}
-              />
-            </div>
+        <TodayStrip
+          today={now}
+          todayEvents={todayEvents}
+          next={nextEvents[0]}
+          nowMinutes={minutesNow()}
+          showFinance={showFinance}
+          sozluk={sozluk}
+        />
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <StatCard
-                label="Bu ayki gider"
-                value={formatMoney(summary.total_expenses)}
-                tone="negative"
-                icon={ArrowUpCircle}
-              />
-              <StatCard
-                label="Net nakit"
-                value={formatMoney(summary.net_cash)}
-                hint="Tahsilat − gider"
-                tone={Number(summary.net_cash) >= 0 ? "positive" : "negative"}
-              />
-              <StatCard
-                label="Bu ayki kâr"
-                value={formatMoney(summary.profit)}
-                hint="Satış − gider (muhasebesel)"
-                tone={Number(summary.profit) >= 0 ? "default" : "negative"}
-              />
-            </div>
-          </>
+        {showFinance && summary && (
+          <KpiCards
+            summary={summary}
+            trends={{ org: orgTrend, satis: satisTrend, tahsil: tahsilTrend }}
+            sozluk={sozluk}
+          />
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-          <div className="min-w-0 space-y-6">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_22rem]">
+          <div className="min-w-0 space-y-4 sm:space-y-6">
             {showFinance && series.length > 0 && (
-              <section className="rounded-xl border bg-card p-5">
-                <header className="mb-4">
-                  <h2 className="font-medium">Nakit akışı</h2>
-                  <p className="text-xs text-muted-foreground">
-                    Son 6 ayda tahsil edilen tutar ve ödenen giderler
-                  </p>
-                </header>
-                <CashflowChart data={series} />
-              </section>
+              <DashboardChart
+                data={series}
+                eventLabel={buyukHarf(sozluk.event.singular)}
+              />
             )}
-
-            <Panel
-              title={`Bugünkü ${sozluk.event.plural}`}
-              hint={
-                todayEvents.length
-                  ? `${todayEvents.length} ${sozluk.event.singular}`
-                  : undefined
-              }
-            >
-              {todayEvents.length === 0 ? (
-                <Empty
-                  text={`Bugün planlanmış ${sozluk.event.singular} yok.`}
-                />
-              ) : (
-                <ul className="divide-y">
-                  {todayEvents.map((r) => (
-                    <EventRow
-                      key={r.id}
-                      reservation={r}
-                      showFinance={showFinance}
-                      showToday
-                    />
-                  ))}
-                </ul>
-              )}
-            </Panel>
 
             {showFinance && (
               <Panel title="Son işlemler">
@@ -330,19 +245,20 @@ export default async function DashboardPage() {
                     {transactions.map((t) => (
                       <li
                         key={`${t.kind}-${t.id}`}
-                        className="flex items-center gap-3 px-5 py-3.5"
+                        className="flex items-center gap-3 px-4 py-3"
                       >
                         <span
-                          className={
+                          className={cn(
+                            "grid size-8 shrink-0 place-items-center rounded-lg",
                             t.kind === "payment"
-                              ? "grid size-8 shrink-0 place-items-center rounded-full bg-success/10 text-success"
-                              : "grid size-8 shrink-0 place-items-center rounded-full bg-destructive/10 text-destructive"
-                          }
+                              ? "bg-success/10 text-success"
+                              : "bg-destructive/10 text-destructive",
+                          )}
                         >
                           {t.kind === "payment" ? (
-                            <ArrowDownCircle className="size-4" />
+                            <ArrowDownLeft className="size-4" />
                           ) : (
-                            <ArrowUpCircle className="size-4" />
+                            <ArrowUpRight className="size-4" />
                           )}
                         </span>
                         <div className="min-w-0 flex-1">
@@ -366,7 +282,7 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <aside className="space-y-6">
+          <aside className="space-y-4 sm:space-y-6">
             <Panel
               title={`Yaklaşan ${sozluk.event.plural}`}
               action={
@@ -383,12 +299,7 @@ export default async function DashboardPage() {
               ) : (
                 <ul className="divide-y">
                   {nextEvents.map((r) => (
-                    <EventRow
-                      key={r.id}
-                      reservation={r}
-                      showFinance={showFinance}
-                      compact
-                    />
+                    <EventRow key={r.id} reservation={r} />
                   ))}
                 </ul>
               )}
@@ -401,10 +312,7 @@ export default async function DashboardPage() {
                 ) : (
                   <ul className="divide-y">
                     {duePayments.map((r) => (
-                      <li
-                        key={r.id}
-                        className="flex items-center gap-3 px-5 py-3.5"
-                      >
+                      <li key={r.id} className="flex items-center gap-3 px-4 py-3">
                         <div className="min-w-0 flex-1">
                           <Link
                             href={`/rezervasyonlar/${r.id}`}
@@ -412,10 +320,7 @@ export default async function DashboardPage() {
                           >
                             {r.customer?.full_name ?? "—"}
                           </Link>
-                          <p className="text-xs text-muted-foreground">
-                            <CalendarClock className="mr-1 inline size-3" />
-                            {formatDateShort(r.due_date!)}
-                          </p>
+                          <DueLabel due={r.due_date!} today={now} />
                         </div>
                         <Money
                           value={r.balance_amount}
@@ -441,32 +346,27 @@ export default async function DashboardPage() {
 
 function Panel({
   title,
-  hint,
   action,
   children,
 }: {
   title: string;
-  hint?: string;
   action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border bg-card">
-      <header className="flex items-center justify-between gap-3 border-b px-5 py-4">
-        <div>
-          <h2 className="font-medium">{title}</h2>
-          {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-        </div>
-        {action}
-      </header>
+    <Card className="gap-0 py-0 shadow-xs">
+      <CardHeader className="border-b py-3">
+        <CardTitle className="leading-8">{title}</CardTitle>
+        {action && <CardAction>{action}</CardAction>}
+      </CardHeader>
       {children}
-    </section>
+    </Card>
   );
 }
 
 function Empty({ text }: { text: string }) {
   return (
-    <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+    <p className="px-4 py-8 text-center text-sm text-muted-foreground">
       {text}
     </p>
   );
@@ -474,32 +374,23 @@ function Empty({ text }: { text: string }) {
 
 function EventRow({
   reservation,
-  showFinance,
-  compact,
-  showToday,
 }: {
   reservation: Awaited<ReturnType<typeof getReservationRows>>["rows"][number];
-  showFinance: boolean;
-  compact?: boolean;
-  showToday?: boolean;
 }) {
+  const date = parseISO(reservation.event_date);
   return (
     <li>
       <Link
         href={`/rezervasyonlar/${reservation.id}`}
-        className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3.5 transition-colors hover:bg-muted/50"
+        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
       >
-        <div className={compact ? "w-16 shrink-0" : "w-20 shrink-0"}>
-          <p className="tabular text-sm font-medium">
-            {showToday
-              ? formatTimeRange(reservation.start_time, reservation.end_time)
-              : formatDateShort(reservation.event_date)}
-          </p>
-          {!showToday && (
-            <p className="tabular text-xs text-muted-foreground">
-              {reservation.start_time.slice(0, 5)}
-            </p>
-          )}
+        <div className="flex w-11 shrink-0 flex-col items-center rounded-lg bg-muted py-1">
+          <span className="tabular text-base leading-tight font-semibold">
+            {format(date, "d")}
+          </span>
+          <span className="text-[10px] text-muted-foreground uppercase">
+            {format(date, "LLL", { locale: tr })}
+          </span>
         </div>
 
         <div className="min-w-0 flex-1">
@@ -512,27 +403,44 @@ function EventRow({
               className="size-2 shrink-0 rounded-full"
               style={{ backgroundColor: reservation.venue?.color }}
             />
-            {reservation.venue?.name} ·{" "}
-            {ORGANIZATION_TYPE_LABELS[reservation.organization_type]}
+            <span className="tabular">{reservation.start_time.slice(0, 5)}</span>·{" "}
+            {reservation.venue?.name}
           </p>
         </div>
 
-        {compact ? (
-          <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
-        ) : (
-          <>
-            <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
-            {showFinance && reservation.balance_amount > 0 && (
-              <Money
-                value={reservation.balance_amount}
-                tone="pending"
-                className="text-sm"
-              />
-            )}
-          </>
-        )}
+        <StageBadge
+          status={reservation.status}
+          deliveryStatus={reservation.delivery_status}
+        />
       </Link>
     </li>
+  );
+}
+
+/** "3 gün kaldı · 17.10" — tarihi geçmişse kırmızı "Gecikti". */
+function DueLabel({ due, today }: { due: string; today: Date }) {
+  const days = differenceInCalendarDays(parseISO(due), today);
+  const text =
+    days < 0
+      ? `${-days} gün gecikti`
+      : days === 0
+        ? "Bugün"
+        : days === 1
+          ? "Yarın"
+          : `${days} gün kaldı`;
+  return (
+    <p
+      className={cn(
+        "text-xs",
+        days < 0
+          ? "font-medium text-destructive"
+          : days <= 3
+            ? "font-medium text-warning"
+            : "text-muted-foreground",
+      )}
+    >
+      {text} · <span className="tabular">{formatDateShort(due)}</span>
+    </p>
   );
 }
 
@@ -572,36 +480,4 @@ function buildTransactions(
   ];
 
   return items.sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 8);
-}
-
-/**
- * Kart altındaki kıyas satırı.
- *
- * Yön hem ikonla hem renkle veriliyor; renk tek başına bırakılsaydı renk körü
- * kullanıcı için ayırt edilemezdi. "artış / azalış" kelimesi de duruyor —
- * ikon ve renk kaybolsa bile cümle kendi başına okunabilmeli.
- */
-function TrendHint({ trend }: { trend: Trend }) {
-  if (trend.direction === "flat") return <>{trend.label}</>;
-
-  const artis = trend.direction === "up";
-  const Icon = artis ? TrendingUp : TrendingDown;
-
-  return (
-    <>
-      Geçen aya göre{" "}
-      <span
-        className={cn(
-          "inline-flex items-center gap-0.5 font-medium",
-          artis
-            ? "text-emerald-600 dark:text-emerald-400"
-            : "text-rose-600 dark:text-rose-400",
-        )}
-      >
-        %{trend.percent}
-        <Icon className="size-3.5" aria-hidden />
-      </span>{" "}
-      {artis ? "artış" : "azalış"}
-    </>
-  );
 }
