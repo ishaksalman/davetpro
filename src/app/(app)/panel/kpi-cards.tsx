@@ -93,7 +93,7 @@ function Kpi({
 }) {
   return (
     <Card
-      className="@container/card animate-in gap-2 bg-linear-to-t [--card-spacing:--spacing(3)] sm:gap-3 sm:[--card-spacing:--spacing(4)] from-primary/[0.03] to-card shadow-xs duration-500 fill-mode-both fade-in-0 slide-in-from-bottom-2 motion-reduce:animate-none dark:from-primary/[0.04]"
+      className="@container/card animate-in gap-2 [--card-spacing:--spacing(3)] sm:gap-3 sm:[--card-spacing:--spacing(4)] shadow-xs duration-500 fill-mode-both fade-in-0 slide-in-from-bottom-2 motion-reduce:animate-none"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <CardHeader>
