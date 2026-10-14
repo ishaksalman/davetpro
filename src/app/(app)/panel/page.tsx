@@ -13,6 +13,7 @@ import {
   format,
   parseISO,
   startOfMonth,
+  startOfWeek,
   subMonths,
 } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -62,6 +63,11 @@ export default async function DashboardPage() {
   const now = businessToday();
   const today = todayISO();
   const monthStart = toISODate(startOfMonth(now));
+  const weekStartDate = startOfWeek(now, { weekStartsOn: 1 });
+  const weekStart = toISODate(weekStartDate);
+  const weekEnd = toISODate(endOfWeek(now, { weekStartsOn: 1 }));
+  // Hafta önceki aydan başlayabiliyor; mini takvim ise ay başından istiyor.
+  const reservationsFrom = weekStart < monthStart ? weekStart : monthStart;
   const monthEnd = toISODate(endOfMonth(now));
   const seriesStart = toISODate(startOfMonth(subMonths(now, 5)));
   // Kartlardaki "geçen aya göre" kıyası için.
@@ -81,7 +87,7 @@ export default async function DashboardPage() {
     recentExpenses,
   ] = await Promise.all([
     getLookups(),
-    getReservationRows({ from: monthStart }),
+    getReservationRows({ from: reservationsFrom }),
     showFinance
       ? supabase.rpc("finance_summary", { p_from: monthStart, p_to: monthEnd })
       : Promise.resolve({ data: null }),
@@ -134,8 +140,10 @@ export default async function DashboardPage() {
     (r) => r.status !== "iptal_edildi",
   );
   const upcoming = active.filter((r) => r.event_date >= today);
-  const weekEnd = toISODate(endOfWeek(now, { weekStartsOn: 1 }));
-  const weekEvents = upcoming.filter((r) => r.event_date <= weekEnd);
+  const weekEvents = active.filter(
+    (r) => r.event_date >= weekStart && r.event_date <= weekEnd,
+  );
+  const todayCount = upcoming.filter((r) => r.event_date === today).length;
   const nextEvents = upcoming.filter((r) => r.event_date > today).slice(0, 5);
 
   // Satırlar tarih ve saate göre sıralı geliyor; gün içi sıra korunuyor.
@@ -193,7 +201,16 @@ export default async function DashboardPage() {
     <>
       <PageHeader
         title={`Tekrar hoş geldin, ${firstName(profile.full_name)} 👋`}
-        description={`${business.name} · ${formatDate(now)}`}
+        description={greetingSummary({
+          todayCount,
+          weekCount: weekEvents.length,
+          overdue: showFinance
+            ? upcoming.filter(
+                (r) => r.balance_amount > 0 && r.due_date && r.due_date < today,
+              ).length
+            : 0,
+          eventLabel: sozluk.event.singular,
+        })}
         actions={
           hasVenue && (
             <ReservationFormDialog
@@ -226,7 +243,7 @@ export default async function DashboardPage() {
           />
         )}
 
-        <WeekStrip today={now} events={weekEvents} sozluk={sozluk} />
+        <WeekStrip weekStart={weekStartDate} today={today} events={weekEvents} />
 
         {showFinance && summary && (
           <KpiCards
@@ -496,4 +513,28 @@ function buildTransactions(
 /** "Ayşe Nur Kaya" → "Ayşe". Ad boşsa selamlama yine düzgün okunsun. */
 function firstName(fullName: string | null | undefined): string {
   return fullName?.trim().split(/\s+/)[0] || "";
+}
+
+/**
+ * Karşılama başlığının altındaki özet:
+ * "Bugün 2 organizasyon · Bu hafta 5 · 1 gecikmiş ödeme"
+ */
+function greetingSummary({
+  todayCount,
+  weekCount,
+  overdue,
+  eventLabel,
+}: {
+  todayCount: number;
+  weekCount: number;
+  overdue: number;
+  eventLabel: string;
+}): string {
+  return [
+    todayCount ? `Bugün ${todayCount} ${eventLabel}` : `Bugün ${eventLabel} yok`,
+    weekCount ? `Bu hafta ${weekCount}` : "Bu hafta boş",
+    overdue ? `${overdue} gecikmiş ödeme` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }

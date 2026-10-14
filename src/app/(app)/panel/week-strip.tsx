@@ -1,88 +1,105 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { addDays, format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { ORGANIZATION_TYPE_LABELS } from "@/lib/constants";
-import { formatTimeRange } from "@/lib/format";
+import { toISODate } from "@/lib/format";
 import type { ReservationRow } from "@/lib/queries";
-import { buyukHarf, type Vertical } from "@/lib/vertical";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+const MAX_PER_DAY = 3;
 
 /**
- * Bu haftanın (bugünden pazara) etkinlikleri, kaynak renginde kartlar.
- * Hafta boşsa hiç çizilmiyor.
+ * Bu haftanın (pazartesi–pazar) yedi sütunlu görünümü. Etkinlikler kaynak
+ * renginde küçük etiketler; dar ekranda yalnızca saat, genişte saat ve ad.
+ * Haftada hiç etkinlik yoksa çizilmiyor.
  */
 export function WeekStrip({
+  weekStart,
   today,
   events,
-  sozluk,
 }: {
-  today: Date;
+  weekStart: Date;
+  /** yyyy-MM-dd */
+  today: string;
   events: ReservationRow[];
-  sozluk: Vertical;
 }) {
   if (events.length === 0) return null;
 
-  return (
-    <section className="space-y-2">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-sm font-medium">
-          Bu hafta · {events.length} {sozluk.event.singular}
-        </h2>
-        <Link
-          href="/takvim"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          Takvim
-          <ArrowRight className="size-3" />
-        </Link>
-      </div>
-
-      <ul className="-mx-4 flex snap-x snap-proximity gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] sm:overflow-visible sm:px-0">
-        {events.map((r, i) => (
-          <li
-            key={r.id}
-            className="w-56 shrink-0 animate-in snap-start duration-500 fill-mode-both fade-in-0 slide-in-from-bottom-2 motion-reduce:animate-none sm:w-auto"
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            <WeekCard reservation={r} today={today} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function WeekCard({ reservation: r, today }: { reservation: ReservationRow; today: Date }) {
-  const date = parseISO(r.event_date);
-  const days = differenceInCalendarDays(date, today);
-  const day =
-    days === 0 ? "Bugün" : days === 1 ? "Yarın" : buyukHarf(format(date, "EEEE", { locale: tr }));
-  const color = r.venue?.color ?? "var(--muted-foreground)";
+  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <Link
-      href={`/rezervasyonlar/${r.id}`}
-      className="block h-full rounded-xl border p-3.5 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-      style={{
-        backgroundColor: `color-mix(in oklch, ${color} 12%, var(--card))`,
-        borderColor: `color-mix(in oklch, ${color} 28%, var(--card))`,
-      }}
-    >
-      <div className="flex items-center justify-between gap-2 text-xs">
-        <span className="font-semibold" style={{ color: `color-mix(in oklch, ${color} 70%, var(--foreground))` }}>
-          {day}
-          {days > 1 && (
-            <span className="tabular font-normal text-muted-foreground"> · {format(date, "dd.MM")}</span>
-          )}
-        </span>
-        <span className="tabular text-muted-foreground">
-          {formatTimeRange(r.start_time, r.end_time)}
-        </span>
-      </div>
-      <p className="mt-2 truncate text-sm font-semibold">{r.customer?.full_name ?? "—"}</p>
-      <p className="truncate text-xs text-muted-foreground">
-        {r.venue?.name} · {ORGANIZATION_TYPE_LABELS[r.organization_type]}
-      </p>
-    </Link>
+    <Card className="gap-0 py-0 shadow-xs">
+      <CardHeader className="border-b py-3">
+        <CardTitle className="leading-8">Bu hafta</CardTitle>
+        <CardAction>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/takvim">
+              Takvim
+              <ArrowRight />
+            </Link>
+          </Button>
+        </CardAction>
+      </CardHeader>
+
+      <ol className="grid grid-cols-7 divide-x">
+        {days.map((day) => {
+          const iso = toISODate(day);
+          const items = events.filter((r) => r.event_date === iso);
+          const isToday = iso === today;
+          const past = iso < today;
+
+          return (
+            <li key={iso} className={cn("min-w-0 p-1 sm:p-2", past && "opacity-50")}>
+              <div className="flex flex-col items-center gap-0.5 pb-1.5 sm:flex-row sm:justify-between sm:px-1">
+                <span className="text-[11px] text-muted-foreground">
+                  {format(day, "EEEEEE", { locale: tr })}
+                </span>
+                <span
+                  className={cn(
+                    "tabular grid size-6 place-items-center rounded-full text-xs font-medium",
+                    isToday && "bg-primary text-primary-foreground",
+                  )}
+                >
+                  {format(day, "d")}
+                </span>
+              </div>
+
+              <ul className="space-y-1">
+                {items.slice(0, MAX_PER_DAY).map((r) => {
+                  const color = r.venue?.color ?? "var(--muted-foreground)";
+                  return (
+                    <li key={r.id}>
+                      <Link
+                        href={`/rezervasyonlar/${r.id}`}
+                        title={`${r.start_time.slice(0, 5)} · ${r.customer?.full_name ?? ""} · ${r.venue?.name ?? ""}`}
+                        className="flex items-center gap-1 rounded-md border-l-2 px-1 py-0.5 text-[11px] leading-tight transition-colors hover:brightness-95 sm:px-1.5 sm:py-1"
+                        style={{
+                          borderLeftColor: color,
+                          backgroundColor: `color-mix(in oklch, ${color} 14%, var(--card))`,
+                        }}
+                      >
+                        <span className="tabular shrink-0 font-medium">
+                          {r.start_time.slice(0, 5)}
+                        </span>
+                        <span className="hidden truncate text-muted-foreground md:inline">
+                          {r.customer?.full_name}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+                {items.length > MAX_PER_DAY && (
+                  <li className="px-1 text-[11px] text-muted-foreground">
+                    +{items.length - MAX_PER_DAY}
+                  </li>
+                )}
+              </ul>
+            </li>
+          );
+        })}
+      </ol>
+    </Card>
   );
 }
