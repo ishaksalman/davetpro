@@ -9,6 +9,7 @@ import {
 import {
   differenceInCalendarDays,
   endOfMonth,
+  endOfWeek,
   format,
   parseISO,
   startOfMonth,
@@ -19,7 +20,7 @@ import { canSeeFinance, requireSession } from "@/lib/auth";
 import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationRows } from "@/lib/queries";
-import { today as businessToday, minutesNow, todayISO } from "@/lib/time";
+import { today as businessToday, todayISO } from "@/lib/time";
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
 import {
   formatDate,
@@ -45,7 +46,8 @@ import { monthOverMonth } from "@/lib/trend";
 import { cn } from "@/lib/utils";
 import { DashboardChart } from "./dashboard-chart";
 import { KpiCards } from "./kpi-cards";
-import { TodayStrip } from "./today-strip";
+import { MiniCalendar, type CalendarItem } from "./mini-calendar";
+import { WeekStrip } from "./week-strip";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -79,7 +81,7 @@ export default async function DashboardPage() {
     recentExpenses,
   ] = await Promise.all([
     getLookups(),
-    getReservationRows({ from: today }),
+    getReservationRows({ from: monthStart }),
     showFinance
       ? supabase.rpc("finance_summary", { p_from: monthStart, p_to: monthEnd })
       : Promise.resolve({ data: null }),
@@ -127,11 +129,25 @@ export default async function DashboardPage() {
     );
   }
 
-  const upcoming = reservationsResult.rows.filter(
+  // Ayın başından geliyor: mini takvim geçmiş günleri de işaretliyor.
+  const active = reservationsResult.rows.filter(
     (r) => r.status !== "iptal_edildi",
   );
-  const todayEvents = upcoming.filter((r) => r.event_date === today);
+  const upcoming = active.filter((r) => r.event_date >= today);
+  const weekEnd = toISODate(endOfWeek(now, { weekStartsOn: 1 }));
+  const weekEvents = upcoming.filter((r) => r.event_date <= weekEnd);
   const nextEvents = upcoming.filter((r) => r.event_date > today).slice(0, 5);
+
+  // Satırlar tarih ve saate göre sıralı geliyor; gün içi sıra korunuyor.
+  const calendarDays: Record<string, CalendarItem[]> = {};
+  for (const r of active) {
+    (calendarDays[r.event_date] ??= []).push({
+      id: r.id,
+      title: r.customer?.full_name ?? "—",
+      time: r.start_time.slice(0, 5),
+      color: r.venue?.color ?? "var(--muted-foreground)",
+    });
+  }
 
   const summary = (summaryResult.data as FinanceSummary[] | null)?.[0] ?? null;
   const prevSummary =
@@ -176,8 +192,8 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={business.name}
-        description={`Bugün ${formatDate(now)}`}
+        title={`Tekrar hoş geldin, ${firstName(profile.full_name)} 👋`}
+        description={`${business.name} · ${formatDate(now)}`}
         actions={
           hasVenue && (
             <ReservationFormDialog
@@ -210,14 +226,7 @@ export default async function DashboardPage() {
           />
         )}
 
-        <TodayStrip
-          today={now}
-          todayEvents={todayEvents}
-          next={nextEvents[0]}
-          nowMinutes={minutesNow()}
-          showFinance={showFinance}
-          sozluk={sozluk}
-        />
+        <WeekStrip today={now} events={weekEvents} sozluk={sozluk} />
 
         {showFinance && summary && (
           <KpiCards
@@ -283,6 +292,8 @@ export default async function DashboardPage() {
           </div>
 
           <aside className="space-y-4 sm:space-y-6">
+            <MiniCalendar today={today} days={calendarDays} />
+
             <Panel
               title={`Yaklaşan ${sozluk.event.plural}`}
               action={
@@ -480,4 +491,9 @@ function buildTransactions(
   ];
 
   return items.sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 8);
+}
+
+/** "Ayşe Nur Kaya" → "Ayşe". Ad boşsa selamlama yine düzgün okunsun. */
+function firstName(fullName: string | null | undefined): string {
+  return fullName?.trim().split(/\s+/)[0] || "";
 }

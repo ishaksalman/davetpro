@@ -30,16 +30,3 @@ export function todayISO(now: Date = new Date()): string {
 export function today(now: Date = new Date()): Date {
   return parseISO(todayISO(now));
 }
-
-const clock = new Intl.DateTimeFormat("en-GB", {
-  timeZone: APP_TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-});
-
-/** İşletme saatine göre gece yarısından bu yana geçen dakika. */
-export function minutesNow(now: Date = new Date()): number {
-  const [h, m] = clock.format(now).split(":").map(Number);
-  return h * 60 + m;
-}

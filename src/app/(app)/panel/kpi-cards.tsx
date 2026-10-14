@@ -14,9 +14,9 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * Bu ayın dört ana göstergesi ve altında gider / net nakit / kâr özeti.
+ * Bu ayın dört ana göstergesi.
  *
- * Mobilde iki sütun: yedi kart alt alta dizildiğinde iki ekran boyu
+ * Mobilde iki sütun: kartlar alt alta dizildiğinde ekranın çoğunu
  * tutuyordu. Kıyas rozeti her kartta aynı yerde; "geçen aya göre" açıklaması
  * yalnızca geniş ekranda yazılıyor.
  */
@@ -30,8 +30,7 @@ export function KpiCards({
   sozluk: Vertical;
 }) {
   return (
-    <div className="grid gap-3 sm:gap-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Kpi
           index={0}
           label={buyukHarf(sozluk.event.singular)}
@@ -60,18 +59,6 @@ export function KpiCards({
           valueClassName={Number(summary.outstanding) > 0 ? "text-warning" : undefined}
           hint={`Bu ayki ${sozluk.event.ablativePlural}`}
         />
-      </div>
-
-      <Card
-        className="animate-in gap-0 py-0 shadow-xs duration-500 fill-mode-both fade-in-0 slide-in-from-bottom-2 motion-reduce:animate-none"
-        style={{ animationDelay: "240ms" }}
-      >
-        <dl className="grid grid-cols-3 divide-x">
-          <Cell label="Gider" value={summary.total_expenses} negative />
-          <Cell label="Net nakit" value={summary.net_cash} hint="Tahsilat − gider" />
-          <Cell label="Kâr" value={summary.profit} hint="Satış − gider" />
-        </dl>
-      </Card>
     </div>
   );
 }
@@ -143,37 +130,5 @@ function TrendBadge({ trend }: { trend: Trend }) {
       %{trend.percent}
       <span className="sr-only">{artis ? "artış" : "azalış"}</span>
     </Badge>
-  );
-}
-
-function Cell({
-  label,
-  value,
-  hint,
-  negative,
-}: {
-  label: string;
-  value: number;
-  hint?: string;
-  negative?: boolean;
-}) {
-  const n = Number(value);
-  return (
-    <div className="min-w-0 px-3 py-3 sm:px-5 sm:py-4">
-      <dt className="truncate text-xs text-muted-foreground sm:text-sm">{label}</dt>
-      <dd
-        className={cn(
-          "tabular mt-1 truncate text-sm font-semibold sm:text-lg",
-          (negative || n < 0) && "text-destructive",
-        )}
-      >
-        {formatMoney(value)}
-      </dd>
-      {hint && (
-        <dd className="mt-0.5 hidden truncate text-xs text-muted-foreground sm:block">
-          {hint}
-        </dd>
-      )}
-    </div>
   );
 }
