@@ -48,7 +48,6 @@ import { cn } from "@/lib/utils";
 import { DashboardChart } from "./dashboard-chart";
 import { KpiCards } from "./kpi-cards";
 import { MiniCalendar, type CalendarItem } from "./mini-calendar";
-import { WeekStrip } from "./week-strip";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -63,10 +62,10 @@ export default async function DashboardPage() {
   const now = businessToday();
   const today = todayISO();
   const monthStart = toISODate(startOfMonth(now));
-  const weekStartDate = startOfWeek(now, { weekStartsOn: 1 });
-  const weekStart = toISODate(weekStartDate);
+  const weekStart = toISODate(startOfWeek(now, { weekStartsOn: 1 }));
   const weekEnd = toISODate(endOfWeek(now, { weekStartsOn: 1 }));
-  // Hafta önceki aydan başlayabiliyor; mini takvim ise ay başından istiyor.
+  // Başlık altındaki haftalık sayı önceki aydan başlayabiliyor; mini takvim
+  // ise ay başından istiyor.
   const reservationsFrom = weekStart < monthStart ? weekStart : monthStart;
   const monthEnd = toISODate(endOfMonth(now));
   const seriesStart = toISODate(startOfMonth(subMonths(now, 5)));
@@ -243,7 +242,6 @@ export default async function DashboardPage() {
           />
         )}
 
-        <WeekStrip weekStart={weekStartDate} today={today} events={weekEvents} />
 
         {showFinance && summary && (
           <KpiCards
