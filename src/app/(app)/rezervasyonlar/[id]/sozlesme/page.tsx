@@ -106,6 +106,7 @@ export default async function ContractPage({
       <PageBody>
         <ContractWorkspace
           reservationId={id}
+          customer={customer}
           customerName={customer.full_name}
           customerPhone={customer.phone}
           eventDate={reservation.event_date}

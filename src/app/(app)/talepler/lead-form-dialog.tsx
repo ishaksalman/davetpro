@@ -70,7 +70,6 @@ export function LeadFormDialog({
     customer_id: lead?.customer_id ?? "none",
     full_name: customerName ?? "",
     phone: customerPhone ?? "",
-    phone2: "",
     email: "",
     organization_type: lead?.organization_type ?? "dugun",
     source: lead?.source ?? "telefon",
@@ -219,24 +218,14 @@ export function LeadFormDialog({
       )}
 
       {!isEdit && !linked && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField form={form} name="phone2" label="İkinci telefon">
-            <Input
-              id="phone2"
-              type="tel"
-              placeholder="Opsiyonel"
-              {...form.register("phone2")}
-            />
-          </FormField>
-          <FormField form={form} name="email" label="E-posta">
-            <Input
-              id="email"
-              type="email"
-              placeholder="Opsiyonel"
-              {...form.register("email")}
-            />
-          </FormField>
-        </div>
+        <FormField form={form} name="email" label="E-posta">
+          <Input
+            id="email"
+            type="email"
+            placeholder="Opsiyonel"
+            {...form.register("email")}
+          />
+        </FormField>
       )}
 
       <Separator />

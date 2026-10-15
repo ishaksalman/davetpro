@@ -169,15 +169,6 @@ export const customerSchema = z.object({
    */
   contract_name: trimmed(2, 160, "Sözleşmede geçecek ad"),
   phone,
-  phone2: z
-    .string()
-    .trim()
-    .nullish()
-    .transform((v) => (v ? v : null))
-    .refine(
-      (v) => v === null || v.replace(/\D/g, "").length >= 10,
-      "İkinci telefon geçersiz.",
-    ),
   email: z
     .string()
     .trim()
@@ -455,7 +446,6 @@ export const leadSchema = z
     customer_id: optionalUuid,
     full_name: trimmed(2, 120, "Ad soyad"),
     phone: trimmed(7, 20, "Telefon"),
-    phone2: optionalShort(20, "İkinci telefon"),
     email: optionalEmail,
 
     organization_type: z.enum(ORGANIZATION_TYPES),

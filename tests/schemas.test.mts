@@ -83,12 +83,12 @@ const samples: [string, ZodTypeAny, unknown][] = [
   [
     "customerSchema (yalnızca zorunlu alanlar)",
     customerSchema,
-    { full_name: "Reyhan & Ömer Özdemir", contract_name: "Ömer Özdemir", phone: "05389275728", phone2: "", email: "", address: "", national_id: "", notes: "Kır düğünü istiyorlar." },
+    { full_name: "Reyhan & Ömer Özdemir", contract_name: "Ömer Özdemir", phone: "05389275728", email: "", address: "", national_id: "", notes: "Kır düğünü istiyorlar." },
   ],
   [
     "customerSchema (tüm alanlar)",
     customerSchema,
-    { full_name: "Zeynep & Ali", contract_name: "Ali Kaya", phone: "0532 111 22 33", phone2: "05439998877", email: "a@b.com", address: "Bahçelievler Mah. No:12", national_id: "10000000146", notes: "" },
+    { full_name: "Zeynep & Ali", contract_name: "Ali Kaya", phone: "0532 111 22 33", email: "a@b.com", address: "Bahçelievler Mah. No:12", national_id: "10000000146", notes: "" },
   ],
   [
     "reservationSchema (paketsiz, kaporasız)",
@@ -160,12 +160,12 @@ const samples: [string, ZodTypeAny, unknown][] = [
   [
     "leadSchema (yalnızca zorunlu alanlar)",
     leadSchema,
-    { customer_id: "none", full_name: "Reyhan & Ömer", phone: "05551234567", phone2: "", email: "", organization_type: "dugun", source: "whatsapp", venue_id: "none", package_id: "none", event_date: "", start_time: "", end_time: "", guest_count: "", assigned_to: "none", next_follow_up_at: "", notes: "" },
+    { customer_id: "none", full_name: "Reyhan & Ömer", phone: "05551234567", email: "", organization_type: "dugun", source: "whatsapp", venue_id: "none", package_id: "none", event_date: "", start_time: "", end_time: "", guest_count: "", assigned_to: "none", next_follow_up_at: "", notes: "" },
   ],
   [
     "leadSchema (tüm alanlar dolu)",
     leadSchema,
-    { customer_id: "44444444-4444-4444-4444-444444444444", full_name: "Selin & Kaan", phone: "0532 111 22 33", phone2: "05439998877", email: "a@b.com", organization_type: "nisan", source: "instagram", venue_id: "55555555-5555-5555-5555-555555555555", package_id: "66666666-6666-6666-6666-666666666666", event_date: "2026-09-05", start_time: "19:00", end_time: "23:00", guest_count: "450", assigned_to: "77777777-7777-7777-7777-777777777777", next_follow_up_at: "2026-09-03T14:00", notes: "Kır düğünü" },
+    { customer_id: "44444444-4444-4444-4444-444444444444", full_name: "Selin & Kaan", phone: "0532 111 22 33", email: "a@b.com", organization_type: "nisan", source: "instagram", venue_id: "55555555-5555-5555-5555-555555555555", package_id: "66666666-6666-6666-6666-666666666666", event_date: "2026-09-05", start_time: "19:00", end_time: "23:00", guest_count: "450", assigned_to: "77777777-7777-7777-7777-777777777777", next_follow_up_at: "2026-09-03T14:00", notes: "Kır düğünü" },
   ],
   [
     "leadActivitySchema",
@@ -224,8 +224,7 @@ for (const [label, schema, input] of samples) {
 }
 
 test("boş metin null'a dönüşür", () => {
-  const out = customerSchema.parse({ full_name: "Ad Soyad", contract_name: "Ad Soyad", phone: "05321112233", phone2: "", email: "", notes: "" });
-  assert.equal(out.phone2, null);
+  const out = customerSchema.parse({ full_name: "Ad Soyad", contract_name: "Ad Soyad", phone: "05321112233", email: "", notes: "" });
   assert.equal(out.email, null);
   assert.equal(out.notes, null);
 });
@@ -439,7 +438,7 @@ test("sözleşmede geçecek ad zorunlu", () => {
   const base = {
     full_name: "Ayşe & Ahmet Salman",
     phone: "05389275728",
-    phone2: "", email: "", address: "", national_id: "", notes: "",
+    email: "", address: "", national_id: "", notes: "",
   };
 
   // Çift adı sözleşmede taraf olamaz; imzalayan ayrıca belirtilmeli.

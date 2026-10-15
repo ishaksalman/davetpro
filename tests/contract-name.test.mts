@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import {
   buildContractSnapshot,
   contractVariableValues,
+  missingCustomerFields,
   sozlesmeAdi,
 } from "../src/lib/contracts.ts";
 
@@ -89,4 +90,27 @@ test("alan eklenmeden önceki sözleşmeler ad soyadla kalıyor", () => {
 
 test("sözleşme adı doluysa ad soyad kullanılmıyor", () => {
   assert.equal(sozlesmeAdi(musteri), "Ahmet Salman");
+});
+
+test("eksik müşteri bilgisi: adres ve kimlik her zaman, e-posta şablon isterse", () => {
+  const bos = { contract_name: "Ahmet", email: null, address: " ", national_id: null };
+  assert.deepEqual(missingCustomerFields(bos, "Taraf: {{customer_name}}"), [
+    "Adres",
+    "T.C. Kimlik No",
+  ]);
+  assert.deepEqual(
+    missingCustomerFields(bos, "E-posta: {{ customer_email }}"),
+    ["Adres", "T.C. Kimlik No", "E-posta"],
+  );
+  assert.deepEqual(
+    missingCustomerFields({ ...bos, contract_name: null, address: "Bahçelievler" }, ""),
+    ["Sözleşmede geçecek ad", "T.C. Kimlik No"],
+  );
+  assert.deepEqual(
+    missingCustomerFields(
+      { contract_name: "Ahmet", email: "a@b.com", address: "X", national_id: "10000000146" },
+      "{{customer_email}}",
+    ),
+    [],
+  );
 });

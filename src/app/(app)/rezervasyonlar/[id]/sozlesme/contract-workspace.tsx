@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Download,
@@ -11,6 +12,7 @@ import {
   Printer,
   RefreshCw,
   Ban,
+  UserPen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -23,13 +25,16 @@ import { Notice } from "@/components/shared/notice";
 import { ContractDocument } from "@/components/contracts/contract-document";
 import { CONTRACT_STATUS_LABELS } from "@/lib/constants";
 import { formatDate, formatDateTime, whatsAppLink } from "@/lib/format";
-import type { Contract, ContractSnapshot } from "@/lib/database.types";
+import type { Contract, ContractSnapshot, Customer } from "@/lib/database.types";
+import { missingCustomerFields } from "@/lib/contracts";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
 import { cancelContract, createContract, updateContractStatus } from "./actions";
 import { useVertical } from "@/components/layout/vertical-provider";
+import { CustomerFormDialog } from "../../../musteriler/customer-form-dialog";
 
 export function ContractWorkspace({
   reservationId,
+  customer,
   customerName,
   customerPhone,
   eventDate,
@@ -39,6 +44,7 @@ export function ContractWorkspace({
   draftContent,
 }: {
   reservationId: string;
+  customer: Customer;
   customerName: string;
   customerPhone: string;
   eventDate: string;
@@ -128,6 +134,8 @@ export function ContractWorkspace({
             seçmenizi ya da kapsamı rezervasyon notuna yazmanızı öneririz.
           </Notice>
         )}
+
+        <MissingCustomerNotice customer={customer} templateBody={templateBody} />
 
         {editing && (
           <div className="space-y-2">
@@ -369,5 +377,45 @@ function ShareButton({
     <Button variant="outline" onClick={() => void share()}>
       Paylaş
     </Button>
+  );
+}
+
+/**
+ * Sözleşmede boş kalacak müşteri bilgileri ve onları yerinde tamamlama.
+ *
+ * Müşteri penceresi bu sayfadan açılıyor; kaydedince sayfa yenileniyor ve
+ * önizleme yeni bilgilerle yeniden hazırlanıyor. Müşteri sayfasına gidip
+ * dönmek gerekmiyor.
+ */
+function MissingCustomerNotice({
+  customer,
+  templateBody,
+}: {
+  customer: Customer;
+  templateBody: string;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const missing = missingCustomerFields(customer, templateBody);
+  if (missing.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning/10 px-3.5 py-3 text-sm text-warning-foreground dark:text-warning">
+      <p>
+        Sözleşmede eksik bilgi var: <strong>{missing.join(", ")}</strong>. Bu
+        alanlar belgede boş kalacak.
+      </p>
+      <CustomerFormDialog
+        customer={customer}
+        detailsOpen
+        open={open}
+        onOpenChange={setOpen}
+        onSaved={() => router.refresh()}
+      />
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <UserPen />
+        Bilgileri tamamla
+      </Button>
+    </div>
   );
 }

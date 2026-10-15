@@ -80,7 +80,6 @@ export async function saveLead(
         .insert({
           full_name: v.full_name,
           phone: v.phone,
-          phone2: v.phone2,
           email: v.email,
         })
         .select("id")
