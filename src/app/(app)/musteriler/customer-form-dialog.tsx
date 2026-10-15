@@ -116,11 +116,11 @@ export function CustomerFormDialog({
         form={form}
         name="contract_name"
         label="Sözleşmede geçecek ad"
-        description="Ad soyaddan doluyor. Çift adı girdiyseniz sözleşmeyi imzalayacak kişiyi yazın."
+        description="Çift adı girdiyseniz sözleşmeyi imzalayacak kişiyi yazın."
       >
         <Input
           id="contract_name"
-          placeholder="Ahmet Salman"
+          placeholder="Ali Yılmaz"
           {...form.register("contract_name")}
         />
       </FormField>
