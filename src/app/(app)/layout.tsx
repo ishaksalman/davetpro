@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SubscriptionNotice } from "@/components/layout/subscription-notice";
 import { VerticalProvider } from "@/components/layout/vertical-provider";
 import { vertical } from "@/lib/vertical";
+import { ReservationSuccessProvider } from "./rezervasyonlar/reservation-success-dialog";
 
 /**
  * Uygulama sayfaları dizine girmesin. Oturum gerektirdikleri için tarayıcı
@@ -49,7 +50,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         />
         <SidebarInset className="min-w-0">
           {uyari && <SubscriptionNotice subscription={uyari} />}
-          {children}
+          <ReservationSuccessProvider showFinance={canSeeFinance(profile)}>
+            {children}
+          </ReservationSuccessProvider>
         </SidebarInset>
       </SidebarProvider>
     </VerticalProvider>

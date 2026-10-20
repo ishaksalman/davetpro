@@ -45,6 +45,7 @@ import type {
   Team,
 } from "@/lib/database.types";
 import { saveReservation } from "./actions";
+import { useShowCreatedReservation } from "./reservation-success-dialog";
 import { cn } from "@/lib/utils";
 import { Field, FieldLabel } from "@/components/ui/field";
 
@@ -88,6 +89,8 @@ export function ReservationFormDialog({
   // bağlantı hem yandaki simge düğmesi bunu açıyor. Popover'ın içine ayrı bir
   // Dialog gömmek yerine böyle daha sağlam.
   const [customerOpen, setCustomerOpen] = useState(false);
+  // Yeni kayıttan sonra açılan onay penceresi (uygulama düzeyinde).
+  const showCreated = useShowCreatedReservation();
 
   const sozluk = useVertical();
   const activeVenues = venues.filter((v) => v.is_active || v.id === reservation?.venue_id);
@@ -265,8 +268,23 @@ export function ReservationFormDialog({
       title={isEdit ? "Rezervasyonu düzenle" : "Yeni rezervasyon"}
       form={form}
       defaultValues={defaultValues}
-      action={saveReservation}
-      successMessage={isEdit ? "Rezervasyon güncellendi." : "Rezervasyon oluşturuldu."}
+      action={async (values) => {
+        const result = await saveReservation(values);
+        // Yeni kayıtta bildirim yerine onay penceresi: sözleşmeye geçiş orada.
+        if (result.ok && !isEdit) {
+          showCreated({
+            id: result.data.id,
+            customerName:
+              customers.find((c) => c.id === values.customer_id)?.full_name ?? null,
+            eventDate: values.event_date,
+            startTime: values.start_time,
+            endTime: values.end_time,
+            venueName: venues.find((v) => v.id === values.venue_id)?.name ?? null,
+          });
+        }
+        return result;
+      }}
+      successMessage={isEdit ? "Rezervasyon güncellendi." : undefined}
       submitBlockedReason={
         // Kart neyi söylüyorsa düğmenin yanında da o yazsın.
         conflict

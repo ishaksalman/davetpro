@@ -118,7 +118,8 @@ export function FormDialog<TValues extends FieldValues>({
   form: UseFormReturn<TValues>;
   defaultValues: DefaultValues<TValues>;
   action: (values: TValues) => Promise<ActionResult>;
-  successMessage: string;
+  /** Boş bırakılırsa bildirim çıkmaz — çağıran kendi onayını gösteriyor. */
+  successMessage?: string;
   /**
    * Şemayla ifade edilemeyen, sunucudan gelen veriye bağlı engeller için
    * (ör. seçilen salon/saat dolu). Doluysa gönderim düğmesi kilitlenir ve
@@ -157,7 +158,7 @@ export function FormDialog<TValues extends FieldValues>({
         try {
           const result = await action(values as TValues);
           if (result.ok) {
-            toast.success(successMessage);
+            if (successMessage) toast.success(successMessage);
             setOpen(false);
           } else {
             // Sunucudan gelen hata (ör. çakışan rezervasyon) formun üstünde kalsın.
