@@ -135,69 +135,74 @@ export function CustomerFormDialog({
         />
       </FormField>
 
-      <div className="rounded-lg border">
-        <button
-          type="button"
-          aria-expanded={showDetails}
-          aria-controls="customer-details"
-          onClick={() => setDetailsOpen((v) => !v)}
-          className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm"
-        >
-          <span>
-            <span className="font-medium">Sözleşme ve iletişim bilgileri</span>
-            <span className="block text-xs text-muted-foreground">
-              E-posta, adres, T.C. Kimlik No — opsiyonel
+      {/* Yeni müşteride gösterilmiyor: ilk kayıtta bu bilgiler genelde elde
+          yok, form kısa kalsın. Düzenlemede ve sözleşme ekranından açılınca
+          duruyor. */}
+      {customer && (
+        <div className="rounded-lg border">
+          <button
+            type="button"
+            aria-expanded={showDetails}
+            aria-controls="customer-details"
+            onClick={() => setDetailsOpen((v) => !v)}
+            className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm"
+          >
+            <span>
+              <span className="font-medium">Sözleşme ve iletişim bilgileri</span>
+              <span className="block text-xs text-muted-foreground">
+                E-posta, adres, T.C. Kimlik No — opsiyonel
+              </span>
             </span>
-          </span>
-          <ChevronDown
-            className={cn(
-              "size-4 shrink-0 text-muted-foreground transition-transform",
-              showDetails && "rotate-180",
-            )}
-          />
-        </button>
-
-        {/* Kapalıyken de DOM'da: alanlar kayıtlı kalsın, değerler kaybolmasın. */}
-        <div
-          id="customer-details"
-          hidden={!showDetails}
-          className="space-y-4 border-t px-3 pt-3 pb-4"
-        >
-          <FormField form={form} name="email" label="E-posta">
-            <Input
-              id="email"
-              type="email"
-              placeholder="ornek@eposta.com"
-              {...form.register("email")}
+            <ChevronDown
+              className={cn(
+                "size-4 shrink-0 text-muted-foreground transition-transform",
+                showDetails && "rotate-180",
+              )}
             />
-          </FormField>
+          </button>
 
-          <FormField form={form} name="address" label="Adres">
-            <Textarea
-              id="address"
-              rows={2}
-              placeholder="Sözleşmede kullanılır"
-              {...form.register("address")}
-            />
-          </FormField>
+          {/* Kapalıyken de DOM'da: alanlar kayıtlı kalsın, değerler kaybolmasın. */}
+          <div
+            id="customer-details"
+            hidden={!showDetails}
+            className="space-y-4 border-t px-3 pt-3 pb-4"
+          >
+            <FormField form={form} name="email" label="E-posta">
+              <Input
+                id="email"
+                type="email"
+                placeholder="ornek@eposta.com"
+                {...form.register("email")}
+              />
+            </FormField>
 
-          <FormField form={form} name="national_id" label="T.C. Kimlik No">
-            <Input
-              id="national_id"
-              inputMode="numeric"
-              maxLength={11}
-              placeholder="11 hane"
-              {...form.register("national_id")}
-            />
-            {/* KVKK: kimlik numarası zorunlu değil. Sözleşmede taraf kimliğinin
-                yazılmasını isteyen işletmeler için opsiyonel bırakıldı. */}
-            <p className="text-xs text-muted-foreground">
-              Zorunlu değildir. Yalnızca sözleşmede kimlik bilgisi isteniyorsa
-              doldurun; KVKK gereği gerekmedikçe bu alanı boş bırakmanız önerilir.
-            </p>
-          </FormField>
+            <FormField form={form} name="address" label="Adres">
+              <Textarea
+                id="address"
+                rows={2}
+                placeholder="Sözleşmede kullanılır"
+                {...form.register("address")}
+              />
+            </FormField>
+
+            <FormField form={form} name="national_id" label="T.C. Kimlik No">
+              <Input
+                id="national_id"
+                inputMode="numeric"
+                maxLength={11}
+                placeholder="11 hane"
+                {...form.register("national_id")}
+              />
+              {/* KVKK: kimlik numarası zorunlu değil. Sözleşmede taraf kimliğinin
+                  yazılmasını isteyen işletmeler için opsiyonel bırakıldı. */}
+              <p className="text-xs text-muted-foreground">
+                Zorunlu değildir. Yalnızca sözleşmede kimlik bilgisi isteniyorsa
+                doldurun; KVKK gereği gerekmedikçe bu alanı boş bırakmanız önerilir.
+              </p>
+            </FormField>
+          </div>
         </div>
-      </div>
+      )}
 
       <FormField form={form} name="notes" label="Notlar">
         <Textarea
