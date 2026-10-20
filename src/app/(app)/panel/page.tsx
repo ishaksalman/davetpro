@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   CalendarDays,
+  FileText,
 } from "lucide-react";
 import {
   differenceInCalendarDays,
@@ -17,7 +18,7 @@ import {
   subMonths,
 } from "date-fns";
 import { tr } from "date-fns/locale";
-import { canSeeFinance, requireSession } from "@/lib/auth";
+import { canSeeFinance, isAdmin, requireSession } from "@/lib/auth";
 import { vertical, buyukHarf } from "@/lib/vertical";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationRows } from "@/lib/queries";
@@ -38,6 +39,7 @@ import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
+  Business,
   Expense,
   FinanceSummary,
   MonthlySeriesRow,
@@ -46,7 +48,11 @@ import type {
 import { monthOverMonth } from "@/lib/trend";
 import { cn } from "@/lib/utils";
 import { DashboardChart } from "./dashboard-chart";
+import { BusinessDialog } from "./business-dialog";
 import { KpiCards } from "./kpi-cards";
+import { OnboardingChecklist, type OnboardingStep } from "./onboarding-checklist";
+import { VenueFormDialog } from "../salonlar/venue-form-dialog";
+import { PackageFormDialog } from "../paketler/package-form-dialog";
 import { MiniCalendar, type CalendarItem } from "./mini-calendar";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 
@@ -195,6 +201,9 @@ export default async function DashboardPage() {
   );
 
   const hasVenue = lookups.venues.some((v) => v.is_active);
+  const onboarding = isAdmin(profile)
+    ? await getOnboardingState(supabase, showFinance)
+    : null;
 
   return (
     <>
@@ -229,17 +238,29 @@ export default async function DashboardPage() {
       />
 
       <PageBody>
-        {!hasVenue && (
-          <EmptyState
-            icon={CalendarDays}
-            title="Kuruluma birkaç adım kaldı"
-            description={`${sozluk.resource.plural} bölümünü doldurun, ardından paketlerinizi ekleyin. Sonrasında rezervasyon almaya başlayabilirsiniz.`}
-            action={
-              <Button asChild>
-                <Link href="/salonlar">{sozluk.resourceNew}</Link>
-              </Button>
-            }
+        {onboarding ? (
+          <OnboardingChecklist
+            steps={onboardingSteps({
+              state: onboarding,
+              business,
+              lookups,
+              sozluk,
+              showFinance,
+            })}
           />
+        ) : (
+          !hasVenue && (
+            <EmptyState
+              icon={CalendarDays}
+              title="Kuruluma birkaç adım kaldı"
+              description={`${sozluk.resource.plural} bölümünü doldurun, ardından paketlerinizi ekleyin. Sonrasında rezervasyon almaya başlayabilirsiniz.`}
+              action={
+                <Button asChild>
+                  <Link href="/salonlar">{sozluk.resourceNew}</Link>
+                </Button>
+              }
+            />
+          )
         )}
 
 
@@ -535,4 +556,157 @@ function greetingSummary({
   ]
     .filter(Boolean)
     .join(" · ");
+}
+
+type OnboardingState = {
+  reservationCount: number;
+  latestReservationId: string | null;
+  /** Finans yetkisi yoksa sözleşmeler okunamıyor; adım listede olmuyor. */
+  contractCount: number | null;
+};
+
+/**
+ * Başlangıç rehberinin ihtiyaç duyduğu sayılar. Biri okunamazsa rehber hiç
+ * gösterilmiyor: yanlış "yapılmadı" işareti göstermek, göstermemekten kötü.
+ */
+async function getOnboardingState(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  showFinance: boolean,
+): Promise<OnboardingState | null> {
+  const [latest, reservations, contracts] = await Promise.all([
+    supabase
+      .from("reservations")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ id: string }>(),
+    supabase.from("reservations").select("id", { count: "exact", head: true }),
+    showFinance
+      ? supabase.from("contracts").select("id", { count: "exact", head: true })
+      : Promise.resolve({ count: null, error: null }),
+  ]);
+  if (latest.error || reservations.error || contracts.error) return null;
+  return {
+    reservationCount: reservations.count ?? 0,
+    latestReservationId: latest.data?.id ?? null,
+    contractCount: showFinance ? (contracts.count ?? 0) : null,
+  };
+}
+
+/**
+ * Rehber adımları. Hepsi kayıtlara bakılarak işaretleniyor.
+ *
+ * Kaynak (salon/plato/mekân) salonda zorunlu. Organizasyon ve fotoğrafçıda
+ * kayıtta "Dış mekân" / "Diğer" satırı açılıyor; kendi mekânı olmayan da
+ * çalışabildiği için orada isteğe bağlı.
+ */
+function onboardingSteps({
+  state,
+  business,
+  lookups,
+  sozluk,
+  showFinance,
+}: {
+  state: OnboardingState;
+  business: Business;
+  lookups: Awaited<ReturnType<typeof getLookups>>;
+  sozluk: ReturnType<typeof vertical>;
+  showFinance: boolean;
+}): OnboardingStep[] {
+  const venues = lookups.venues.filter((v) => v.is_active);
+  const ownVenue = venues.some((v) => !v.allows_overlap);
+  // "Dış mekân" / "Diğer": kayıtta açılan, çakışma kuralı işlemeyen satır.
+  const openVenue = venues.find((v) => v.allows_overlap);
+  const venueOptional = Boolean(openVenue);
+  const kaynak = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+
+  const raw = [
+    {
+      id: "isletme",
+      title: "İşletme bilgilerinizi girin",
+      description: "Adres, telefon ve logo sözleşmenin başlığında görünür.",
+      done: Boolean(business.phone?.trim() && business.address?.trim()),
+    },
+    {
+      id: "kaynak",
+      // Metinler ek almıyor: salon / plato / mekân için ayrı ek yazmak
+      // yerine cümle ekten bağımsız kuruldu.
+      title: `${sozluk.resource.singular} ekleyin`,
+      description: openVenue
+        ? `Dışarıdaki işler için kayıtlı "${openVenue.name}" seçeneği yeterli. Kendinize ait bir ${kaynak} varsa çakışma kontrolü için ekleyin.`
+        : "Takvim ve müsaitlik kontrolü bu kayda göre çalışır.",
+      done: ownVenue,
+      optional: venueOptional,
+    },
+    {
+      id: "paket",
+      title: "Paketlerinizi tanımlayın",
+      description: "Rezervasyonda paket seçince fiyat ve hizmetler kendiliğinden gelir.",
+      done: lookups.packages.some((p) => p.is_active),
+      optional: true,
+    },
+    {
+      id: "rezervasyon",
+      title: "İlk rezervasyonu oluşturun",
+      description: "Müşteriyi, tarihi ve fiyatı girin; kapora da buradan alınır.",
+      done: state.reservationCount > 0,
+    },
+    ...(state.contractCount !== null
+      ? [
+          {
+            id: "sozlesme",
+            title: "İlk sözleşmeyi hazırlayın",
+            description: "Rezervasyon bilgileriyle hazır şablondan tek tıkla oluşturulur.",
+            done: state.contractCount > 0,
+          },
+        ]
+      : []),
+  ];
+
+  const nextId = raw.find((s) => !s.optional && !s.done)?.id;
+  const button = (id: string, label: string) => ({
+    label,
+    icon: "plus" as const,
+    size: "sm" as const,
+    variant: id === nextId ? ("default" as const) : ("outline" as const),
+    labelHiddenOnMobile: id !== nextId,
+  });
+
+  const actions: Record<string, React.ReactNode> = {
+    isletme: <BusinessDialog business={business} primary={nextId === "isletme"} />,
+    kaynak: <VenueFormDialog triggerButton={button("kaynak", sozluk.resourceNew)} />,
+    paket: (
+      <PackageFormDialog venues={lookups.venues} triggerButton={button("paket", "Paket ekle")} />
+    ),
+    rezervasyon: venues.length ? (
+      <ReservationFormDialog
+        customers={lookups.customers}
+        venues={lookups.venues}
+        teams={lookups.teams}
+        packages={lookups.packages}
+        showFinance={showFinance}
+        triggerButton={button("rezervasyon", "Rezervasyon oluştur")}
+      />
+    ) : (
+      <Button size="sm" variant="outline" disabled>
+        Önce {kaynak} ekleyin
+      </Button>
+    ),
+    sozlesme: state.latestReservationId ? (
+      <Button asChild size="sm" variant={nextId === "sozlesme" ? "default" : "outline"}>
+        <Link href={`/rezervasyonlar/${state.latestReservationId}/sozlesme`}>
+          <FileText />
+          <span className={nextId === "sozlesme" ? undefined : "hidden sm:inline"}>
+            Sözleşme hazırla
+          </span>
+        </Link>
+      </Button>
+    ) : (
+      <Button size="sm" variant="outline" disabled>
+        Önce rezervasyon
+      </Button>
+    ),
+  };
+
+  return raw.map((s) => ({ ...s, action: actions[s.id] }));
 }

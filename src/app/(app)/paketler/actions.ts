@@ -21,7 +21,8 @@ export async function savePackage(input: PackageInput): Promise<ActionResult> {
 
   if (error) return actionError(error);
 
-  for (const p of ["/paketler", "/rezervasyonlar", "/raporlar"]) revalidatePath(p);
+  // Panel: başlangıç rehberi paket adımını buradan işaretliyor.
+  for (const p of ["/paketler", "/rezervasyonlar", "/raporlar", "/panel"]) revalidatePath(p);
   return { ok: true };
 }
 

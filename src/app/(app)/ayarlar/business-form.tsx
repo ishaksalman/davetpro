@@ -19,9 +19,12 @@ import { useVertical } from "@/components/layout/vertical-provider";
 export function BusinessForm({
   business,
   disabled,
+  onSaved,
 }: {
   business: Business;
   disabled: boolean;
+  /** Kayıt başarılı olunca — pencere içinde kullanıldığında kapatmak için. */
+  onSaved?: () => void;
 }) {
   const sozluk = useVertical();
   const [pending, startTransition] = useTransition();
@@ -49,8 +52,10 @@ export function BusinessForm({
       startTransition(async () => {
         try {
           const result = await saveBusiness(values as BusinessInput);
-          if (result.ok) toast.success("İşletme bilgileri güncellendi.");
-          else toast.error(result.error);
+          if (result.ok) {
+            toast.success("İşletme bilgileri güncellendi.");
+            onSaved?.();
+          } else toast.error(result.error);
         } finally {
           guard.end();
         }
