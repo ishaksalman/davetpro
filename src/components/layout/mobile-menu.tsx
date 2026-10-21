@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { CalendarClock, KeyRound, LogOut, ShieldCheck, X } from "lucide-react";
+import { CalendarClock, ChevronRight, KeyRound, LogOut, ShieldCheck, X } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BrandIcon } from "@/components/brand/logo";
@@ -35,6 +35,9 @@ export type MobileMenuAccount = {
 
 /**
  * Mobilde "Menü" ile açılan tam ekran menü.
+ *
+ * Bölümler grup başına tek kartta, alt alta satırlar: simge, ad, kısa
+ * açıklama.
  *
  * Alt çubuğun altında kalıyor (z-30 < z-40): çubuk görünür, başka bir
  * sekmeye basınca doğrudan o sayfaya gidiliyor, "Menü"ye tekrar basınca
@@ -154,14 +157,12 @@ export function MobileMenu({
             <h2 className="mb-2 px-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
               {group.label}
             </h2>
-            <ul className="grid grid-cols-2 gap-3">
-              {group.items.map((item, i) => (
+            <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
+              {group.items.map((item) => (
                 <Tile
                   key={item.href}
                   item={item}
                   tone={GROUP_TONES[group.label]}
-                  // Tek kalan karo yarım satırda boşluk bırakmasın.
-                  wide={i === group.items.length - 1 && group.items.length % 2 === 1}
                   label={item.href === "/salonlar" ? sozluk.resource.plural : item.label}
                   active={isActive(item.href)}
                   onNavigate={onClose}
@@ -176,9 +177,8 @@ export function MobileMenu({
             <h2 className="mb-2 px-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Platform
             </h2>
-            <ul className="grid grid-cols-2 gap-3">
+            <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
               <Tile
-                wide
                 item={{ href: "/yonetim", label: "Abonelikler", icon: ShieldCheck, description: "İşletmeler ve ödemeler" }}
                 label="Abonelikler"
                 active={isActive("/yonetim")}
@@ -205,39 +205,38 @@ function Tile({
   active,
   onNavigate,
   tone = "bg-accent text-accent-foreground",
-  wide,
 }: {
   item: NavItem;
   label: string;
   active: boolean;
-  tone?: string;
-  /** Tam satır: simge solda, metin yanında. */
-  wide?: boolean;
-  /** Zaten açık olan sayfanın karosunda yol değişmiyor; menü yine kapansın. */
+  /** Zaten açık olan sayfanın satırında yol değişmiyor; menü yine kapansın. */
   onNavigate: () => void;
+  tone?: string;
 }) {
   const Icon = item.icon;
   return (
-    <li className={cn(wide && "col-span-2")}>
+    <li>
       <Link
         href={item.href}
         aria-current={active ? "page" : undefined}
         onClick={onNavigate}
         className={cn(
-          "flex h-full gap-3 rounded-2xl border bg-card p-4 transition-colors active:bg-muted",
-          wide ? "items-center" : "min-h-28 flex-col justify-between",
-          active && "border-primary ring-1 ring-primary",
+          "flex items-center gap-3 px-4 py-3 transition-colors active:bg-muted",
+          active && "bg-accent/50",
         )}
       >
         <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl", tone)}>
           <Icon className="size-5" />
         </span>
-        <span>
+        <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold">{label}</span>
           {item.description && (
-            <span className="block text-xs text-muted-foreground">{item.description}</span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {item.description}
+            </span>
           )}
         </span>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
       </Link>
     </li>
   );
