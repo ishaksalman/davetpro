@@ -66,17 +66,21 @@ export default async function SettingsPage() {
               yarım bırakılan form (işletme bilgisi, kategori adı, davet formu)
               geri dönüldüğünde sıfırlanıyordu. Pasif panel CSS ile gizlenir. */}
         <Tabs defaultValue="isletme">
-          <TabsList>
-            <TabsTrigger value="isletme">İşletme</TabsTrigger>
-            {showFinance && (
-              <TabsTrigger value="kategoriler">Gider kategorileri</TabsTrigger>
-            )}
-            {showFinance && (
-              <TabsTrigger value="sozlesme">Sözleşme</TabsTrigger>
-            )}
-            <TabsTrigger value="kullanicilar">Kullanıcılar</TabsTrigger>
-            {admin && <TabsTrigger value="dugunce">Düğünce&apos;de yayınla</TabsTrigger>}
-          </TabsList>
+          {/* Dar ekranda sekmeler kendi içinde kayıyor: satır taşınca bütün
+              sayfa genişliyor, alttaki sabit menü ekran dışına kayıyordu. */}
+          <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
+            <TabsList>
+              <TabsTrigger value="isletme">İşletme</TabsTrigger>
+              {showFinance && (
+                <TabsTrigger value="kategoriler">Gider kategorileri</TabsTrigger>
+              )}
+              {showFinance && (
+                <TabsTrigger value="sozlesme">Sözleşme</TabsTrigger>
+              )}
+              <TabsTrigger value="kullanicilar">Kullanıcılar</TabsTrigger>
+              {admin && <TabsTrigger value="dugunce">Düğünce&apos;de yayınla</TabsTrigger>}
+            </TabsList>
+          </div>
 
           <TabsContent value="isletme" forceMount className="pt-6">
             <SectionTitle

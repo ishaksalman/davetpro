@@ -55,7 +55,10 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         />
         {/* Mobilde alttaki gezinme çubuğu kadar boşluk: son satır altında
             kalmasın. */}
-        <SidebarInset className="min-w-0 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
+        {/* overflow-x-clip: taşan bir öğe sayfayı genişletip alttaki sabit
+            menüyü ekran dışına itmesin. clip, hidden'ın aksine yapışkan
+            başlığı bozmuyor. */}
+        <SidebarInset className="min-w-0 overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
           {uyari && <SubscriptionNotice subscription={uyari} />}
           <ReservationSuccessProvider showFinance={canSeeFinance(profile)}>
             {children}
