@@ -56,3 +56,14 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
 ];
+
+/**
+ * Mobil alt çubuktaki sekmeler. Mobilde kenar çubuğu bunları tekrar
+ * listelemiyor; iki menü bu tek listeden besleniyor ki birbirinden kopmasın.
+ */
+export const BOTTOM_NAV_ITEMS: NavItem[] = [
+  { href: "/panel", label: "Panel", icon: LayoutDashboard },
+  { href: "/takvim", label: "Takvim", icon: CalendarDays },
+  { href: "/rezervasyonlar", label: "Rezervasyon", icon: Store },
+  { href: "/musteriler", label: "Müşteriler", icon: Users },
+];

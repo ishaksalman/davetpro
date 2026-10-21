@@ -55,13 +55,13 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         />
         {/* Mobilde alttaki gezinme çubuğu kadar boşluk: son satır altında
             kalmasın. */}
-        <SidebarInset className="min-w-0 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <SidebarInset className="min-w-0 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
           {uyari && <SubscriptionNotice subscription={uyari} />}
           <ReservationSuccessProvider showFinance={canSeeFinance(profile)}>
             {children}
           </ReservationSuccessProvider>
         </SidebarInset>
-        <BottomNav showFinance={canSeeFinance(profile)} />
+        <BottomNav />
       </SidebarProvider>
     </VerticalProvider>
   );

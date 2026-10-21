@@ -8,7 +8,6 @@ import { actionError, validationError, type ActionResult } from "@/lib/action-re
 import { todayISO } from "@/lib/time";
 import { STAGES, type Stage } from "@/lib/stage";
 import type { ReservationStatus } from "@/lib/database.types";
-import { getLookups, type Lookups } from "@/lib/queries";
 
 function revalidateReservation(id?: string) {
   revalidatePath("/rezervasyonlar");
@@ -16,17 +15,6 @@ function revalidateReservation(id?: string) {
   revalidatePath("/panel");
   revalidatePath("/raporlar");
   if (id) revalidatePath(`/rezervasyonlar/${id}`);
-}
-
-/**
- * Rezervasyon formunun seçim listeleri — alt çubuktaki "+" düğmesi için.
- *
- * Düzen her sayfada bu listeleri yüklemesin diye istek üzerine geliyor;
- * düğmeye basılınca bir kez çekiliyor.
- */
-export async function loadReservationFormData(): Promise<ActionResult<Lookups>> {
-  await requireSession();
-  return { ok: true, data: await getLookups() };
 }
 
 /**

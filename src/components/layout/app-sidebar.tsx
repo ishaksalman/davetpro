@@ -19,7 +19,7 @@ import {
 import { BrandIcon } from "@/components/brand/logo";
 import { ShieldCheck } from "lucide-react";
 import { useVertical } from "./vertical-provider";
-import { NAV_GROUPS } from "./nav-items";
+import { BOTTOM_NAV_ITEMS, NAV_GROUPS } from "./nav-items";
 import { UserMenu } from "./user-menu";
 import type { SubscriptionInfo } from "@/lib/subscription";
 import type { Business, Profile } from "@/lib/database.types";
@@ -44,7 +44,7 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const sozluk = useVertical();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   // Mobilde kenar çubuğu içeriğin üstünü kaplıyor; gezinince kapanmazsa
   // kullanıcı gittiği sayfayı göremiyor.
@@ -80,7 +80,9 @@ export function AppSidebar({
             (i) =>
               (showFinance || !i.financeOnly) &&
               (sozluk.usesDelivery || !i.deliveryOnly) &&
-              (sozluk.usesTeams || !i.teamsOnly),
+              (sozluk.usesTeams || !i.teamsOnly) &&
+              // Mobilde alt çubuktakiler burada tekrar edilmiyor.
+              !(isMobile && BOTTOM_NAV_ITEMS.some((b) => b.href === i.href)),
           );
           if (items.length === 0) return null;
 
