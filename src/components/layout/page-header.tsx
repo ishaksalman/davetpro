@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 /**
@@ -29,7 +28,6 @@ export function PageHeader({
         className,
       )}
     >
-      <SidebarTrigger className="-ml-1 md:hidden" />
       {back && (
         <Button
           asChild
