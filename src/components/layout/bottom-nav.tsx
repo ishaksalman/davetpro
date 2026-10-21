@@ -37,6 +37,7 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
         pathname={pathname}
         account={account}
       />
+      <BrandGradientDefs />
       <nav
         aria-label="Ana gezinme"
         className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 md:hidden"
@@ -82,6 +83,30 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
   );
 }
 
+const GRADIENT_ID = "alt-menu-marka-degradesi";
+
+/**
+ * Etkin sekme simgesinin çizgisini boyayan marka degradesi. Bir kez
+ * tanımlanıyor, simgeler url(#…) ile kullanıyor.
+ *
+ * userSpaceOnUse: degrade simgenin 24×24 alanına yayılıyor. Varsayılan
+ * (objectBoundingBox) her çizgiyi ayrı ölçüyor; "Menü" simgesindeki gibi
+ * düz çizgilerin yüksekliği sıfır olduğu için degrade hiç çizilmiyordu.
+ */
+function BrandGradientDefs() {
+  return (
+    <svg aria-hidden width="0" height="0" className="absolute">
+      <defs>
+        <linearGradient id={GRADIENT_ID} gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22">
+          <stop offset="0%" stopColor="#1a5cff" />
+          <stop offset="55%" stopColor="#0fbfd8" />
+          <stop offset="100%" stopColor="#16e0b4" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 function NavContent({
   icon: Icon,
   label,
@@ -93,16 +118,11 @@ function NavContent({
 }) {
   return (
     <>
-      {/* Etkin sekmede simge marka degradeli hapın içinde. Hap her sekmede
-          yer tutuyor; etkin sekme değişince yazılar zıplamasın. */}
-      <span
-        className={cn(
-          "grid h-7 w-12 place-items-center rounded-full transition-colors",
-          active ? "bg-brand-gradient text-brand shadow-sm" : "text-muted-foreground",
-        )}
-      >
-        <Icon className="size-5" strokeWidth={active ? 2.25 : 1.75} />
-      </span>
+      <Icon
+        className={cn("size-6", !active && "text-muted-foreground")}
+        color={active ? `url(#${GRADIENT_ID})` : undefined}
+        strokeWidth={active ? 2.25 : 1.75}
+      />
       <span
         className={cn(
           "text-[11px] leading-none",
