@@ -5,6 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  CalendarFilled,
+  CloseFilled,
+  MenuFilled,
+  PanelFilled,
+  StoreFilled,
+  UsersFilled,
+} from "./filled-nav-icons";
 import { MobileMenu, type MobileMenuAccount } from "./mobile-menu";
 import { BOTTOM_NAV_ITEMS } from "./nav-items";
 
@@ -55,6 +63,7 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
                 >
                   <NavContent
                     icon={item.icon}
+                    filled={FILLED[item.href]}
                     label={item.label}
                     active={active && !menuOpen}
                   />
@@ -72,6 +81,7 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
             >
               <NavContent
                 icon={menuOpen ? X : Menu}
+                filled={menuOpen ? CloseFilled : MenuFilled}
                 label={menuOpen ? "Kapat" : "Menü"}
                 active={menuOpen || onMenuPage}
               />
@@ -84,9 +94,20 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
 }
 
 const GRADIENT_ID = "alt-menu-marka-degradesi";
+const GRADIENT = `url(#${GRADIENT_ID})`;
+
+type FilledIcon = (props: { fill: string; className?: string }) => React.ReactNode;
+
+/** Etkin sekmede çizgi simge yerine dolu karşılığı. */
+const FILLED: Record<string, FilledIcon> = {
+  "/panel": PanelFilled,
+  "/takvim": CalendarFilled,
+  "/rezervasyonlar": StoreFilled,
+  "/musteriler": UsersFilled,
+};
 
 /**
- * Etkin sekme simgesinin çizgisini boyayan marka degradesi. Bir kez
+ * Etkin sekme simgesini dolduran marka degradesi. Bir kez
  * tanımlanıyor, simgeler url(#…) ile kullanıyor.
  *
  * userSpaceOnUse: degrade simgenin 24×24 alanına yayılıyor. Varsayılan
@@ -109,20 +130,22 @@ function BrandGradientDefs() {
 
 function NavContent({
   icon: Icon,
+  filled: Filled,
   label,
   active,
 }: {
   icon: LucideIcon;
+  filled: FilledIcon;
   label: string;
   active: boolean;
 }) {
   return (
     <>
-      <Icon
-        className={cn("size-6", !active && "text-muted-foreground")}
-        color={active ? `url(#${GRADIENT_ID})` : undefined}
-        strokeWidth={active ? 2.25 : 1.75}
-      />
+      {active ? (
+        <Filled fill={GRADIENT} className="size-6" />
+      ) : (
+        <Icon className="size-6 text-muted-foreground" strokeWidth={1.75} />
+      )}
       <span
         className={cn(
           "text-[11px] leading-none",
