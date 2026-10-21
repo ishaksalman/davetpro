@@ -18,6 +18,8 @@ export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
+  /** Mobil menü karolarında adın altındaki kısa açıklama. */
+  description?: string;
   /** Finans yetkisi olmayan personele gösterilmez (RLS zaten veriyi de gizler). */
   financeOnly?: boolean;
   /** Yalnızca teslim akışı kullanan işletmelerde görünür. */
@@ -34,28 +36,41 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { href: "/takvim", label: "Takvim", icon: CalendarDays },
       { href: "/rezervasyonlar", label: "Rezervasyonlar", icon: Store },
       { href: "/musteriler", label: "Müşteriler", icon: Users },
-      { href: "/talepler", label: "Talepler", icon: MessagesSquare },
-      { href: "/teslimat", label: "Teslimat", icon: PackageCheck, deliveryOnly: true },
+      { href: "/talepler", label: "Talepler", icon: MessagesSquare, description: "Görüşmeler ve teklifler" },
+      { href: "/teslimat", label: "Teslimat", icon: PackageCheck, deliveryOnly: true, description: "Baskı ve teslim takibi" },
     ],
   },
   {
     label: "Finans",
     items: [
-      { href: "/gelirler", label: "Gelirler", icon: ArrowDownCircle, financeOnly: true },
-      { href: "/giderler", label: "Giderler", icon: ArrowUpCircle, financeOnly: true },
-      { href: "/raporlar", label: "Raporlar", icon: BarChart3, financeOnly: true },
+      { href: "/gelirler", label: "Gelirler", icon: ArrowDownCircle, financeOnly: true, description: "Tahsilatlar" },
+      { href: "/giderler", label: "Giderler", icon: ArrowUpCircle, financeOnly: true, description: "Ödemeler ve masraflar" },
+      { href: "/raporlar", label: "Raporlar", icon: BarChart3, financeOnly: true, description: "Kârlılık ve nakit akışı" },
     ],
   },
   {
     label: "Tanımlar",
     items: [
-      { href: "/paketler", label: "Paketler", icon: Package },
-      { href: "/salonlar", label: "Salonlar", icon: Store },
-      { href: "/ekipler", label: "Ekipler", icon: UsersRound, teamsOnly: true },
-      { href: "/ayarlar", label: "Ayarlar", icon: Settings },
+      { href: "/paketler", label: "Paketler", icon: Package, description: "Fiyat ve hizmetler" },
+      { href: "/salonlar", label: "Salonlar", icon: Store, description: "Kapasite ve takvim rengi" },
+      { href: "/ekipler", label: "Ekipler", icon: UsersRound, teamsOnly: true, description: "Çekim ekipleri" },
+      { href: "/ayarlar", label: "Ayarlar", icon: Settings, description: "İşletme ve kullanıcılar" },
     ],
   },
 ];
+
+/** Yetki ve iş tipine göre görünen menü öğeleri — iki menü de bunu kullanıyor. */
+export function visibleNavItems(
+  items: NavItem[],
+  flags: { showFinance: boolean; usesDelivery: boolean; usesTeams: boolean },
+): NavItem[] {
+  return items.filter(
+    (i) =>
+      (flags.showFinance || !i.financeOnly) &&
+      (flags.usesDelivery || !i.deliveryOnly) &&
+      (flags.usesTeams || !i.teamsOnly),
+  );
+}
 
 /**
  * Mobil alt çubuktaki sekmeler. Mobilde kenar çubuğu bunları tekrar

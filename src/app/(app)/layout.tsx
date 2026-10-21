@@ -61,7 +61,17 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             {children}
           </ReservationSuccessProvider>
         </SidebarInset>
-        <BottomNav />
+        <BottomNav
+          account={{
+            profile,
+            business,
+            email: user.email ?? "",
+            showFinance: canSeeFinance(profile),
+            isPlatformAdmin,
+            subscription,
+            canManageBilling: isAdmin(profile),
+          }}
+        />
       </SidebarProvider>
     </VerticalProvider>
   );
