@@ -30,7 +30,7 @@ export function TeamList({ teams }: { teams: Team[] }) {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {teams.map((team, index) => (
         <article
           key={team.id}

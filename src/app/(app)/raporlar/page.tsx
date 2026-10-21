@@ -109,7 +109,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
           kutulara dağılmıştı. Satış/tahsilat/bekleyen tek hikâye, kâr/marj/
           gider tek hikâye.
         */}
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <StatCard label="Toplam satış" value={formatMoney(s?.total_sales)}>
             {/* Tahsilat oranı artık gözle okunuyor; önce kullanıcı iki ayrı
                 karta bakıp kafadan hesaplıyordu. */}
@@ -171,7 +171,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
               aynı kutuda durunca hem yer kaplıyor hem yanlış bir eşitlik
               kuruyordu. Kart değil, tek satırlık şerit.
             */}
-            <div className="grid gap-x-6 gap-y-4 rounded-xl border bg-card px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 rounded-xl border bg-card px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
               <Highlight
                 label="En çok tercih edilen tür"
                 value={
@@ -212,7 +212,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
               <MonthlyPerformanceChart data={monthly} />
             </section>
 
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <section className="rounded-xl border bg-card p-5">
                 <header className="mb-4">
                   <h2 className="font-medium">Salon performansı</h2>
@@ -240,7 +240,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
               </section>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <section className="rounded-xl border bg-card p-5">
                 <header className="mb-4">
                   <h2 className="font-medium">En yoğun günler</h2>

@@ -72,7 +72,7 @@ export function ExpenseFormDialog({
       action={createExpense}
       successMessage="Gider kaydedildi."
     >
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="amount" label="Tutar">
           <MoneyInput
             id="amount"
@@ -136,7 +136,7 @@ export function ExpenseFormDialog({
         </FormField>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="vendor" label="Tedarikçi">
           <Input id="vendor" placeholder="Opsiyonel" {...form.register("vendor")} />
         </FormField>

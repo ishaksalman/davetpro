@@ -65,7 +65,7 @@ export function ContractTemplateForm({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
       <form onSubmit={submit} className="space-y-4" noValidate>
         <Field data-invalid={error ? true : undefined}>
           <FieldLabel htmlFor="contract-body">Sözleşme metni</FieldLabel>

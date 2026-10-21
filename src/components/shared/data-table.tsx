@@ -107,9 +107,12 @@ export function DataTable<TData>({
           gereken overflow-x-auto, CSS gereği dikey ekseni de kaydırma bağlamı
           yapıyor ve sticky o kutuya hapsoluyor. Bu yüzden tabloya sınırlı bir
           yükseklik verip başlığı oraya sabitliyoruz — kısa tablolarda kaydırma
-          çubuğu hiç çıkmıyor, görünüm değişmiyor. */}
+          çubuğu hiç çıkmıyor, görünüm değişmiyor.
+
+          Mobilde alttaki sabit menü (5.5rem) de düşülüyor; yoksa tablo
+          ekrandan uzun kalıp sayfa da kayıyordu — iç içe iki kaydırma. */}
       <div className="overflow-clip rounded-xl border bg-card">
-          <Table containerClassName="max-h-[calc(100svh-13rem)]">
+          <Table containerClassName="max-h-[calc(100svh-20.5rem)] md:max-h-[calc(100svh-13rem)]">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">

@@ -172,7 +172,7 @@ export default async function ReservationDetailPage({
       />
 
       <PageBody>
-        <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_20rem]">
           <div className="min-w-0 space-y-6">
             {/* Organizasyon bilgileri */}
             <section className="rounded-xl border bg-card">

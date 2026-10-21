@@ -147,7 +147,7 @@ export function ConvertDialog({
         </FormField>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id")}
@@ -220,7 +220,7 @@ export function ConvertDialog({
 
       <Separator />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="gross_amount" label="Toplam satış fiyatı">
           <MoneyInput
             id="gross_amount"

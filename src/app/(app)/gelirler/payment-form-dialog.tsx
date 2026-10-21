@@ -116,7 +116,7 @@ export function PaymentFormDialog({
         </p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="amount" label="Tutar">
           <MoneyInput
             id="amount"
@@ -138,7 +138,7 @@ export function PaymentFormDialog({
         </FormField>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="category" label="Kategori">
           <Select
             value={form.watch("category")}

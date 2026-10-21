@@ -32,7 +32,7 @@ export function DeliveryBoard({ rows }: { rows: ReservationRow[] }) {
             <span className="text-xs text-muted-foreground">{grup.rows.length}</span>
           </h2>
 
-          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
             {grup.rows.map((row) => (
               <div
                 key={row.id}

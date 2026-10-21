@@ -143,7 +143,7 @@ export function QuoteFormDialog({
       submitLabel="Teklifi oluştur"
       contentClassName="sm:max-w-2xl"
     >
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id") ?? "none"}
@@ -273,7 +273,7 @@ export function QuoteFormDialog({
 
       <Separator />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="discount_amount" label="İndirim">
           <MoneyInput
             id="discount_amount"

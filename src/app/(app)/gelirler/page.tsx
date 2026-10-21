@@ -92,7 +92,7 @@ export default async function IncomePage({ searchParams }: PageProps<"/gelirler"
           />
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <StatCard
                 label="Dönem tahsilatı"
                 value={formatMoney(total)}

@@ -272,7 +272,7 @@ export default async function DashboardPage() {
           />
         )}
 
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_22rem]">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[1fr_22rem]">
           <div className="min-w-0 space-y-4 sm:space-y-6">
             {showFinance && series.length > 0 && (
               <DashboardChart
@@ -327,7 +327,9 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <aside className="space-y-4 sm:space-y-6">
+          {/* min-w-0: tek sütunlu mobil ızgarada yan sütun içeriğine göre
+              genişleyip (takvim) ana sütunu da ekrandan taşırıyordu. */}
+          <aside className="min-w-0 space-y-4 sm:space-y-6">
             <MiniCalendar today={today} days={calendarDays} />
 
             <Panel

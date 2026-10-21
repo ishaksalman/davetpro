@@ -350,7 +350,7 @@ export function ReservationFormDialog({
          */
         <Field className="sm:col-span-2">
           <FieldLabel htmlFor="organizasyon-konumu">Organizasyon konumu</FieldLabel>
-          <div id="organizasyon-konumu" className="grid gap-2 sm:grid-cols-2">
+          <div id="organizasyon-konumu" className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {[
               // Sık kullanılan önce: işlerin çoğu dış mekânda.
               {
@@ -399,7 +399,7 @@ export function ReservationFormDialog({
         </Field>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Dış mekân seçiliyken mekân listesi gizleniyor: seçilecek bir şey
             yok, satır zaten belli. */}
         {/* Organizasyon firmasının kendi mekânı olmayabilir — işlerin hepsi
@@ -469,7 +469,7 @@ export function ReservationFormDialog({
         </FormField>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField form={form} name="event_date" label="Tarih">
           <DatePicker
             id="event_date"
@@ -504,7 +504,7 @@ export function ReservationFormDialog({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormField
           form={form}
           name="package_id"
@@ -643,7 +643,7 @@ export function ReservationFormDialog({
             </TabsList>
           </Tabs>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {perGuest ? (
               <FormField
                 form={form}
@@ -782,7 +782,7 @@ export function ReservationFormDialog({
           {/* Kapora düzenlemede de açık: para sonradan da alınabiliyor ve
               girilen tutar YENİ bir tahsilat satırı açıyor, mevcut olanı
               değiştirmiyor — tahsilatlar değiştirilemez kayıtlar. */}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               form={form}
               name="deposit_amount"

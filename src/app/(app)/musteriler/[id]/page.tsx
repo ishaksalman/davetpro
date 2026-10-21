@@ -80,10 +80,10 @@ export default async function CustomerDetailPage({
       />
 
       <PageBody>
-        <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_20rem]">
           <div className="min-w-0 space-y-6">
             {showFinance && (
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard label="Toplam satış" value={formatMoney(totalSales)} />
                 <StatCard
                   label="Yapılan ödemeler"
