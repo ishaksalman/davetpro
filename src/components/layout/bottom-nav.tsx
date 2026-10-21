@@ -93,13 +93,16 @@ function NavContent({
 }) {
   return (
     <>
-      <Icon
+      {/* Etkin sekmede simge marka degradeli hapın içinde. Hap her sekmede
+          yer tutuyor; etkin sekme değişince yazılar zıplamasın. */}
+      <span
         className={cn(
-          "size-5",
-          active ? "text-primary" : "text-muted-foreground",
+          "grid h-7 w-12 place-items-center rounded-full transition-colors",
+          active ? "bg-brand-gradient text-brand shadow-sm" : "text-muted-foreground",
         )}
-        strokeWidth={active ? 2.25 : 1.75}
-      />
+      >
+        <Icon className="size-5" strokeWidth={active ? 2.25 : 1.75} />
+      </span>
       <span
         className={cn(
           "text-[11px] leading-none",
