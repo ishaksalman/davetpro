@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
@@ -325,11 +325,39 @@ export function ContractWorkspace({
   );
 }
 
-/** A4 sayfayı ekranda kağıt gibi göstermek için gri zemin + gölge. */
+/** A4'ün ekrandaki genişliği (210 mm, CSS'te 96 dpi). */
+const SHEET_WIDTH_PX = (210 / 25.4) * 96;
+
+/**
+ * A4 sayfayı ekranda kağıt gibi göstermek için gri zemin + gölge.
+ *
+ * Dar ekranda sayfa orantılı küçültülüp genişliğe sığdırılıyor: belgenin
+ * yerleşimi değişmiyor (önizleme ile çıktı aynı kalsın), yalnızca ölçeği.
+ * `zoom` kullanılıyor — transform'un aksine yerleşimi de küçültüyor, altta
+ * boşluk kalmıyor. Yazdırma/PDF ayrı sayfada, buna dokunulmuyor.
+ */
 function DocumentFrame({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      const style = getComputedStyle(el);
+      const available =
+        el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      setZoom(Math.min(1, available / SHEET_WIDTH_PX));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="overflow-x-auto rounded-xl bg-muted/50 p-4 sm:p-8">
-      <div className="mx-auto w-fit shadow-lg">{children}</div>
+    <div ref={ref} className="overflow-x-auto rounded-xl bg-muted/50 p-3 sm:p-8">
+      <div className="mx-auto w-fit shadow-lg" style={{ zoom }}>
+        {children}
+      </div>
     </div>
   );
 }

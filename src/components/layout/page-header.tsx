@@ -28,46 +28,41 @@ export function PageHeader({
         className,
       )}
     >
-      {back && (
-        <Button
-          asChild
-          variant="ghost"
-          size="icon"
-          className="-ml-1 shrink-0 text-muted-foreground hover:text-foreground"
-        >
-          <Link href={back.href} aria-label={back.label} title={back.label}>
-            <ArrowLeft />
-          </Link>
-        </Button>
-      )}
-      {/* min-w yerine 0 verilirse başlık sonsuza kadar küçülüyor ve eylemler
+      {/* Geri oku ve başlık tek grup: dar ekranda da hep aynı satırda.
+          Uzun başlık kısalıyor (truncate), satırı bölmüyor.
+
+          min-w yerine 0 verilirse başlık sonsuza kadar küçülüyor ve eylemler
           asla alt satıra inmiyordu; detay sayfalarında başlık tek harfe
           düşüyordu. Okunabilir bir alt sınırla flex-wrap işini yapıyor:
-          eylemler sığıyorsa aynı satırda, sığmıyorsa altta.
-
-          Dar ekranda sıra değişiyor: eylemler üst satırda (geri okunun
-          yanında), başlık altta tam genişlikte. order kullanıldığı için DOM
-          sırası bozulmuyor — klavye ve ekran okuyucu başlığı önce görüyor. */}
-      <div
-        className={cn(
-          "min-w-[9rem] flex-1",
-          // Yalnızca detay sayfalarında (geri oku olanlar) dar ekranda
-          // eylemler üste alınıyor. Liste sayfalarında tek eylem var ve
-          // başlıkla aynı satıra rahat sığıyor; oraya ikinci satır eklemek
-          // boşuna yükseklik olurdu.
-          back && "max-sm:order-2 max-sm:w-full max-sm:flex-none",
+          eylemler sığıyorsa aynı satırda, sığmıyorsa altta. */}
+      <div className="flex min-w-[9rem] flex-1 items-center gap-2">
+        {back && (
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="-ml-2 shrink-0 text-muted-foreground hover:text-foreground"
+          >
+            <Link href={back.href} aria-label={back.label} title={back.label}>
+              <ArrowLeft />
+            </Link>
+          </Button>
         )}
-      >
-        <h1 className="truncate text-lg font-semibold tracking-tight">{title}</h1>
-        {description && (
-          <p className="truncate text-sm text-muted-foreground">{description}</p>
-        )}
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-lg font-semibold tracking-tight">{title}</h1>
+          {description && (
+            <p className="truncate text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
       </div>
       {actions && (
         <div
           className={cn(
             "flex shrink-0 items-center gap-2 max-sm:ml-auto",
-            back && "max-sm:order-1",
+            // Detay sayfalarında eylemler (durum, düzenle, dönüştür…) dar
+            // ekranda başlığın altına, sağa yaslı iniyor: başlıkla aynı
+            // satırda kalsalar başlık birkaç harfe düşüyordu.
+            back && "max-sm:w-full max-sm:justify-end",
           )}
         >
           {actions}
