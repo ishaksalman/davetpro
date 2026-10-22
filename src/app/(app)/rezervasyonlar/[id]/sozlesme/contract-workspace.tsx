@@ -460,7 +460,6 @@ function MissingCustomerNotice({
       </p>
       <CustomerFormDialog
         customer={customer}
-        detailsOpen
         open={open}
         onOpenChange={setOpen}
         onSaved={() => router.refresh()}

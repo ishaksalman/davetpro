@@ -71,16 +71,15 @@ export function sozlesmeAdi(c: {
  *
  * Belgedeki müşteri bloğu boş satırları hiç basmıyor; şablon bir alanı
  * kullanıyorsa yerine "—" yazılıyor. İkisi de sessiz: kullanıcı eksikliği
- * imzaya gidince fark ediyordu. Adres ve kimlik numarası her zaman
- * soruluyor (taraf bilgisi); e-posta yalnızca şablon kullanıyorsa.
- * Engellemiyor — kimlik numarası KVKK gereği bilerek boş bırakılabilir.
+ * imzaya gidince fark ediyordu. Adres her zaman soruluyor (taraf bilgisi);
+ * e-posta yalnızca şablon kullanıyorsa. Kimlik numarası hiç sorulmuyor —
+ * KVKK gereği çoğu işletme bilerek boş bırakıyor. Engellemiyor.
  */
 export function missingCustomerFields(
   c: {
     contract_name?: string | null;
     email?: string | null;
     address?: string | null;
-    national_id?: string | null;
   },
   templateBody: string,
 ): string[] {
@@ -91,7 +90,6 @@ export function missingCustomerFields(
   return [
     bos(c.contract_name) && "Sözleşmede geçecek ad",
     bos(c.address) && "Adres",
-    bos(c.national_id) && "T.C. Kimlik No",
     bos(c.email) && sablonda("customer_email") && "E-posta",
   ].filter((x): x is string => Boolean(x));
 }

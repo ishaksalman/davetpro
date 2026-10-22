@@ -16,9 +16,6 @@ import type { Customer } from "@/lib/database.types";
 import { cn } from "@/lib/utils";
 import { saveCustomer } from "./actions";
 
-/** Katlanır bölümdeki alanlar; hata varsa bölüm kendiliğinden açılıyor. */
-const DETAIL_FIELDS = ["email", "address", "national_id"] as const;
-
 export function CustomerFormDialog({
   customer,
   trigger,
@@ -27,7 +24,6 @@ export function CustomerFormDialog({
   onOpenChange,
   onCreated,
   onSaved,
-  detailsOpen: detailsOpenInitially,
 }: {
   customer?: Customer;
   trigger?: React.ReactElement;
@@ -39,11 +35,6 @@ export function CustomerFormDialog({
   onCreated?: (id: string) => void;
   /** Kayıt (ekleme ya da düzenleme) başarılı olduğunda. */
   onSaved?: () => void;
-  /**
-   * "Sözleşme ve iletişim bilgileri" bölümü açık başlasın — sözleşme
-   * ekranından eksik bilgiyi tamamlamak için açıldığında.
-   */
-  detailsOpen?: boolean;
 }) {
   const defaultValues: CustomerInput = {
     id: customer?.id,
@@ -61,14 +52,9 @@ export function CustomerFormDialog({
     defaultValues,
   });
 
-  // Düzenlemede bu alanlardan biri doluysa bölüm açık gelsin; bilgi saklı
-  // durmasın.
-  const [detailsOpen, setDetailsOpen] = useState(
-    detailsOpenInitially ??
-      Boolean(customer?.email || customer?.address || customer?.national_id),
-  );
-  const detailError = DETAIL_FIELDS.some((f) => form.formState.errors[f]);
-  const showDetails = detailsOpen || detailError;
+  // Kimlik bölümü: kayıtlı numara varsa ya da alanda hata varsa açık gelsin.
+  const [idOpen, setIdOpen] = useState(Boolean(customer?.national_id));
+  const showId = idOpen || Boolean(form.formState.errors.national_id);
 
   /*
    * Sözleşmede geçecek ad, ad soyadı izliyor — kullanıcı ayrıca bir ad
@@ -135,56 +121,56 @@ export function CustomerFormDialog({
         />
       </FormField>
 
-      {/* Yeni müşteride gösterilmiyor: ilk kayıtta bu bilgiler genelde elde
-          yok, form kısa kalsın. Düzenlemede ve sözleşme ekranından açılınca
-          duruyor. */}
+      <FormField form={form} name="email" label="E-posta (opsiyonel)">
+        <Input
+          id="email"
+          type="email"
+          placeholder="ornek@eposta.com"
+          {...form.register("email")}
+        />
+      </FormField>
+
+      <FormField form={form} name="address" label="Adres (opsiyonel)">
+        <Textarea
+          id="address"
+          rows={2}
+          placeholder="Sözleşmede kullanılır"
+          {...form.register("address")}
+        />
+      </FormField>
+
+      {/* T.C. Kimlik No yeni müşteride hiç sorulmuyor (KVKK: gerekmedikçe
+          alınmasın). Düzenlemede kapalı bir bölümde duruyor — eskiden
+          girilmiş numara görülebilsin, silinebilsin. */}
       {customer && (
         <div className="rounded-lg border">
           <button
             type="button"
-            aria-expanded={showDetails}
-            aria-controls="customer-details"
-            onClick={() => setDetailsOpen((v) => !v)}
+            aria-expanded={showId}
+            aria-controls="customer-national-id"
+            onClick={() => setIdOpen((v) => !v)}
             className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm"
           >
             <span>
-              <span className="font-medium">Sözleşme ve iletişim bilgileri</span>
+              <span className="font-medium">Kimlik bilgisi</span>
               <span className="block text-xs text-muted-foreground">
-                E-posta, adres, T.C. Kimlik No — opsiyonel
+                T.C. Kimlik No — opsiyonel
               </span>
             </span>
             <ChevronDown
               className={cn(
                 "size-4 shrink-0 text-muted-foreground transition-transform",
-                showDetails && "rotate-180",
+                showId && "rotate-180",
               )}
             />
           </button>
 
-          {/* Kapalıyken de DOM'da: alanlar kayıtlı kalsın, değerler kaybolmasın. */}
+          {/* Kapalıyken de DOM'da: alan kayıtlı kalsın, değer kaybolmasın. */}
           <div
-            id="customer-details"
-            hidden={!showDetails}
+            id="customer-national-id"
+            hidden={!showId}
             className="space-y-4 border-t px-3 pt-3 pb-4"
           >
-            <FormField form={form} name="email" label="E-posta">
-              <Input
-                id="email"
-                type="email"
-                placeholder="ornek@eposta.com"
-                {...form.register("email")}
-              />
-            </FormField>
-
-            <FormField form={form} name="address" label="Adres">
-              <Textarea
-                id="address"
-                rows={2}
-                placeholder="Sözleşmede kullanılır"
-                {...form.register("address")}
-              />
-            </FormField>
-
             <FormField form={form} name="national_id" label="T.C. Kimlik No">
               <Input
                 id="national_id"
@@ -193,11 +179,9 @@ export function CustomerFormDialog({
                 placeholder="11 hane"
                 {...form.register("national_id")}
               />
-              {/* KVKK: kimlik numarası zorunlu değil. Sözleşmede taraf kimliğinin
-                  yazılmasını isteyen işletmeler için opsiyonel bırakıldı. */}
               <p className="text-xs text-muted-foreground">
-                Zorunlu değildir. Yalnızca sözleşmede kimlik bilgisi isteniyorsa
-                doldurun; KVKK gereği gerekmedikçe bu alanı boş bırakmanız önerilir.
+                Zorunlu değildir. KVKK gereği gerekmedikçe bu alanı boş bırakmanız
+                önerilir.
               </p>
             </FormField>
           </div>
