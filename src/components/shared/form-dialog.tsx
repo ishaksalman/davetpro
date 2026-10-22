@@ -237,7 +237,7 @@ export function FormDialog<TValues extends FieldValues>({
       {triggerNode && <DialogTrigger asChild>{triggerNode}</DialogTrigger>}
       <DialogContent
         className={cn(
-          "max-h-[90svh] gap-0 overflow-y-auto sm:max-w-lg",
+          "max-h-[90svh] gap-0 overflow-y-auto overflow-x-hidden sm:max-w-lg",
           contentClassName,
         )}
       >

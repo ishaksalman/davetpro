@@ -248,6 +248,24 @@
 }
 
 @layer base {
+  /* iOS Safari tarih/saat alanlarına kendi sabit genişliğini veriyor ve
+     min-width: 0'ı yok sayıyor: rezervasyon formunda yan yana duran
+     Başlangıç/Bitiş birbirine girip pencereyi yatayda taşırıyordu. Yerel
+     görünüm kapatılınca alan hücreye uyuyor; dokununca seçici yine açılıyor.
+     Safari bu alanlarda metni ortaladığı için sola alınıyor. */
+  input[type="time"],
+  input[type="date"],
+  input[type="datetime-local"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+  }
+  input::-webkit-date-and-time-value {
+    text-align: left;
+  }
+}
+
+@layer base {
   /* Rakamlar tablolarda hizalı dursun. */
   .tabular {
     font-variant-numeric: tabular-nums;
