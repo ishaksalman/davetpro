@@ -31,9 +31,16 @@ import { useSubmitGuard } from "@/hooks/use-submit-guard";
 import { cancelContract, createContract, updateContractStatus } from "./actions";
 import { useVertical } from "@/components/layout/vertical-provider";
 import { CustomerFormDialog } from "../../../musteriler/customer-form-dialog";
+import {
+  ReservationFormDialog,
+  type EditableReservation,
+} from "../../reservation-form-dialog";
+import type { Lookups } from "@/lib/queries";
 
 export function ContractWorkspace({
   reservationId,
+  reservation,
+  lookups,
   customer,
   customerName,
   customerPhone,
@@ -44,6 +51,8 @@ export function ContractWorkspace({
   draftContent,
 }: {
   reservationId: string;
+  reservation: EditableReservation;
+  lookups: Lookups;
   customer: Customer;
   customerName: string;
   customerPhone: string;
@@ -127,13 +136,7 @@ export function ContractWorkspace({
           </div>
         </div>
 
-        {kapsamsiz && (
-          <Notice>
-            Bu sözleşmede hizmet kapsamı tanımlı değil: paket seçilmemiş ve
-            rezervasyon notu boş. Belge neyin verileceğini yazmayacak. Paket
-            seçmenizi ya da kapsamı rezervasyon notuna yazmanızı öneririz.
-          </Notice>
-        )}
+        {kapsamsiz && <ScopeNotice reservation={reservation} lookups={lookups} />}
 
         <MissingCustomerNotice customer={customer} templateBody={templateBody} />
 
@@ -466,6 +469,51 @@ function MissingCustomerNotice({
       />
       <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
         <UserPen />
+        Bilgileri tamamla
+      </Button>
+    </div>
+  );
+}
+
+/**
+ * Hizmet kapsamı boş uyarısı ve yerinde tamamlama: rezervasyon penceresi bu
+ * sayfada açılıyor, paket seçilip ya da kapsam nota yazılıp kaydedilince
+ * önizleme yenileniyor.
+ */
+function ScopeNotice({
+  reservation,
+  lookups,
+}: {
+  reservation: EditableReservation;
+  lookups: Lookups;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning/10 px-3.5 py-3 text-sm text-warning-foreground dark:text-warning">
+      <p>
+        Bu sözleşmede hizmet kapsamı tanımlı değil: paket seçilmemiş ve
+        rezervasyon notu boş. Belge neyin verileceğini yazmayacak. Paket seçin
+        ya da kapsamı rezervasyon notuna yazın.
+      </p>
+      <ReservationFormDialog
+        reservation={reservation}
+        customers={lookups.customers}
+        venues={lookups.venues}
+        teams={lookups.teams}
+        packages={lookups.packages}
+        showFinance
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          // Kayıt yolu /rezervasyonlar/[id]'yi tazeliyor; bu alt sayfa için
+          // kapanınca yenile ki önizleme yeni paket/notla hazırlansın.
+          if (!next) router.refresh();
+        }}
+      />
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Pencil />
         Bilgileri tamamla
       </Button>
     </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { canSeeFinance, requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { getReservationById } from "@/lib/queries";
+import { getLookups, getReservationById } from "@/lib/queries";
 import { todayISO } from "@/lib/time";
 import {
   buildContractSnapshot,
@@ -11,7 +11,7 @@ import {
 } from "@/lib/contracts";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/shared/error-state";
-import type { Contract, ContractTemplate, Customer } from "@/lib/database.types";
+import type { Contract, ContractTemplate } from "@/lib/database.types";
 import { ContractWorkspace } from "./contract-workspace";
 
 export const metadata: Metadata = { title: "Sözleşme" };
@@ -37,10 +37,12 @@ export default async function ContractPage({
   }
 
   const supabase = await createClient();
-  const [reservationResult, customerResult, templateResult, contractResult] =
+  // Lookups: müşteri burada; salon/paket/ekip "Bilgileri tamamla" ile açılan
+  // rezervasyon penceresi için.
+  const [reservationResult, lookups, templateResult, contractResult] =
     await Promise.all([
       getReservationById(id),
-      supabase.from("customers").select("*").returns<Customer[]>(),
+      getLookups(),
       supabase
         .from("contract_templates")
         .select("*")
@@ -73,7 +75,7 @@ export default async function ContractPage({
   const reservation = reservationResult.reservation;
   if (!reservation) notFound();
 
-  const customer = (customerResult.data ?? []).find(
+  const customer = lookups.customers.find(
     (c) => c.id === reservation.customer_id,
   );
   if (!customer) notFound();
@@ -106,6 +108,8 @@ export default async function ContractPage({
       <PageBody>
         <ContractWorkspace
           reservationId={id}
+          reservation={reservation}
+          lookups={lookups}
           customer={customer}
           customerName={customer.full_name}
           customerPhone={customer.phone}
