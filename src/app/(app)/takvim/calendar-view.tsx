@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Calendar,
@@ -19,6 +19,7 @@ import {
 } from "date-fns";
 import { tr } from "date-fns/locale";
 import { ChevronDown, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { slotFromTap } from "./touch-slot";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -46,6 +47,10 @@ import { cn } from "@/lib/utils";
 import { useVertical } from "@/components/layout/vertical-provider";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
 import { buyukHarf, Vertical } from "@/lib/vertical";
+
+/** Gün/hafta görünümünün başlangıç saati ve dilim süresi (dakika). */
+const DAY_START_HOUR = 8;
+const STEP_MINUTES = 30;
 
 const localizer = dateFnsLocalizer({
   format,
@@ -243,6 +248,32 @@ export function CalendarView({
     [visible, visibleHolds, visibleLeads],
   );
 
+  /*
+   * Dokunmatik ekranda kısa dokunuş. Kütüphane yalnızca basılı tutmayı seçim
+   * sayıyor (bkz. touch-slot.ts); kısa dokunuşu burada yakalıyoruz. Parmak
+   * kayarsa tarayıcı pointercancel gönderiyor — kaydırma seçim sayılmıyor.
+   * 250 ms'den uzun basışı kütüphane zaten ele aldığı için çift açılmıyor.
+   */
+  const tap = useRef<{ x: number; y: number; t: number } | null>(null);
+
+  function handleTap(e: React.PointerEvent) {
+    const start = tap.current;
+    tap.current = null;
+    if (!start || e.pointerType !== "touch") return;
+    if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+    if (e.timeStamp - start.t >= 250) return;
+    const slot = slotFromTap({
+      target: e.target as Element,
+      x: e.clientX,
+      y: e.clientY,
+      view: view as "month" | "week" | "day",
+      date,
+      minHour: DAY_START_HOUR,
+      stepMinutes: STEP_MINUTES,
+    });
+    if (slot) openQuickCreate({ ...slot, slots: [slot.start], action: "click" });
+  }
+
   function openQuickCreate(slot: SlotInfo) {
     const start = slot.start as Date;
     const end = slot.end as Date;
@@ -396,7 +427,15 @@ export function CalendarView({
         </span>
       </div>
 
-      <div className="rounded-xl border bg-card p-2 sm:p-4">
+      <div
+        className="rounded-xl border bg-card p-2 sm:p-4"
+        onPointerDown={(e) => {
+          tap.current =
+            e.pointerType === "touch" ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null;
+        }}
+        onPointerUp={handleTap}
+        onPointerCancel={() => (tap.current = null)}
+      >
         <Calendar<CalendarEvent>
           localizer={localizer}
           culture="tr"
@@ -461,9 +500,9 @@ export function CalendarView({
               `${format(start, "HH:mm")} – ${format(end, "HH:mm")}`,
           }}
           dayLayoutAlgorithm="no-overlap"
-          step={30}
+          step={STEP_MINUTES}
           timeslots={2}
-          min={new Date(1970, 0, 1, 8, 0)}
+          min={new Date(1970, 0, 1, DAY_START_HOUR, 0)}
           style={{ height: "clamp(30rem, 68svh, 52rem)" }}
           components={{
             event: ({ event }) =>
