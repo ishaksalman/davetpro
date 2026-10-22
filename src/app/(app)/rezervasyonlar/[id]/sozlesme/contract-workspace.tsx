@@ -12,6 +12,8 @@ import {
   Printer,
   RefreshCw,
   Ban,
+  MoreHorizontal,
+  Share2,
   UserPen,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +21,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { VoidDialog } from "@/components/shared/void-dialog";
 import { Notice } from "@/components/shared/notice";
@@ -173,8 +181,8 @@ export function ContractWorkspace({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border bg-card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="rounded-xl border bg-card p-4 sm:p-5">
+        <div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="tabular font-medium">
@@ -200,30 +208,28 @@ export function ContractWorkspace({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild>
-              <a href={printHref} target="_blank" rel="noopener noreferrer">
-                <Printer />
-                Yazdır
-              </a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a
-                href={`${printHref}?hedef=pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Download />
-                PDF indir
-              </a>
-            </Button>
-            <ShareButton
-              contractNumber={contract.contract_number}
-              customerName={customerName}
-              customerPhone={customerPhone}
-              eventDate={eventDate}
-            />
-          </div>
+        </div>
+
+        {/* Belge işlemleri: dar ekranda tek satırda üç eşit düğme. */}
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+          <Button variant="outline" asChild>
+            <a href={printHref} target="_blank" rel="noopener noreferrer">
+              <Printer />
+              Yazdır
+            </a>
+          </Button>
+          <Button variant="outline" asChild>
+            <a href={`${printHref}?hedef=pdf`} target="_blank" rel="noopener noreferrer">
+              <Download />
+              PDF<span className="hidden sm:inline"> indir</span>
+            </a>
+          </Button>
+          <ShareButton
+            contractNumber={contract.contract_number}
+            customerName={customerName}
+            customerPhone={customerPhone}
+            eventDate={eventDate}
+          />
         </div>
 
         {/* İptal edilen sözleşme geçmişte kalır ama rezervasyon devam
@@ -253,12 +259,16 @@ export function ContractWorkspace({
         {!cancelled && (
           <>
             <Separator className="my-4" />
-            <div className="flex flex-wrap gap-2">
+            {/* Ana işlem görünür; seyrek kullanılan yeniden oluşturma ve iptal
+                "⋯" menüsünde — mobilde kart beş satır tutuyordu. Pencereler
+                menünün içinde: onSelect engellenmezse menü kapanırken
+                pencere de kapanıyor. */}
+            <div className="flex gap-2">
               {contract.status !== "imzalandi" && (
                 <ConfirmDialog
                   destructive={false}
                   trigger={
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" className="flex-1 sm:flex-none">
                       <CheckCircle2 />
                       İmzalandı olarak işaretle
                     </Button>
@@ -273,35 +283,46 @@ export function ContractWorkspace({
                 />
               )}
 
-              <ConfirmDialog
-                destructive={false}
-                trigger={
-                  <Button variant="outline" size="sm">
-                    <RefreshCw />
-                    Yeniden oluştur
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" aria-label="Diğer işlemler" title="Diğer işlemler">
+                    <MoreHorizontal />
                   </Button>
-                }
-                title="Sözleşmeyi yeniden oluştur"
-                description="Rezervasyon, müşteri veya fiyat bilgileri değiştiyse güncel verilerle yeni bir sürüm hazırlanır. Sözleşme numarası aynı kalır, sürüm numarası artar. Mevcut sürüm kayıtlarda saklanmaya devam eder."
-                confirmLabel="Yeni sürüm oluştur"
-                successMessage="Sözleşmenin yeni sürümü oluşturuldu."
-                onConfirm={() => createContract(reservationId)}
-              />
-
-              <VoidDialog
-                trigger={
-                  <Button variant="ghost" size="sm" className="text-destructive">
-                    <Ban />
-                    Sözleşmeyi iptal et
-                  </Button>
-                }
-                title="Sözleşmeyi iptal et"
-                description="Sözleşme silinmez; iptal edilmiş olarak işaretlenir ve nedeni kayıtta kalır."
-                successMessage="Sözleşme iptal edildi."
-                onVoid={(reason) =>
-                  cancelContract(contract.id, reservationId, reason)
-                }
-              />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-52">
+                  <ConfirmDialog
+                    destructive={false}
+                    trigger={
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <RefreshCw />
+                        Yeniden oluştur
+                      </DropdownMenuItem>
+                    }
+                    title="Sözleşmeyi yeniden oluştur"
+                    description="Rezervasyon, müşteri veya fiyat bilgileri değiştiyse güncel verilerle yeni bir sürüm hazırlanır. Sözleşme numarası aynı kalır, sürüm numarası artar. Mevcut sürüm kayıtlarda saklanmaya devam eder."
+                    confirmLabel="Yeni sürüm oluştur"
+                    successMessage="Sözleşmenin yeni sürümü oluşturuldu."
+                    onConfirm={() => createContract(reservationId)}
+                  />
+                  <VoidDialog
+                    trigger={
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <Ban />
+                        Sözleşmeyi iptal et
+                      </DropdownMenuItem>
+                    }
+                    title="Sözleşmeyi iptal et"
+                    description="Sözleşme silinmez; iptal edilmiş olarak işaretlenir ve nedeni kayıtta kalır."
+                    successMessage="Sözleşme iptal edildi."
+                    onVoid={(reason) =>
+                      cancelContract(contract.id, reservationId, reason)
+                    }
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </>
         )}
@@ -431,6 +452,7 @@ function ShareButton({
 
   return (
     <Button variant="outline" onClick={() => void share()}>
+      <Share2 />
       Paylaş
     </Button>
   );
