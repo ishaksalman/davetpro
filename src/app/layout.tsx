@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   title: { default: BASLIK, template: "%s · DavetPro" },
   description: ACIKLAMA,
   applicationName: "DavetPro",
+  // iOS Safari metindeki telefon numaralarını kendiliğinden tel: bağlantısına
+  // çeviriyordu; sunucunun gönderdiği HTML ile tarayıcıdaki ayrışınca React
+  // hydration hatası verip ağacı baştan çiziyordu. Gereken yerde bağlantı
+  // zaten açıkça (href="tel:…") veriliyor.
+  formatDetection: { telephone: false },
   // Bağlantı çoğunlukla WhatsApp ve Instagram üzerinden paylaşılıyor;
   // önizleme olmadan sadece adres görünüyor.
   openGraph: {

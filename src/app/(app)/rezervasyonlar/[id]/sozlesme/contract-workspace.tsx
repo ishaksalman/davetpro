@@ -333,30 +333,55 @@ const SHEET_WIDTH_PX = (210 / 25.4) * 96;
  *
  * Dar ekranda sayfa orantılı küçültülüp genişliğe sığdırılıyor: belgenin
  * yerleşimi değişmiyor (önizleme ile çıktı aynı kalsın), yalnızca ölçeği.
- * `zoom` kullanılıyor — transform'un aksine yerleşimi de küçültüyor, altta
- * boşluk kalmıyor. Yazdırma/PDF ayrı sayfada, buna dokunulmuyor.
+ *
+ * transform: scale — `zoom` değil: iOS Safari zoom'u genişliğe uygulayıp
+ * yazı boyutuna uygulamıyordu; metin dar sütuna sıkışıp her kelimede
+ * kırılıyordu. transform yerleşimi küçültmediği için dış kutunun boyu
+ * ölçekle elle ayarlanıyor. Yazdırma/PDF ayrı sayfada, buna dokunulmuyor.
  */
 function DocumentFrame({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [height, setHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    const sheet = sheetRef.current;
+    if (!el || !sheet) return;
     const observer = new ResizeObserver(() => {
       const style = getComputedStyle(el);
       const available =
         el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-      setZoom(Math.min(1, available / SHEET_WIDTH_PX));
+      setScale(Math.min(1, available / SHEET_WIDTH_PX));
+      // transform yerleşimi etkilemediği için ölçülen yükseklik ölçeksiz.
+      setHeight(sheet.offsetHeight);
     });
     observer.observe(el);
+    observer.observe(sheet);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div ref={ref} className="overflow-x-auto rounded-xl bg-muted/50 p-3 sm:p-8">
-      <div className="mx-auto w-fit shadow-lg" style={{ zoom }}>
-        {children}
+    <div ref={ref} className="overflow-hidden rounded-xl bg-muted/50 p-3 sm:p-8">
+      <div
+        className="mx-auto"
+        style={{
+          width: SHEET_WIDTH_PX * scale,
+          height: height === null ? undefined : height * scale,
+        }}
+      >
+        <div
+          ref={sheetRef}
+          className="shadow-lg"
+          style={{
+            width: SHEET_WIDTH_PX,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
