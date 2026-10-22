@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Mail, Phone } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { tr } from "date-fns/locale";
 import { canSeeFinance, requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getReservationRows } from "@/lib/queries";
 import { ORGANIZATION_TYPE_LABELS } from "@/lib/constants";
 import {
   formatDate,
-  formatDateShort,
   formatMoney,
   formatPhone,
   formatTimeRange,
@@ -18,12 +19,12 @@ import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
-import { StatCard } from "@/components/shared/stat-card";
 import { StageBadge } from "@/components/shared/stage-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import type { Customer } from "@/lib/database.types";
 import { CustomerFormDialog } from "../customer-form-dialog";
 import { vertical, buyukHarf } from "@/lib/vertical";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Müşteri" };
 
@@ -83,19 +84,21 @@ export default async function CustomerDetailPage({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_20rem]">
           <div className="min-w-0 space-y-6">
             {showFinance && (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <StatCard label="Toplam satış" value={formatMoney(totalSales)} />
-                <StatCard
-                  label="Yapılan ödemeler"
-                  value={formatMoney(totalPaid)}
-                  tone="positive"
+              // Tek kartta üç hücre: alt alta üç kart mobilde ekranın yarısını
+              // tutuyordu.
+              <dl className="grid grid-cols-3 divide-x rounded-xl border bg-card">
+                <SummaryCell label="Toplam satış" value={totalSales} />
+                <SummaryCell
+                  label="Ödenen"
+                  value={totalPaid}
+                  className="text-success"
                 />
-                <StatCard
+                <SummaryCell
                   label="Kalan borç"
-                  value={formatMoney(totalBalance)}
-                  tone={totalBalance > 0 ? "pending" : "positive"}
+                  value={totalBalance}
+                  className={totalBalance > 0 ? "text-warning" : "text-success"}
                 />
-              </div>
+              </dl>
             )}
 
             <section className="rounded-xl border bg-card">
@@ -121,38 +124,34 @@ export default async function CustomerDetailPage({
                     <li key={reservation.id}>
                       <Link
                         href={`/rezervasyonlar/${reservation.id}`}
-                        className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 transition-colors hover:bg-muted/50"
+                        className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 sm:px-5"
                       >
-                        <div className="w-24 shrink-0">
-                          <p className="tabular text-sm font-medium">
-                            {formatDateShort(reservation.event_date)}
-                          </p>
-                          <p className="tabular text-xs text-muted-foreground">
-                            {formatTimeRange(
-                              reservation.start_time,
-                              reservation.end_time,
-                            )}
-                          </p>
-                        </div>
+                        <DateChip date={reservation.event_date} />
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium">
+                          <p className="truncate text-sm font-medium">
                             {ORGANIZATION_TYPE_LABELS[reservation.organization_type]}
                           </p>
-                          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                            <span className="tabular shrink-0">
+                              {formatTimeRange(reservation.start_time, reservation.end_time)}
+                            </span>
                             <span
                               aria-hidden
-                              className="size-2 rounded-full"
+                              className="size-2 shrink-0 rounded-full"
                               style={{ backgroundColor: reservation.venue?.color }}
                             />
-                            {reservation.venue?.name}
+                            <span className="truncate">{reservation.venue?.name}</span>
                           </p>
+                          <StageBadge
+                            status={reservation.status}
+                            deliveryStatus={reservation.delivery_status}
+                            className="mt-1.5"
+                          />
                         </div>
 
-                        <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
-
                         {showFinance && (
-                          <div className="w-28 text-right">
+                          <div className="shrink-0 text-right">
                             <Money value={reservation.net_amount} className="text-sm" />
                             {reservation.balance_amount > 0 && (
                               <p className="text-xs text-warning tabular">
@@ -235,5 +234,42 @@ export default async function CustomerDetailPage({
         </div>
       </PageBody>
     </>
+  );
+}
+
+function SummaryCell({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: number;
+  className?: string;
+}) {
+  return (
+    <div className="min-w-0 px-3 py-3 sm:px-5 sm:py-4">
+      <dt className="truncate text-xs text-muted-foreground sm:text-sm">{label}</dt>
+      <dd
+        className={cn(
+          "tabular mt-1 truncate text-base font-semibold tracking-tight sm:text-2xl",
+          className,
+        )}
+      >
+        {formatMoney(value)}
+      </dd>
+    </div>
+  );
+}
+
+/** Gün ve ay–yıl; müşteri geçmişi yıllara yayılabildiği için yıl da var. */
+function DateChip({ date }: { date: string }) {
+  const d = parseISO(date);
+  return (
+    <div className="flex w-12 shrink-0 flex-col items-center rounded-lg bg-muted py-1">
+      <span className="tabular text-base leading-tight font-semibold">{format(d, "d")}</span>
+      <span className="text-[10px] text-muted-foreground uppercase">
+        {format(d, "LLL yy", { locale: tr })}
+      </span>
+    </div>
   );
 }

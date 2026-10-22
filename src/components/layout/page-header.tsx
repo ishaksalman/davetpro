@@ -35,7 +35,15 @@ export function PageHeader({
           asla alt satıra inmiyordu; detay sayfalarında başlık tek harfe
           düşüyordu. Okunabilir bir alt sınırla flex-wrap işini yapıyor:
           eylemler sığıyorsa aynı satırda, sığmıyorsa altta. */}
-      <div className="flex min-w-[9rem] flex-1 items-center gap-2">
+      <div
+        className={cn(
+          "flex min-w-[9rem] flex-1 items-center gap-2",
+          // Detay sayfalarında dar ekranda başlığa satırın en az %60'ı:
+          // eylemler sığmıyorsa (durum + düzenle…) alt satıra iniyor, tek
+          // simge düğme ise başlığın yanında kalıyor.
+          back && "max-sm:min-w-[60%]",
+        )}
+      >
         {back && (
           <Button
             asChild
@@ -59,10 +67,6 @@ export function PageHeader({
         <div
           className={cn(
             "flex shrink-0 items-center gap-2 max-sm:ml-auto",
-            // Detay sayfalarında eylemler (durum, düzenle, dönüştür…) dar
-            // ekranda başlığın altına, sağa yaslı iniyor: başlıkla aynı
-            // satırda kalsalar başlık birkaç harfe düşüyordu.
-            back && "max-sm:w-full max-sm:justify-end",
           )}
         >
           {actions}
