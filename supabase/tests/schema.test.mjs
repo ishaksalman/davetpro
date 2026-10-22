@@ -61,6 +61,12 @@ await step('varsayılan 13 gider kategorisi kopyalandı', async () => {
   const r = await db.query('select count(*)::int n from expense_categories')
   if (r.rows[0].n !== 13) throw new Error(`13 bekleniyordu, ${r.rows[0].n} bulundu`)
 })
+await step('yetkili kişi kayıttaki addan doldu', async () => {
+  const r = await db.query('select authorized_person from businesses where id = current_business_id()')
+  if (r.rows[0].authorized_person !== 'Ayşe Yılmaz') {
+    throw new Error(`'Ayşe Yılmaz' bekleniyordu, ${r.rows[0].authorized_person} bulundu`)
+  }
+})
 await expectFail('aynı kullanıcı ikinci işletme açamaz',
   () => db.query(`select create_business_with_owner('İkinci', 'Ayşe')`), 'zaten bir işletmeye bağlı')
 
