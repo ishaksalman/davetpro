@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { canSeeFinance, requireSession } from "@/lib/auth";
+import { canSeeFinance, isAdmin, requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationById } from "@/lib/queries";
 import { todayISO } from "@/lib/time";
@@ -110,6 +110,8 @@ export default async function ContractPage({
           reservationId={id}
           reservation={reservation}
           lookups={lookups}
+          business={business}
+          canEditBusiness={isAdmin(profile)}
           customer={customer}
           customerName={customer.full_name}
           customerPhone={customer.phone}

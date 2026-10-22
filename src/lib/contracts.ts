@@ -94,6 +94,37 @@ export function missingCustomerFields(
   ].filter((x): x is string => Boolean(x));
 }
 
+/**
+ * Sözleşmede boş kalacak işletme bilgileri — müşteri tarafındakiyle aynı
+ * mantık. Antet adresi ve telefonu, imza bölümü yetkili kişiyi basıyor;
+ * boşsa satır sessizce düşüyordu. E-posta ve vergi bilgisi yalnızca şablon
+ * kullanıyorsa soruluyor: her işletmenin vergi kaydı olmayabilir.
+ */
+export function missingBusinessFields(
+  b: {
+    address?: string | null;
+    phone?: string | null;
+    authorized_person?: string | null;
+    email?: string | null;
+    tax_office?: string | null;
+    tax_number?: string | null;
+  },
+  templateBody: string,
+): string[] {
+  const bos = (v: string | null | undefined) => !v?.trim();
+  const sablonda = (key: string) =>
+    new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, "i").test(templateBody);
+
+  return [
+    bos(b.address) && "Adres",
+    bos(b.phone) && "Telefon",
+    bos(b.authorized_person) && "Yetkili kişi",
+    bos(b.email) && sablonda("business_email") && "E-posta",
+    bos(b.tax_office) && sablonda("business_tax_office") && "Vergi dairesi",
+    bos(b.tax_number) && sablonda("business_tax_number") && "Vergi numarası",
+  ].filter((x): x is string => Boolean(x));
+}
+
 export function buildContractSnapshot({
   business,
   customer,

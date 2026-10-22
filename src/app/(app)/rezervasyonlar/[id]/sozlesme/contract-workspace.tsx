@@ -33,8 +33,9 @@ import { Notice } from "@/components/shared/notice";
 import { ContractDocument } from "@/components/contracts/contract-document";
 import { CONTRACT_STATUS_LABELS } from "@/lib/constants";
 import { formatDate, formatDateTime, whatsAppLink } from "@/lib/format";
-import type { Contract, ContractSnapshot, Customer } from "@/lib/database.types";
-import { missingCustomerFields } from "@/lib/contracts";
+import type { Business, Contract, ContractSnapshot, Customer } from "@/lib/database.types";
+import { missingBusinessFields, missingCustomerFields } from "@/lib/contracts";
+import { BusinessDialog } from "../../../panel/business-dialog";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
 import { cancelContract, createContract, updateContractStatus } from "./actions";
 import { useVertical } from "@/components/layout/vertical-provider";
@@ -49,6 +50,8 @@ export function ContractWorkspace({
   reservationId,
   reservation,
   lookups,
+  business,
+  canEditBusiness,
   customer,
   customerName,
   customerPhone,
@@ -61,6 +64,9 @@ export function ContractWorkspace({
   reservationId: string;
   reservation: EditableReservation;
   lookups: Lookups;
+  business: Business;
+  /** İşletme bilgisini yalnızca sahip/yönetici düzenleyebiliyor. */
+  canEditBusiness: boolean;
   customer: Customer;
   customerName: string;
   customerPhone: string;
@@ -145,6 +151,12 @@ export function ContractWorkspace({
         </div>
 
         {kapsamsiz && <ScopeNotice reservation={reservation} lookups={lookups} />}
+
+        <MissingBusinessNotice
+          business={business}
+          templateBody={templateBody}
+          canEdit={canEditBusiness}
+        />
 
         <MissingCustomerNotice customer={customer} templateBody={templateBody} />
 
@@ -538,6 +550,34 @@ function ScopeNotice({
         <Pencil />
         Bilgileri tamamla
       </Button>
+    </div>
+  );
+}
+
+/**
+ * Sözleşmede boş kalacak işletme bilgileri. Yönetici aynı sayfada açılan
+ * pencereden dolduruyor; diğer kullanıcılara kimin doldurabileceği söyleniyor.
+ */
+function MissingBusinessNotice({
+  business,
+  templateBody,
+  canEdit,
+}: {
+  business: Business;
+  templateBody: string;
+  canEdit: boolean;
+}) {
+  const missing = missingBusinessFields(business, templateBody);
+  if (missing.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning/10 px-3.5 py-3 text-sm text-warning-foreground dark:text-warning">
+      <p>
+        İşletme bilgisi eksik: <strong>{missing.join(", ")}</strong>. Bu alanlar
+        sözleşmede boş kalacak.
+        {!canEdit && " İşletme sahibi ya da yönetici Ayarlar → İşletme bölümünden doldurabilir."}
+      </p>
+      {canEdit && <BusinessDialog business={business} label="Bilgileri tamamla" alwaysShowLabel />}
     </div>
   );
 }

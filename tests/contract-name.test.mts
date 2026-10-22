@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import {
   buildContractSnapshot,
   contractVariableValues,
+  missingBusinessFields,
   missingCustomerFields,
   sozlesmeAdi,
 } from "../src/lib/contracts.ts";
@@ -105,6 +106,19 @@ test("eksik müşteri bilgisi: adres her zaman, e-posta şablon isterse, kimlik 
   );
   assert.deepEqual(
     missingCustomerFields({ contract_name: "Ahmet", email: "a@b.com", address: "X" }, "{{customer_email}}"),
+    [],
+  );
+});
+
+test("eksik işletme bilgisi: adres, telefon, yetkili her zaman; vergi şablon isterse", () => {
+  const bos = { address: null, phone: "", authorized_person: null, email: null, tax_office: null, tax_number: null };
+  assert.deepEqual(missingBusinessFields(bos, "{{business_name}}"), ["Adres", "Telefon", "Yetkili kişi"]);
+  assert.deepEqual(
+    missingBusinessFields({ ...bos, address: "Yalova", phone: "0532", authorized_person: "İshak" }, "{{ business_tax_number }}"),
+    ["Vergi numarası"],
+  );
+  assert.deepEqual(
+    missingBusinessFields({ address: "Yalova", phone: "0532", authorized_person: "İshak" }, ""),
     [],
   );
 });
