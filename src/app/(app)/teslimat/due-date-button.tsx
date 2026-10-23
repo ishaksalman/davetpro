@@ -71,8 +71,12 @@ export function DueDateButton({
           {label}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <div className="flex flex-wrap gap-1.5 border-b p-3">
+      <PopoverContent
+        className="w-[min(20rem,calc(100vw-2rem))] p-0"
+        align="start"
+        collisionPadding={16}
+      >
+        <div className="grid grid-cols-2 gap-1.5 border-b p-3">
           {PRESETS.map((gun) => (
             <Button
               key={gun}
@@ -90,6 +94,7 @@ export function DueDateButton({
           mode="single"
           locale={tr}
           weekStartsOn={1}
+          className="mx-auto"
           selected={value ? parseISO(value) : undefined}
           defaultMonth={value ? parseISO(value) : parseISO(eventDate)}
           onSelect={(date) => date && save(toISODate(date))}

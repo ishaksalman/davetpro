@@ -53,7 +53,11 @@ export function DeliveryLinkButton({
           {value ? "Galeri bağlantısı" : "Bağlantı ekle"}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 space-y-3" align="start">
+      <PopoverContent
+        className="w-[min(20rem,calc(100vw-2rem))] space-y-3"
+        align="start"
+        collisionPadding={16}
+      >
         <div className="space-y-1.5">
           <label htmlFor={`link-${reservationId}`} className="text-sm font-medium">
             Teslim bağlantısı
