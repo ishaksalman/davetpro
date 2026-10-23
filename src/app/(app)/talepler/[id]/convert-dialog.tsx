@@ -66,8 +66,8 @@ export function ConvertDialog({
     package_id: source?.package_id ?? lead.package_id ?? "none",
     event_date: activeHold?.event_date ?? lead.event_date ?? "",
     start_time:
-      activeHold?.start_time?.slice(0, 5) ?? lead.start_time?.slice(0, 5) ?? "19:00",
-    end_time: activeHold?.end_time?.slice(0, 5) ?? lead.end_time?.slice(0, 5) ?? "23:00",
+      activeHold?.start_time?.slice(0, 5) ?? lead.start_time?.slice(0, 5) ?? sozluk.defaultTimes.start,
+    end_time: activeHold?.end_time?.slice(0, 5) ?? lead.end_time?.slice(0, 5) ?? sozluk.defaultTimes.end,
     guest_count: source?.guest_count ?? lead.guest_count ?? "",
     // Teklifin indirimi zaten toplamına yansımış; rezervasyona tek tutar olarak
     // geçiriliyor ki iki yerde indirim sayılmasın.

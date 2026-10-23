@@ -28,7 +28,7 @@ export type ReservationRow = Reservation & {
   items: ReservationItem[];
   customer: { id: string; full_name: string; phone: string } | null;
   venue: { id: string; name: string; color: string } | null;
-  team: { id: string; name: string } | null;
+  team: { id: string; name: string; color: string } | null;
   package: { id: string; name: string; included_services: string[] } | null;
   net_amount: number;
   collected_amount: number;
@@ -177,7 +177,7 @@ export async function getReservationRows(
         ? { id: customer.id, full_name: customer.full_name, phone: customer.phone }
         : null,
       venue: venue ? { id: venue.id, name: venue.name, color: venue.color } : null,
-      team: team ? { id: team.id, name: team.name } : null,
+      team: team ? { id: team.id, name: team.name, color: team.color } : null,
       package: pkg
         ? {
             id: pkg.id,

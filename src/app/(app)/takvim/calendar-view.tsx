@@ -158,6 +158,22 @@ export function CalendarView({
     end_time?: string;
   }>({});
 
+  // Takvimde görünen işlerin ekipleri; atanmamış iş varsa "Ekip yok" satırı.
+  const legendTeams = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; color: string }>();
+    let atanmamis = false;
+    for (const r of reservations) {
+      if (r.status === "iptal_edildi") continue;
+      if (r.team) map.set(r.team.id, r.team);
+      else atanmamis = true;
+    }
+    const list = [...map.values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
+    if (atanmamis && list.length > 0) {
+      list.push({ id: "yok", name: "Ekip atanmadı", color: "var(--muted-foreground)" });
+    }
+    return list;
+  }, [reservations]);
+
   const visible = useMemo(
     () =>
       reservations.filter(
@@ -282,8 +298,8 @@ export function CalendarView({
     setSlotDefaults({
       event_date: toISODate(start),
       venue_id: venueId === "all" ? undefined : venueId,
-      start_time: isAllDay ? "19:00" : format(start, "HH:mm"),
-      end_time: isAllDay ? "23:00" : format(end, "HH:mm"),
+      start_time: isAllDay ? sozluk.defaultTimes.start : format(start, "HH:mm"),
+      end_time: isAllDay ? sozluk.defaultTimes.end : format(end, "HH:mm"),
     });
     setDialogOpen(true);
   }
@@ -387,6 +403,23 @@ export function CalendarView({
 
       {/* Salon renkleri ve kayıt türleri */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+        {/* Ekipli işte renk anahtarı ekipler; atanmamış iş varsa o da listeleniyor. */}
+        {sozluk.usesTeams &&
+          legendTeams.map((t) => (
+            <span key={t.id} className="flex items-center gap-1.5">
+              <span
+                aria-hidden
+                className="size-2.5 rounded-full"
+                style={{ backgroundColor: t.color }}
+              />
+              {t.name}
+            </span>
+          ))}
+
+        {sozluk.usesTeams && legendTeams.length > 0 && (
+          <span aria-hidden className="h-3.5 w-px bg-border" />
+        )}
+
         {sozluk.usesResource && venues.length > 1 &&
           venues.map((v) => (
             <span key={v.id} className="flex items-center gap-1.5">
@@ -485,8 +518,11 @@ export function CalendarView({
             }
             return {
               style: {
-                backgroundColor:
-                  event.resource.venue?.color ?? "var(--primary)",
+                // Ekipli işlerde (fotoğrafçı) renk ekibi anlatıyor: kimin
+                // çekimde olduğu takvimden okunsun. Ekip atanmamışsa nötr gri.
+                backgroundColor: sozluk.usesTeams
+                  ? (event.resource.team?.color ?? "var(--muted-foreground)")
+                  : (event.resource.venue?.color ?? "var(--primary)"),
                 borderColor: "transparent",
               },
             };

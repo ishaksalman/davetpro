@@ -35,7 +35,11 @@ export default async function TeamsPage() {
         description="Çekimi kimin yapacağı. Atama zorunlu değil, sonradan da yapılabilir."
         actions={
           <TeamFormDialog
-            suggestedColor={VENUE_COLORS[teams.length % VENUE_COLORS.length]}
+            suggestedColor={
+              // Henüz hiçbir ekibin kullanmadığı ilk renk; hepsi doluysa sıradaki.
+              VENUE_COLORS.find((c) => !teams.some((t) => t.color === c)) ??
+              VENUE_COLORS[teams.length % VENUE_COLORS.length]
+            }
             triggerButton={{ label: "Yeni ekip", icon: "plus" }}
           />
         }

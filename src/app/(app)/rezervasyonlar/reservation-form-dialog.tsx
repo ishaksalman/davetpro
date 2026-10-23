@@ -138,8 +138,8 @@ export function ReservationFormDialog({
     // detay sayfasındaki durum menüsünden yapılıyor.
     status: reservation?.status ?? "kesinlesti",
     event_date: reservation?.event_date ?? defaults?.event_date ?? "",
-    start_time: reservation?.start_time?.slice(0, 5) ?? defaults?.start_time ?? "19:00",
-    end_time: reservation?.end_time?.slice(0, 5) ?? defaults?.end_time ?? "23:00",
+    start_time: reservation?.start_time?.slice(0, 5) ?? defaults?.start_time ?? sozluk.defaultTimes.start,
+    end_time: reservation?.end_time?.slice(0, 5) ?? defaults?.end_time ?? sozluk.defaultTimes.end,
     guest_count: reservation?.guest_count ?? "",
     location: reservation?.location ?? "",
     team_id: reservation?.team_id ?? null,

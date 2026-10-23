@@ -89,6 +89,8 @@ export type Vertical = {
    * olarak düşüyordu.
    */
   defaultEventType: OrganizationType;
+  /** Yeni rezervasyonda başlangıç ve bitiş saati varsayılanı. */
+  defaultTimes: { start: string; end: string };
   /** Rezervasyon / talep not alanındaki örnek metin. */
   notesPlaceholder: string;
   /** Gider açıklaması için örnek metin. */
@@ -175,6 +177,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
     eventTypeLabel: "Organizasyon türü",
     defaultEventType: "dugun",
+    defaultTimes: { start: "19:00", end: "23:00" },
     notesPlaceholder: "Menü tercihi, dekorasyon isteği, özel talepler…",
     expenseNotePlaceholder: "Örn. 400 kişilik menü ödemesi",
     activityPlaceholder: "Müşteri 450 kişilik Gold Paket fiyatı istedi…",
@@ -236,6 +239,8 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     ],
     eventTypeLabel: "Tür",
     defaultEventType: "dugun_nisan",
+    // Çekimler gündüz ve kısa: 2 saatlik standart paket.
+    defaultTimes: { start: "13:00", end: "15:00" },
     notesPlaceholder: "Çekim konsepti, istenen kareler, buluşma noktası, özel talepler…",
     expenseNotePlaceholder: "Örn. albüm baskısı, ekipman kirası, ulaşım",
     activityPlaceholder: "Müşteri düğün paketinin fiyatını ve teslim süresini sordu…",
@@ -285,6 +290,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
     eventTypeLabel: "Organizasyon türü",
     defaultEventType: "dugun",
+    defaultTimes: { start: "19:00", end: "23:00" },
     notesPlaceholder: "Menü tercihi, dekorasyon isteği, özel talepler…",
     expenseNotePlaceholder: "Örn. 400 kişilik menü ödemesi",
     activityPlaceholder: "Müşteri 450 kişilik Gold Paket fiyatı istedi…",

@@ -84,8 +84,8 @@ export function TeamFormDialog({
       <FormField
         form={form}
         name="color"
-        label="Renk"
-        description="Listelerde ekibi ayırt etmek için."
+        label="Ekip rengi"
+        description="Takvimde bu ekibin çekimleri bu renkle görünür."
       >
         <div className="flex flex-wrap gap-2">
           {VENUE_COLORS.map((c) => (
