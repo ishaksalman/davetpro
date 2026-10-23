@@ -102,3 +102,23 @@ export function PackageFilled({ fill, className }: Props) {
     </Svg>
   );
 }
+
+/** Rezervasyonlar: içinde onay işareti olan takvim. */
+export function CalendarCheckFilled({ fill, className }: Props) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="4" width="18" height="18" rx="3" fill={fill} />
+      <rect x="7" y="1.75" width="2" height="5" rx="1" fill={fill} />
+      <rect x="15" y="1.75" width="2" height="5" rx="1" fill={fill} />
+      <rect x="3" y="9" width="18" height="1.5" fill={CUT} />
+      <path
+        d="m8.5 16 2.5 2.5 4.5-4.5"
+        fill="none"
+        stroke={CUT}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}

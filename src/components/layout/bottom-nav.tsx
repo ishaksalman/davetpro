@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { Menu, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
+  CalendarCheckFilled,
   CalendarFilled,
   CloseFilled,
   MenuFilled,
   PackageFilled,
   PanelFilled,
-  StoreFilled,
   UsersFilled,
 } from "./filled-nav-icons";
 import { MobileMenu, type MobileMenuAccount } from "./mobile-menu";
@@ -105,7 +105,7 @@ type FilledIcon = (props: { fill: string; className?: string }) => React.ReactNo
 const FILLED: Record<string, FilledIcon> = {
   "/panel": PanelFilled,
   "/takvim": CalendarFilled,
-  "/rezervasyonlar": StoreFilled,
+  "/rezervasyonlar": CalendarCheckFilled,
   "/musteriler": UsersFilled,
   "/teslimat": PackageFilled,
 };

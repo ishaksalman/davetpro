@@ -3,6 +3,7 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   BarChart3,
+  CalendarCheck,
   CalendarDays,
   LayoutDashboard,
   MessagesSquare,
@@ -34,7 +35,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/panel", label: "Dashboard", icon: LayoutDashboard },
       { href: "/takvim", label: "Takvim", icon: CalendarDays },
-      { href: "/rezervasyonlar", label: "Rezervasyonlar", icon: Store },
+      { href: "/rezervasyonlar", label: "Rezervasyonlar", icon: CalendarCheck },
       { href: "/teslimat", label: "Teslimat", icon: PackageCheck, deliveryOnly: true, description: "Baskı ve teslim takibi" },
       { href: "/musteriler", label: "Müşteriler", icon: Users },
       { href: "/talepler", label: "Talepler", icon: MessagesSquare, description: "Görüşmeler ve teklifler" },
@@ -79,7 +80,7 @@ export function visibleNavItems(
 const BOTTOM_BASE: NavItem[] = [
   { href: "/panel", label: "Panel", icon: LayoutDashboard },
   { href: "/takvim", label: "Takvim", icon: CalendarDays },
-  { href: "/rezervasyonlar", label: "Rezervasyon", icon: Store },
+  { href: "/rezervasyonlar", label: "Rezervasyon", icon: CalendarCheck },
 ];
 
 /**
