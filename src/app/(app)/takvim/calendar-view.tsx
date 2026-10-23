@@ -20,6 +20,7 @@ import {
 import { tr } from "date-fns/locale";
 import { ChevronDown, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { slotFromTap } from "./touch-slot";
+import { MobileMonth } from "./mobile-month";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -86,7 +87,7 @@ const VIEW_LABELS: Record<string, string> = {
  * Opsiyon salonu geçici olarak tutar, bu yüzden görsel olarak ayrışıyor —
  * kesikli çerçeve ve solgun zemin.
  */
-type CalendarEvent = {
+export type CalendarEvent = {
   title: string;
   start: Date;
   end: Date;
@@ -290,6 +291,36 @@ export function CalendarView({
     if (slot) openQuickCreate({ ...slot, slots: [slot.start], action: "click" });
   }
 
+  /** Mobil ay listesindeki "Ekle": seçili gün için form. */
+  function createOn(isoDate: string) {
+    setSlotDefaults({
+      event_date: isoDate,
+      venue_id: venueId === "all" ? undefined : venueId,
+      start_time: sozluk.defaultTimes.start,
+      end_time: sozluk.defaultTimes.end,
+    });
+    setDialogOpen(true);
+  }
+
+  /** Etkinlik rengi: ekipli işte ekip, değilse mekân. Takvim ve mobil liste aynı kuralı kullanıyor. */
+  function colorOf(event: CalendarEvent): string {
+    if (event.kind === "opsiyon") return event.hold.venue_color;
+    if (event.kind === "talep") return event.lead.venue_color ?? "var(--muted-foreground)";
+    return sozluk.usesTeams
+      ? (event.resource.team?.color ?? "var(--muted-foreground)")
+      : (event.resource.venue?.color ?? "var(--primary)");
+  }
+
+  function openEvent(event: CalendarEvent) {
+    router.push(
+      event.kind === "opsiyon"
+        ? `/talepler/${event.hold.lead_id}`
+        : event.kind === "talep"
+          ? `/talepler/${event.lead.id}`
+          : `/rezervasyonlar/${event.resource.id}`,
+    );
+  }
+
   function openQuickCreate(slot: SlotInfo) {
     const start = slot.start as Date;
     const end = slot.end as Date;
@@ -460,8 +491,25 @@ export function CalendarView({
         </span>
       </div>
 
+      {/* Mobil ay görünümü: nokta ızgarası + gün listesi (bkz. mobile-month.tsx).
+          Geniş ekranda ve hafta/gün görünümünde klasik takvim. */}
+      {view === Views.MONTH && (
+        <div className="rounded-xl border bg-card p-3 md:hidden">
+          <MobileMonth
+            date={date}
+            events={events}
+            colorOf={colorOf}
+            onOpen={openEvent}
+            onCreate={createOn}
+          />
+        </div>
+      )}
+
       <div
-        className="rounded-xl border bg-card p-2 sm:p-4"
+        className={cn(
+          "rounded-xl border bg-card p-2 sm:p-4",
+          view === Views.MONTH && "hidden md:block",
+        )}
         onPointerDown={(e) => {
           tap.current =
             e.pointerType === "touch" ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null;

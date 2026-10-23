@@ -35,7 +35,7 @@ export default async function CalendarPage() {
     <>
       <PageHeader
         title="Takvim"
-        description="Boş günleri görün, boş bir güne tıklayarak rezervasyon oluşturun."
+        description="Boş günleri görün; güne dokunup rezervasyon ekleyin."
       />
       <PageBody>
         {error ? (
