@@ -327,7 +327,7 @@ export function CalendarView({
         {/* Satır 2 (mobil): salon filtresi, görünüm ve ekleme */}
         <div className="flex items-center gap-2 sm:contents">
           <div className="flex items-center gap-2 sm:ml-auto">
-            {venues.length > 1 && (
+            {sozluk.usesResource && venues.length > 1 && (
               <Select value={venueId} onValueChange={setVenueId}>
                 <SelectTrigger
                   className="min-w-0 flex-1 sm:w-40 sm:flex-none"
@@ -387,7 +387,7 @@ export function CalendarView({
 
       {/* Salon renkleri ve kayıt türleri */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-        {venues.length > 1 &&
+        {sozluk.usesResource && venues.length > 1 &&
           venues.map((v) => (
             <span key={v.id} className="flex items-center gap-1.5">
               <span
@@ -399,7 +399,7 @@ export function CalendarView({
             </span>
           ))}
 
-        {venues.length > 1 && (
+        {sozluk.usesResource && venues.length > 1 && (
           <span aria-hidden className="h-3.5 w-px bg-border" />
         )}
 

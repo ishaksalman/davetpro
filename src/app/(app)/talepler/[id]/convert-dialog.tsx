@@ -60,7 +60,9 @@ export function ConvertDialog({
   const defaultValues: ConvertLeadInput = {
     lead_id: lead.id,
     quote_id: source?.id ?? "none",
-    venue_id: source?.venue_id ?? lead.venue_id ?? activeHold?.venue_id ?? activeVenues[0]?.id ?? "",
+    venue_id: !sozluk.usesResource
+      ? (activeVenues.find((v) => v.allows_overlap) ?? activeVenues[0])?.id ?? ""
+      : source?.venue_id ?? lead.venue_id ?? activeHold?.venue_id ?? activeVenues[0]?.id ?? "",
     package_id: source?.package_id ?? lead.package_id ?? "none",
     event_date: activeHold?.event_date ?? lead.event_date ?? "",
     start_time:
@@ -148,6 +150,7 @@ export function ConvertDialog({
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {sozluk.usesResource && (
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id")}
@@ -165,6 +168,7 @@ export function ConvertDialog({
             </SelectContent>
           </Select>
         </FormField>
+        )}
 
         <FormField form={form} name="package_id" label="Paket">
           <Select

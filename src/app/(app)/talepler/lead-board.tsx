@@ -93,12 +93,14 @@ export function LeadBoard({
           />
         </div>
 
-        <FilterSelect
-          value={venue}
-          onChange={setVenue}
-          placeholder={sozluk.resourceField}
-          options={venues.map((v) => ({ value: v.id, label: v.name }))}
-        />
+        {sozluk.usesResource && (
+          <FilterSelect
+            value={venue}
+            onChange={setVenue}
+            placeholder={sozluk.resourceField}
+            options={venues.map((v) => ({ value: v.id, label: v.name }))}
+          />
+        )}
         <FilterSelect
           value={status}
           onChange={setStatus}
@@ -222,7 +224,7 @@ function ListView({ leads, narrow }: { leads: LeadRow[]; narrow: boolean }) {
           <tr className="text-left text-xs text-muted-foreground">
             <Th>Müşteri</Th>
             <Th>{buyukHarf(sozluk.event.singular)}</Th>
-            <Th>{sozluk.resourceField}</Th>
+            {sozluk.usesResource && <Th>{sozluk.resourceField}</Th>}
             {sozluk.usesGuestCount && <Th className="text-right">Kişi</Th>}
             <Th className="text-right">Teklif</Th>
             <Th>Son görüşme</Th>
@@ -253,7 +255,7 @@ function ListView({ leads, narrow }: { leads: LeadRow[]; narrow: boolean }) {
                   {lead.event_date ? formatDateShort(lead.event_date) : "Tarih belirsiz"}
                 </span>
               </td>
-              <td className="px-4 py-3">{lead.venue?.name ?? "—"}</td>
+              {sozluk.usesResource && <td className="px-4 py-3">{lead.venue?.name ?? "—"}</td>}
               {sozluk.usesGuestCount && (
                 <td className="tabular px-4 py-3 text-right">
                   {lead.guest_count ? formatNumber(lead.guest_count) : "—"}

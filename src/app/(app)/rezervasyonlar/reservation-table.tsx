@@ -168,7 +168,9 @@ export function ReservationTable({
           </span>
         ),
       },
-      {
+      // Fotoğrafçıda plato yok: yerine çekim konumu (adres) gösteriliyor.
+      sozluk.usesResource
+        ? {
         id: "venue",
         header: sozluk.resourceField,
         accessorFn: (row) => row.venue?.name ?? "",
@@ -182,7 +184,17 @@ export function ReservationTable({
             {row.original.venue?.name ?? "—"}
           </span>
         ),
-      },
+      }
+        : {
+            id: "location",
+            header: "Konum",
+            accessorFn: (row) => row.location ?? "",
+            cell: ({ row }) => (
+              <span className="block max-w-[14rem] truncate text-muted-foreground">
+                {row.original.location ?? "—"}
+              </span>
+            ),
+          },
       {
         accessorKey: "organization_type",
         header: "Tür",
@@ -328,6 +340,7 @@ export function ReservationTable({
     teams,
     packages,
     sozluk.resourceField,
+    sozluk.usesResource,
   ]);
 
   return (
@@ -335,7 +348,7 @@ export function ReservationTable({
       columns={columns}
       data={filtered}
       totalCount={reservations.length}
-      searchPlaceholder={`Müşteri veya ${kucuk} ara…`}
+      searchPlaceholder={sozluk.usesResource ? `Müşteri veya ${kucuk} ara…` : "Müşteri veya konum ara…"}
       onRowClick={(row) => router.push(`/rezervasyonlar/${row.id}`)}
       rowClassName={(row) =>
         cn(
@@ -377,7 +390,7 @@ export function ReservationTable({
             </SelectContent>
           </Select>
 
-          {venues.length > 1 && (
+          {sozluk.usesResource && venues.length > 1 && (
             <Select value={venueId} onValueChange={setVenueId}>
               <SelectTrigger
                 className="w-40"

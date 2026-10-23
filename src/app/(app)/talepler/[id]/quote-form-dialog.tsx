@@ -144,6 +144,7 @@ export function QuoteFormDialog({
       contentClassName="sm:max-w-2xl"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {sozluk.usesResource && (
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
             value={form.watch("venue_id") ?? "none"}
@@ -162,6 +163,7 @@ export function QuoteFormDialog({
             </SelectContent>
           </Select>
         </FormField>
+        )}
 
         <FormField form={form} name="package_id" label="Paket">
           <Select

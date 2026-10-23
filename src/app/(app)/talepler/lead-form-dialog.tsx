@@ -231,6 +231,7 @@ export function LeadFormDialog({
       <Separator />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {sozluk.usesResource && (
         <FormField form={form} name="venue_id" label={`İlgilendiği ${kucuk}`}>
           <Select
             value={form.watch("venue_id") ?? "none"}
@@ -249,6 +250,7 @@ export function LeadFormDialog({
             </SelectContent>
           </Select>
         </FormField>
+        )}
 
         <FormField form={form} name="organization_type" label={sozluk.eventTypeLabel}>
           <Select
@@ -296,6 +298,7 @@ export function LeadFormDialog({
 
         {/* Saat aralığı tamamlandığı anda sonuç hemen altında çıkıyor;
             eksik saatle spekülatif sorgu atılmıyor. */}
+        {sozluk.usesResource && (
         <div className="sm:col-span-2">
           <AvailabilityCheck
             eventDate={eventDate || null}
@@ -306,6 +309,7 @@ export function LeadFormDialog({
             onConflictChange={handleConflict}
           />
         </div>
+        )}
 
         {sozluk.usesGuestCount && (
           <FormField form={form} name="guest_count" label="Tahmini kişi sayısı">

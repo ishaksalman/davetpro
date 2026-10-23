@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
@@ -15,6 +16,8 @@ export const metadata: Metadata = { title: "Salonlar" };
 export default async function VenuesPage() {
   const { business } = await requireSession();
   const sozluk = vertical(business.business_type);
+  // Fotoğrafçıda kaynak kavramı kapalı; menüde de yok.
+  if (!sozluk.usesResource) notFound();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("venues")

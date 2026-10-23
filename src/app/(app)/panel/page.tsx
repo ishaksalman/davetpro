@@ -453,7 +453,11 @@ function EventRow({
               style={{ backgroundColor: reservation.venue?.color }}
             />
             <span className="tabular">{reservation.start_time.slice(0, 5)}</span>·{" "}
-            {reservation.venue?.name}
+            {/* Serbest alanda (dış mekân / "Diğer") yer adı değil, kullanıcının
+                yazdığı konum anlamlı. */}
+            {reservation.venue_allows_overlap
+              ? (reservation.location ?? reservation.venue?.name)
+              : reservation.venue?.name}
           </p>
         </div>
 
@@ -632,7 +636,8 @@ function onboardingSteps({
       description: "Adres, telefon ve logo sözleşmenin başlığında görünür.",
       done: Boolean(business.phone?.trim() && business.address?.trim()),
     },
-    {
+    // Fotoğrafçıda kaynak (plato) kavramı kapalı: adım hiç çıkmıyor.
+    ...(sozluk.usesResource ? [{
       id: "kaynak",
       // Metinler ek almıyor: salon / plato / mekân için ayrı ek yazmak
       // yerine cümle ekten bağımsız kuruldu.
@@ -642,7 +647,7 @@ function onboardingSteps({
         : "Takvim ve müsaitlik kontrolü bu kayda göre çalışır.",
       done: ownVenue,
       optional: venueOptional,
-    },
+    }] : []),
     {
       id: "paket",
       title: "Paketlerinizi tanımlayın",

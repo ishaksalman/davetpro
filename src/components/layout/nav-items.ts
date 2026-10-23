@@ -27,6 +27,8 @@ export type NavItem = {
   deliveryOnly?: boolean;
   /** Yalnızca ekip kavramı olan işletmelerde görünür (fotoğrafçı). */
   teamsOnly?: boolean;
+  /** Yalnızca kısıtlı kaynak (salon / mekân) gösterilen işletmelerde görünür. */
+  resourceOnly?: boolean;
 };
 
 export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
@@ -53,7 +55,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Tanımlar",
     items: [
       { href: "/paketler", label: "Paketler", icon: Package, description: "Fiyat ve hizmetler" },
-      { href: "/salonlar", label: "Salonlar", icon: Store, description: "Kapasite ve takvim rengi" },
+      { href: "/salonlar", label: "Salonlar", icon: Store, resourceOnly: true, description: "Kapasite ve takvim rengi" },
       { href: "/ekipler", label: "Ekipler", icon: UsersRound, teamsOnly: true, description: "Çekim ekipleri" },
       { href: "/ayarlar", label: "Ayarlar", icon: Settings, description: "İşletme ve kullanıcılar" },
     ],
@@ -63,13 +65,19 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 /** Yetki ve iş tipine göre görünen menü öğeleri — iki menü de bunu kullanıyor. */
 export function visibleNavItems(
   items: NavItem[],
-  flags: { showFinance: boolean; usesDelivery: boolean; usesTeams: boolean },
+  flags: {
+    showFinance: boolean;
+    usesDelivery: boolean;
+    usesTeams: boolean;
+    usesResource: boolean;
+  },
 ): NavItem[] {
   return items.filter(
     (i) =>
       (flags.showFinance || !i.financeOnly) &&
       (flags.usesDelivery || !i.deliveryOnly) &&
-      (flags.usesTeams || !i.teamsOnly),
+      (flags.usesTeams || !i.teamsOnly) &&
+      (flags.usesResource || !i.resourceOnly),
   );
 }
 

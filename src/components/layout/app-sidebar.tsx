@@ -80,6 +80,7 @@ export function AppSidebar({
             showFinance,
             usesDelivery: sozluk.usesDelivery,
             usesTeams: sozluk.usesTeams,
+            usesResource: sozluk.usesResource,
           });
           if (items.length === 0) return null;
 

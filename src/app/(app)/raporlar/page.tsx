@@ -188,11 +188,13 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                     : "Paket kullanılmamış"
                 }
               />
+              {sozluk.usesResource && (
               <Highlight
                 label={`En yoğun ${kucuk}`}
                 value={topVenue?.venue_name ?? "—"}
                 hint={topVenue ? `${formatMoney(topVenue.sales)} satış` : undefined}
               />
+              )}
               <Highlight
                 label="En yoğun gün"
                 value={topWeekday ? WEEKDAY_LABELS[topWeekday.weekday] : "—"}
@@ -213,6 +215,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
             </section>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {sozluk.usesResource && (
               <section className="rounded-xl border bg-card p-5">
                 <header className="mb-4">
                   <h2 className="font-medium">{sozluk.resource.singular} performansı</h2>
@@ -228,6 +231,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                   <VenueComparisonChart data={venueRows} />
                 )}
               </section>
+              )}
 
               <section className="rounded-xl border bg-card p-5">
                 <header className="mb-4">
@@ -251,6 +255,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                 <WeekdayChart data={weekdayRows} />
               </section>
 
+              {sozluk.usesResource && (
               <section className="rounded-xl border bg-card">
                 <header className="border-b px-5 py-4">
                   <h2 className="font-medium">{sozluk.resource.singular} detayları</h2>
@@ -284,6 +289,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
                   </table>
                 </div>
               </section>
+              )}
             </div>
           </>
         )}

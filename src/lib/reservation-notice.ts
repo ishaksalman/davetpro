@@ -47,7 +47,7 @@ export function reservationNoticeMessage({
     "",
   ];
 
-  if (reservation.venue?.name) {
+  if (sozluk.usesResource && reservation.venue?.name) {
     satirlar.push(`${sozluk.resourceField}: ${reservation.venue.name}`);
   }
   satirlar.push(
@@ -91,7 +91,7 @@ export function reservationReminderMessage({
       `${reservation.start_time.slice(0, 5)} için ${sozluk.event.possessive} hatırlatması.`,
   ];
   if (reservation.location) satirlar.push(`Yer: ${reservation.location}`);
-  else if (reservation.venue?.name) {
+  else if (sozluk.usesResource && reservation.venue?.name) {
     satirlar.push(`${sozluk.resourceField}: ${reservation.venue.name}`);
   }
   satirlar.push("", "Bir değişiklik olursa lütfen haber verin.", "", businessName);

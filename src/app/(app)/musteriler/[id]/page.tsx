@@ -141,7 +141,11 @@ export default async function CustomerDetailPage({
                               className="size-2 shrink-0 rounded-full"
                               style={{ backgroundColor: reservation.venue?.color }}
                             />
-                            <span className="truncate">{reservation.venue?.name}</span>
+                            <span className="truncate">
+                              {reservation.venue_allows_overlap
+                                ? (reservation.location ?? reservation.venue?.name)
+                                : reservation.venue?.name}
+                            </span>
                           </p>
                           <StageBadge
                             status={reservation.status}

@@ -136,7 +136,7 @@ export default async function ReservationDetailPage({
     <>
       <PageHeader
         title={reservation.customer?.full_name ?? "Rezervasyon"}
-        description={`${formatDateLong(reservation.event_date)} · ${reservation.venue?.name ?? ""}`}
+        description={`${formatDateLong(reservation.event_date)}${sozluk.usesResource ? ` · ${reservation.venue?.name ?? ""}` : reservation.location ? ` · ${reservation.location}` : ""}`}
         back={{ href: "/rezervasyonlar", label: "Tüm rezervasyonlar" }}
         actions={
           <>
@@ -196,9 +196,11 @@ export default async function ReservationDetailPage({
                 <Detail label="Tür">
                   {ORGANIZATION_TYPE_LABELS[reservation.organization_type]}
                 </Detail>
-                <Detail label={sozluk.resourceField}>
-                  {reservation.venue?.name ?? "—"}
-                </Detail>
+                {sozluk.usesResource && (
+                  <Detail label={sozluk.resourceField}>
+                    {reservation.venue?.name ?? "—"}
+                  </Detail>
+                )}
                 <Detail label="Paket">
                   {reservation.package?.name ?? "Paketsiz"}
                 </Detail>

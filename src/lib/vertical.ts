@@ -123,6 +123,15 @@ export type Vertical = {
    * işlemediği satıra düşüyor.
    */
   usesLocationChoice: boolean;
+  /**
+   * Kısıtlı kaynak (salon / mekân) kullanıcıya gösterilsin mi.
+   *
+   * Fotoğrafçıda KAPALI: işlerin çoğu dışarıda; plato seçimi, menü ve
+   * raporları kafa karıştırıyordu. Veritabanında venue_id zorunlu olduğu
+   * için kayıtlar kurulumda açılan serbest alana ("Diğer", allows_overlap)
+   * bağlanıyor; konum adres alanından geliyor. Çakışma kontrolü yok.
+   */
+  usesResource: boolean;
   /** Ayarlarda eş zamanlı kapasite alanı gösterilsin mi. */
   usesCapacity: boolean;
   /**
@@ -189,6 +198,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     usesCapacity: false,
     usesTeams: false,
     usesDelivery: false,
+    usesResource: true,
   },
   fotografci: {
     label: "Fotoğrafçı",
@@ -248,6 +258,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     usesCapacity: false,
     usesTeams: true,
     usesDelivery: true,
+    usesResource: false,
   },
   organizasyon: {
     label: "Organizasyon firması",
@@ -305,6 +316,7 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     // Ekip/personel/araç yönetimi bilerek kapsam dışı.
     usesTeams: false,
     usesDelivery: false,
+    usesResource: true,
   },
 };
 

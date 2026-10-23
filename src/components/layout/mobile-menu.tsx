@@ -83,6 +83,7 @@ export function MobileMenu({
       showFinance: account.showFinance,
       usesDelivery: sozluk.usesDelivery,
       usesTeams: sozluk.usesTeams,
+            usesResource: sozluk.usesResource,
     }).filter((i) => !altSekmeler.some((b) => b.href === i.href)),
   })).filter((g) => g.items.length > 0);
   const abonelikGoster = subscription && account.canManageBilling;

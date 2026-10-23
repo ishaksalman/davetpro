@@ -107,7 +107,7 @@ export function QuoteDocument({
             <dt>Tür</dt>
             <dd>{ORGANIZATION_TYPE_LABELS[quote.organization_type]}</dd>
           </div>
-          {quote.venue_name && (
+          {sozluk.usesResource && quote.venue_name && (
             <div>
               <dt>{sozluk.resourceField}</dt>
               <dd>{quote.venue_name}</dd>

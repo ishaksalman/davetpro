@@ -124,7 +124,9 @@ export function ReservationFormDialog({
     venue_id:
       reservation?.venue_id ??
       defaults?.venue_id ??
-      (sozluk.usesLocationChoice && disMekan
+      (!sozluk.usesResource
+        ? (disMekan ?? activeVenues[0])?.id ?? ""
+        : sozluk.usesLocationChoice && disMekan
         ? disMekan.id
         : activeVenues.length === 1
           ? activeVenues[0].id
@@ -279,7 +281,10 @@ export function ReservationFormDialog({
             eventDate: values.event_date,
             startTime: values.start_time,
             endTime: values.end_time,
-            venueName: venues.find((v) => v.id === values.venue_id)?.name ?? null,
+            // Plato kavramı kapalıyken özet satırında yer adı değil konum görünüyor.
+            venueName: sozluk.usesResource
+              ? (venues.find((v) => v.id === values.venue_id)?.name ?? null)
+              : (values.location?.trim() || null),
           });
         }
         return result;
@@ -422,7 +427,8 @@ export function ReservationFormDialog({
             </div>
           )}
 
-        {!(sozluk.usesLocationChoice && disMekan && venueId === disMekan.id) &&
+        {sozluk.usesResource &&
+          !(sozluk.usesLocationChoice && disMekan && venueId === disMekan.id) &&
           !(sozluk.usesLocationChoice && kendiMekanlari.length === 0) && (
         <FormField form={form} name="venue_id" label={sozluk.resourceField}>
           <Select
@@ -492,6 +498,7 @@ export function ReservationFormDialog({
 
         {/* Saat aralığı tamamlandığı anda sonuç hemen altında çıkıyor;
             eksik saatle spekülatif sorgu atılmıyor. */}
+        {sozluk.usesResource && (
         <div className="sm:col-span-2">
           <AvailabilityCheck
             eventDate={eventDate || null}
@@ -502,6 +509,7 @@ export function ReservationFormDialog({
             onConflictChange={handleConflict}
           />
         </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -600,17 +608,17 @@ export function ReservationFormDialog({
           <FormField
             form={form}
             name="location"
-            label={sozluk.usesLocationChoice ? "Organizasyon adresi" : "Etkinlik adresi"}
+            label={sozluk.usesLocationChoice ? "Organizasyon adresi" : sozluk.usesResource ? "Etkinlik adresi" : "Çekim konumu"}
             className="sm:col-span-2"
             description={
               sozluk.usesLocationChoice
                 ? "Organizasyonun yapılacağı yer. Takvimde ve sözleşmede görünür."
-                : "Çekimin yapılacağı yer. Takvimde ve sözleşmede görünür."
+                : "Çekimin yapılacağı adres veya konum. Takvimde ve sözleşmede görünür."
             }
           >
             <Input
               id="location"
-              placeholder="Mekân adı, mahalle, ilçe"
+              placeholder={sozluk.usesResource ? "Mekân adı, mahalle, ilçe" : "Örn. Kordon, Alsancak, İzmir"}
               {...form.register("location")}
             />
           </FormField>

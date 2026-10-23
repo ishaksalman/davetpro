@@ -123,7 +123,7 @@ export function DeliveryBoard({
                       </Link>
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {formatDate(row.event_date)}
-                        {row.venue?.name ? ` · ${row.venue.name}` : ""}
+                        {(row.venue_allows_overlap ? row.location : row.venue?.name) ? ` · ${row.venue_allows_overlap ? row.location : row.venue?.name}` : ""}
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">

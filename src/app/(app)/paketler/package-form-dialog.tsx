@@ -41,7 +41,7 @@ export function PackageFormDialog({
   const sozluk = useVertical();
   const kucuk = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
   // Tek salonlu işletmede seçim anlamsız; alan hiç gösterilmiyor.
-  const scoped = activeVenues.length > 1;
+  const scoped = sozluk.usesResource && activeVenues.length > 1;
   const defaultValues: PackageInput = {
     id: pkg?.id,
     name: pkg?.name ?? "",

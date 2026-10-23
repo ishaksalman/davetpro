@@ -38,7 +38,9 @@ test("fotoğrafçı mesajında salon/organizasyon dili yok", () => {
     .join("\n");
   assert.doesNotMatch(metin, /[Ss]alon|organizasyon/);
   assert.match(metin, /çekiminiz/);
-  assert.match(metin, /Plato: A Platosu/);
+  // Fotoğrafçıda plato kavramı yok: konum adresten geliyor.
+  assert.doesNotMatch(metin, /Plato/);
+  assert.match(metin, /Yer: Kordon, İzmir/);
 });
 
 test("finans yetkisi yoksa tutar ve bakiye mesajı çıkmıyor", () => {

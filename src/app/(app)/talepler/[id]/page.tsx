@@ -114,7 +114,7 @@ export default async function LeadDetailPage({
         title={customer?.full_name ?? "Talep"}
         description={
           lead.event_date
-            ? `${formatDateLong(lead.event_date)}${lead.venue ? ` · ${lead.venue.name}` : ""}`
+            ? `${formatDateLong(lead.event_date)}${sozluk.usesResource && lead.venue ? ` · ${lead.venue.name}` : ""}`
             : "Tarih henüz belirsiz"
         }
         back={{ href: "/talepler", label: "Tüm talepler" }}
@@ -148,7 +148,9 @@ export default async function LeadDetailPage({
                   {ORGANIZATION_TYPE_LABELS[lead.organization_type]}
                 </Detail>
                 <Detail label="Kaynak">{LEAD_SOURCE_LABELS[lead.source]}</Detail>
-                <Detail label={sozluk.resourceField}>{lead.venue?.name ?? "Belirsiz"}</Detail>
+                {sozluk.usesResource && (
+                  <Detail label={sozluk.resourceField}>{lead.venue?.name ?? "Belirsiz"}</Detail>
+                )}
                 <Detail label="Tarih">
                   {lead.event_date ? formatDate(lead.event_date) : "Belirsiz"}
                 </Detail>
@@ -264,6 +266,8 @@ export default async function LeadDetailPage({
               </section>
             )}
 
+            {/* Opsiyon bir kaynağı bloke ediyor; kaynağı olmayan işte anlamsız. */}
+            {sozluk.usesResource && (
             <HoldPanel
               leadId={lead.id}
               holds={holds}
@@ -276,6 +280,7 @@ export default async function LeadDetailPage({
               }}
               locked={Boolean(lead.reservation_id)}
             />
+            )}
           </aside>
         </div>
       </PageBody>

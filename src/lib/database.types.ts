@@ -166,6 +166,8 @@ export type Reservation = Timestamps & {
   location: string | null;
   /** Çekimi yapacak ekip. Opsiyonel; atama sonradan da yapılabilir. */
   team_id: string | null;
+  /** Kaydın bağlı olduğu alan çakışma kuralı dışında mı ("Diğer" / dış mekân). */
+  venue_allows_overlap: boolean;
   delivery_status: DeliveryStatus | null;
   /** Teslim anı; tetikleyici yazıyor, elle girilmiyor. */
   delivered_at: string | null;
