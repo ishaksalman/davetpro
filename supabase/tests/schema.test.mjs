@@ -1336,6 +1336,15 @@ await step('geri alınınca teslim tarihi siliniyor', async () => {
   if (r.delivered_at !== null) throw new Error(JSON.stringify(r))
 })
 
+await step('teslim hedef tarihi yazılıp silinebiliyor', async () => {
+  await db.query(`update reservations set delivery_due_date = '2027-11-20' where id = $1`, [TR])
+  const a = (await db.query(`select delivery_due_date::text d from reservations where id = $1`, [TR])).rows[0]
+  if (a.d !== '2027-11-20') throw new Error(JSON.stringify(a))
+  await db.query(`update reservations set delivery_due_date = null where id = $1`, [TR])
+  const b = (await db.query(`select delivery_due_date d from reservations where id = $1`, [TR])).rows[0]
+  if (b.d !== null) throw new Error(JSON.stringify(b))
+})
+
 await expectFail('tanımsız aşama kabul edilmiyor', () =>
   db.query(`update reservations set delivery_status = 'albumde' where id = $1`, [TR]))
 

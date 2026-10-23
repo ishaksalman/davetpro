@@ -169,6 +169,8 @@ export type Reservation = Timestamps & {
   delivery_status: DeliveryStatus | null;
   /** Teslim anı; tetikleyici yazıyor, elle girilmiyor. */
   delivered_at: string | null;
+  /** Söz verilen teslim tarihi (yyyy-MM-dd). Opsiyonel. */
+  delivery_due_date: string | null;
   notes: string | null;
   created_by: string | null;
   starts_at: string;

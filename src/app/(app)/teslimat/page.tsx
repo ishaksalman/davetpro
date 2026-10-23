@@ -4,7 +4,7 @@ import { PackageCheck } from "lucide-react";
 import { PageBody, PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
-import { requireSession } from "@/lib/auth";
+import { canSeeFinance, requireSession } from "@/lib/auth";
 import { getReservationRows } from "@/lib/queries";
 import { todayISO } from "@/lib/time";
 import { vertical } from "@/lib/vertical";
@@ -23,7 +23,7 @@ export const metadata: Metadata = { title: "Teslimat" };
  * "çekim yapıldı" yapan kullanıcı onu burada bulamıyordu.
  */
 export default async function DeliveryPage() {
-  const { business } = await requireSession();
+  const { business, profile } = await requireSession();
   const sozluk = vertical(business.business_type);
   if (!sozluk.usesDelivery) notFound();
 
@@ -40,7 +40,7 @@ export default async function DeliveryPage() {
     <>
       <PageHeader
         title="Teslimat"
-        description="Çekimi yapılmış işlerin seçim, düzenleme ve teslim takibi."
+        description="Çekimi yapılmış işlerin seçim, düzenleme ve teslim takibi; hedef tarih ve kalan bakiye."
       />
       <PageBody>
         {error ? (
@@ -56,7 +56,7 @@ export default async function DeliveryPage() {
             }
           />
         ) : (
-          <DeliveryBoard rows={aktif} />
+          <DeliveryBoard rows={aktif} bugun={todayISO()} showFinance={canSeeFinance(profile)} />
         )}
       </PageBody>
     </>

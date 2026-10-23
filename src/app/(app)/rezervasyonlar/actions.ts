@@ -130,6 +130,31 @@ export async function updateReservationStage(
   return { ok: true };
 }
 
+/**
+ * Teslim hedef tarihi. null → hedef kaldırılır.
+ * Tarih finansal değil; kolon reservations üzerinde, RLS aynı.
+ */
+export async function setDeliveryDueDate(
+  id: string,
+  date: string | null,
+): Promise<ActionResult> {
+  await requireSession();
+  if (date !== null && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { ok: false, error: "Geçersiz tarih." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("reservations")
+    .update({ delivery_due_date: date })
+    .eq("id", id);
+  if (error) return actionError(error);
+
+  revalidatePath("/teslimat");
+  revalidatePath(`/rezervasyonlar/${id}`);
+  return { ok: true };
+}
+
 export async function deleteReservation(id: string): Promise<ActionResult> {
   await requireSession();
 
