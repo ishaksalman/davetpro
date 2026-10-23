@@ -78,15 +78,15 @@ export default async function LeadsPage() {
         ) : (
           <>
             {/*
-              Salon pasife alınmış ama talepler duruyorsa liste gösterilmeye
+              Kaynak pasife alınmış ama talepler duruyorsa liste gösterilmeye
               devam ediyor — veri gizlenmez. Ama "Yeni talep" düğmesi yok ve
               sebebi görünmüyordu.
             */}
             {!hasVenue && (
               <Notice>
-                Yeni talep eklemek için en az bir aktif salon gerekir.{" "}
+                Yeni talep eklemek için en az bir aktif {kucuk} gerekir.{" "}
                 <Link href="/salonlar" className="underline underline-offset-2">
-                  Salonlar
+                  {sozluk.resource.plural}
                 </Link>
               </Notice>
             )}

@@ -223,7 +223,7 @@ function ListView({ leads, narrow }: { leads: LeadRow[]; narrow: boolean }) {
             <Th>Müşteri</Th>
             <Th>{buyukHarf(sozluk.event.singular)}</Th>
             <Th>{sozluk.resourceField}</Th>
-            <Th className="text-right">Kişi</Th>
+            {sozluk.usesGuestCount && <Th className="text-right">Kişi</Th>}
             <Th className="text-right">Teklif</Th>
             <Th>Son görüşme</Th>
             <Th>Durum</Th>
@@ -254,9 +254,11 @@ function ListView({ leads, narrow }: { leads: LeadRow[]; narrow: boolean }) {
                 </span>
               </td>
               <td className="px-4 py-3">{lead.venue?.name ?? "—"}</td>
-              <td className="tabular px-4 py-3 text-right">
-                {lead.guest_count ? formatNumber(lead.guest_count) : "—"}
-              </td>
+              {sozluk.usesGuestCount && (
+                <td className="tabular px-4 py-3 text-right">
+                  {lead.guest_count ? formatNumber(lead.guest_count) : "—"}
+                </td>
+              )}
               <td className="tabular px-4 py-3 text-right font-medium">
                 {lead.quote_amount !== null ? formatMoney(lead.quote_amount) : "—"}
               </td>

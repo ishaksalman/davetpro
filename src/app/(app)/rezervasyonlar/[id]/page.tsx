@@ -211,11 +211,13 @@ export default async function ReservationDetailPage({
                 {sozluk.usesTeams && reservation.team && (
                   <Detail label="Ekip">{reservation.team.name}</Detail>
                 )}
-                <Detail label="Kişi sayısı">
-                  {reservation.guest_count
-                    ? `${formatNumber(reservation.guest_count)} kişi`
-                    : "—"}
-                </Detail>
+                {sozluk.usesGuestCount && (
+                  <Detail label="Kişi sayısı">
+                    {reservation.guest_count
+                      ? `${formatNumber(reservation.guest_count)} kişi`
+                      : "—"}
+                  </Detail>
+                )}
               </dl>
               {leadResult.data && (
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/40 px-5 py-3">

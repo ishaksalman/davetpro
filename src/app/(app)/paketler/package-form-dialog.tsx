@@ -1,6 +1,7 @@
 "use client";
 
 import { useVertical } from "@/components/layout/vertical-provider";
+import { tumKaynaklar } from "@/lib/vertical";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -132,7 +133,7 @@ export function PackageFormDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Tüm salonlar</SelectItem>
+                <SelectItem value="none">{tumKaynaklar(sozluk)}</SelectItem>
                 {activeVenues.map((venue) => (
                   <SelectItem key={venue.id} value={venue.id}>
                     {venue.name}

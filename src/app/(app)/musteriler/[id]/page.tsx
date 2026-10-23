@@ -247,11 +247,11 @@ function SummaryCell({
   className?: string;
 }) {
   return (
-    <div className="min-w-0 px-3 py-3 sm:px-5 sm:py-4">
+    <div className="min-w-0 px-3 py-3 sm:px-5 sm:py-4 lg:px-3 xl:px-5">
       <dt className="truncate text-xs text-muted-foreground sm:text-sm">{label}</dt>
       <dd
         className={cn(
-          "tabular mt-1 truncate text-base font-semibold tracking-tight sm:text-2xl",
+          "tabular mt-1 truncate text-base font-semibold tracking-tight sm:text-2xl lg:text-lg xl:text-2xl",
           className,
         )}
       >

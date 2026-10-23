@@ -164,7 +164,7 @@ export function ExpenseFormDialog({
         <Textarea
           id="description"
           rows={2}
-          placeholder="Örn. 400 kişilik menü ödemesi"
+          placeholder={sozluk.expenseNotePlaceholder}
           {...form.register("description")}
         />
       </FormField>

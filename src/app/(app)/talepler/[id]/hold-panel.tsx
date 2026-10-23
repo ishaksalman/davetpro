@@ -100,7 +100,7 @@ export function HoldPanel({
         <>
           <p className="mt-1 text-xs text-muted-foreground">
             Müşteri düşünürken tarihi tutmak için opsiyona alın. Talep ve teklif
-            aşaması salonu bloke etmez.
+            aşaması takvimi bloke etmez.
           </p>
           {!locked && (
             <NewHoldDialog leadId={leadId} venues={venues} defaults={defaults} />
@@ -194,7 +194,7 @@ function NewHoldDialog({
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="hold_venue">Salon</Label>
+            <Label htmlFor="hold_venue">{sozluk.resourceField}</Label>
             <Select value={venueId} onValueChange={setVenueId}>
               <SelectTrigger id="hold_venue" className="w-full">
                 <SelectValue placeholder={`${sozluk.resource.singular} seçin`} />

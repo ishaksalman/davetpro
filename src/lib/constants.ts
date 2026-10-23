@@ -157,6 +157,12 @@ export const WEEKDAY_LABELS = [
   "Cumartesi",
 ] as const;
 
+/**
+ * Grafik ekseni için üç harfli gün adları. `slice(0, 3)` Pazar/Pazartesi'yi
+ * ve Cuma/Cumartesi'yi aynı yazıyordu ("Paz", "Cum").
+ */
+export const WEEKDAY_SHORT_LABELS = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cts"] as const;
+
 /** Yeni salon eklerken sırayla önerilen renkler. */
 export const VENUE_COLORS = [
   "#6366f1",

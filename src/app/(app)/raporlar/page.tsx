@@ -215,14 +215,14 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <section className="rounded-xl border bg-card p-5">
                 <header className="mb-4">
-                  <h2 className="font-medium">Salon performansı</h2>
+                  <h2 className="font-medium">{sozluk.resource.singular} performansı</h2>
                   <p className="text-xs text-muted-foreground">
-                    Salon bazında satış ve kâr karşılaştırması
+                    {sozluk.resource.singular} bazında satış ve kâr karşılaştırması
                   </p>
                 </header>
                 {venueRows.length === 0 ? (
                   <p className="py-8 text-center text-sm text-muted-foreground">
-                    Bu dönemde salon verisi yok.
+                    Bu dönemde {sozluk.resource.singular.toLocaleLowerCase("tr-TR")} verisi yok.
                   </p>
                 ) : (
                   <VenueComparisonChart data={venueRows} />
@@ -253,13 +253,13 @@ export default async function ReportsPage({ searchParams }: PageProps<"/raporlar
 
               <section className="rounded-xl border bg-card">
                 <header className="border-b px-5 py-4">
-                  <h2 className="font-medium">Salon detayları</h2>
+                  <h2 className="font-medium">{sozluk.resource.singular} detayları</h2>
                 </header>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-xs tracking-wide text-muted-foreground uppercase">
-                        <th className="px-5 py-2.5 text-left font-medium">Salon</th>
+                        <th className="px-5 py-2.5 text-left font-medium">{sozluk.resource.singular}</th>
                         <th className="px-5 py-2.5 text-right font-medium">Adet</th>
                         <th className="px-5 py-2.5 text-right font-medium">Satış</th>
                         <th className="px-5 py-2.5 text-right font-medium">Kâr</th>

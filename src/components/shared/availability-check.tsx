@@ -131,14 +131,16 @@ export function AvailabilityCheck({
 
   const selected = venue ? rows.find((r) => r.venue_id === venue.id) : null;
   const alternatives = rows.filter((r) => r.is_available && r.venue_id !== venue?.id);
+  const kaynak = sozluk.resource.singular.toLocaleLowerCase("tr-TR");
+  const kaynakCogul = sozluk.resource.plural.toLocaleLowerCase("tr-TR");
   const period = `${formatDate(eventDate!)} ${formatTimeRange(startTime!, endTime!)}`;
 
   if (!selected) {
     return (
       <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-muted-foreground">
         {alternatives.length > 0
-          ? `${period} için müsait salonlar: ${alternatives.map((a) => a.venue_name).join(", ")}`
-          : `${period} için müsait salon yok.`}
+          ? `${period} için müsait ${kaynakCogul}: ${alternatives.map((a) => a.venue_name).join(", ")}`
+          : `${period} için müsait ${kaynak} yok.`}
       </p>
     );
   }
@@ -170,7 +172,7 @@ export function AvailabilityCheck({
       <p className="flex items-start gap-2 rounded-lg bg-amber-500/10 px-3 py-2.5 text-sm text-amber-800 dark:text-amber-300">
         <CircleAlert className="mt-0.5 size-4 shrink-0" />
         <span>
-          Aynı gün bu salonda {selected.conflict_label} adına bir{" "}
+          Aynı gün bu {kaynak} için {selected.conflict_label} adına bir{" "}
           {selected.conflict_kind === "opsiyon" ? "opsiyon" : sozluk.event.singular} var
           {neighbourTime && ` (${neighbourTime})`}. Arada{" "}
           <strong>{selected.gap_minutes} dakika</strong> kalıyor — hazırlık için
@@ -220,7 +222,7 @@ export function AvailabilityCheck({
         <span>
           {isHold ? (
             <>
-              {period} aralığında bu salon <strong>opsiyonlu</strong>.{" "}
+              {period} aralığında bu {kaynak} <strong>opsiyonlu</strong>.{" "}
               {selected.conflict_label}
               {conflictTime && ` · ${conflictTime}`}
               {selected.hold_expires_at && (
@@ -229,7 +231,7 @@ export function AvailabilityCheck({
             </>
           ) : (
             <>
-              {period} aralığında bu salonda{" "}
+              {period} aralığında bu {kaynak} için{" "}
               <strong>kesin rezervasyon</strong> var. {selected.conflict_label}
               {conflictTime && ` · ${conflictTime}`}
             </>

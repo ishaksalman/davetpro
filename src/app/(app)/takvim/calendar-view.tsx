@@ -46,7 +46,7 @@ import type { ReservationRow } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { useVertical } from "@/components/layout/vertical-provider";
 import { ReservationFormDialog } from "../rezervasyonlar/reservation-form-dialog";
-import { buyukHarf, Vertical } from "@/lib/vertical";
+import { buyukHarf, tumKaynaklar, Vertical } from "@/lib/vertical";
 
 /** Gün/hafta görünümünün başlangıç saati ve dilim süresi (dakika). */
 const DAY_START_HOUR = 8;
@@ -336,7 +336,7 @@ export function CalendarView({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tüm salonlar</SelectItem>
+                  <SelectItem value="all">{tumKaynaklar(sozluk)}</SelectItem>
                   {venues.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
                       <span

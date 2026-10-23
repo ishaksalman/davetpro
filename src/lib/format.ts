@@ -33,8 +33,29 @@ export function formatMoneyCompact(value: number | string | null | undefined): s
   const n = toNumber(value);
   const abs = Math.abs(n);
   if (abs >= 1_000_000) return `₺${number.format(round(n / 1_000_000, 1))}Mn`;
-  if (abs >= 1_000) return `₺${number.format(round(n / 1_000, 0))}B`;
+  // 10 bin altında ondalık korunuyor: ₺2.500 → "₺2,5B" ("₺3B" yanıltıcıydı).
+  if (abs >= 1_000) return `₺${number.format(round(n / 1_000, abs < 10_000 ? 1 : 0))}B`;
   return `₺${number.format(n)}`;
+}
+
+/**
+ * Grafik değer ekseni için yuvarlak aralıklar (1-2-5 dizisi).
+ *
+ * NEDEN: Recharts kendi ekseninde 0 / 1.667 / 3.333 gibi yuvarlak olmayan
+ * değerler üretiyor; kısa etiketler ("₺2B", "₺3B") bunları olduğundan farklı
+ * gösteriyordu. Eksen sınırını ve çentikleri biz veriyoruz.
+ */
+export function niceAxis(values: number[]): { domain: [number, number]; ticks: number[] } {
+  const max = Math.max(0, ...values.filter(Number.isFinite));
+  if (max <= 0) return { domain: [0, 1000], ticks: [0, 500, 1000] };
+  const raw = max / 4;
+  const pow = 10 ** Math.floor(Math.log10(raw));
+  const norm = raw / pow;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * pow;
+  const top = Math.ceil(max / step) * step;
+  const ticks: number[] = [];
+  for (let v = 0; v <= top + step / 2; v += step) ticks.push(Math.round(v * 100) / 100);
+  return { domain: [0, top], ticks };
 }
 
 export function formatNumber(value: number | string | null | undefined): string {
@@ -158,6 +179,8 @@ export function initials(fullName: string): string {
   return fullName
     .trim()
     .split(/\s+/)
+    // "Zeynep & Ali" gibi çift adlarda "&" ve "ve" baş harf sayılmasın.
+    .filter((w) => /[\p{L}\p{N}]/u.test(w) && w.toLocaleLowerCase("tr-TR") !== "ve")
     .slice(0, 2)
     .map((w) => w[0]?.toLocaleUpperCase("tr-TR") ?? "")
     .join("");

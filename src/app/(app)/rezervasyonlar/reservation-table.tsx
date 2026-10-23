@@ -1,6 +1,7 @@
 "use client";
 
 import { useVertical } from "@/components/layout/vertical-provider";
+import { tumKaynaklar } from "@/lib/vertical";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -378,7 +379,7 @@ export function ReservationTable({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tüm salonlar</SelectItem>
+                <SelectItem value="all">{tumKaynaklar(sozluk)}</SelectItem>
                 {venues.map((v) => (
                   <SelectItem key={v.id} value={v.id}>
                     {v.name}

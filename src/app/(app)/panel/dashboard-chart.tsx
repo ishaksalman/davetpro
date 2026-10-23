@@ -19,7 +19,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatMoney, formatMoneyCompact, sumMoney } from "@/lib/format";
+import { formatMoney, formatMoneyCompact, niceAxis, sumMoney } from "@/lib/format";
 import type { MonthlySeriesRow } from "@/lib/database.types";
 
 const config = {
@@ -51,6 +51,7 @@ export function DashboardChart({
     sales: Number(row.sales),
   }));
   const keys = mode === "nakit" ? (["collected", "expenses"] as const) : (["sales"] as const);
+  const axis = niceAxis(chartData.flatMap((d) => keys.map((k) => d[k])));
 
   const description =
     mode === "nakit"
@@ -96,6 +97,8 @@ export function DashboardChart({
               tickLine={false}
               axisLine={false}
               width={52}
+              domain={axis.domain}
+              ticks={axis.ticks}
               tickFormatter={(value: number) => formatMoneyCompact(value)}
               className="text-xs"
             />

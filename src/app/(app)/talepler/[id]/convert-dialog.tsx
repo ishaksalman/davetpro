@@ -193,13 +193,15 @@ export function ConvertDialog({
           />
         </FormField>
 
-        <FormField form={form} name="guest_count" label="Kişi sayısı">
-          <Input
-            id="guest_count"
-            inputMode="numeric"
-            {...form.register("guest_count")}
-          />
-        </FormField>
+        {sozluk.usesGuestCount && (
+          <FormField form={form} name="guest_count" label="Kişi sayısı">
+            <Input
+              id="guest_count"
+              inputMode="numeric"
+              {...form.register("guest_count")}
+            />
+          </FormField>
+        )}
 
         <FormField form={form} name="start_time" label="Başlangıç">
           <Input id="start_time" type="time" {...form.register("start_time")} />

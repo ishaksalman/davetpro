@@ -182,14 +182,16 @@ export function QuoteFormDialog({
           </Select>
         </FormField>
 
-        <FormField form={form} name="guest_count" label="Kişi sayısı">
-          <Input
-            id="guest_count"
-            inputMode="numeric"
-            placeholder="450"
-            {...form.register("guest_count")}
-          />
-        </FormField>
+        {sozluk.usesGuestCount && (
+          <FormField form={form} name="guest_count" label="Kişi sayısı">
+            <Input
+              id="guest_count"
+              inputMode="numeric"
+              placeholder="450"
+              {...form.register("guest_count")}
+            />
+          </FormField>
+        )}
       </div>
 
       <FormField form={form} name="package_amount" label="Teklif tutarı">

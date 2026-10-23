@@ -82,7 +82,7 @@ export function ContractDocument({
         <Rows
           items={[
             [`${buyukHarf(sozluk.event.singular)} türü`, ORGANIZATION_TYPE_LABELS[o.type]],
-            ["Salon / Ekip", o.venue_name],
+            [sozluk.resourceField, o.venue_name],
             // Adres yalnızca doluysa çıkıyor; Rows null satırları atlıyor.
             ["Etkinlik adresi", o.location ?? null],
             ["Tarih", formatDate(o.event_date)],

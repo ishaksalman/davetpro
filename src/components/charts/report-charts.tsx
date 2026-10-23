@@ -22,8 +22,8 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { ORGANIZATION_TYPE_LABELS, WEEKDAY_LABELS } from "@/lib/constants";
-import { formatMoneyCompact } from "@/lib/format";
+import { ORGANIZATION_TYPE_LABELS, WEEKDAY_SHORT_LABELS } from "@/lib/constants";
+import { formatMoneyCompact, niceAxis } from "@/lib/format";
 import { buyukHarf } from "@/lib/vertical";
 import { useVertical } from "@/components/layout/vertical-provider";
 import type {
@@ -48,6 +48,7 @@ export function MonthlyPerformanceChart({ data }: { data: MonthlySeriesRow[] }) 
     collected: Number(row.collected),
     expenses: Number(row.expenses),
   }));
+  const axis = niceAxis(chartData.flatMap((d) => [d.sales, d.collected, d.expenses]));
 
   return (
     <ChartContainer config={monthlyConfig} className="aspect-auto h-72 w-full">
@@ -58,6 +59,8 @@ export function MonthlyPerformanceChart({ data }: { data: MonthlySeriesRow[] }) 
           tickLine={false}
           axisLine={false}
           width={60}
+          domain={axis.domain}
+          ticks={axis.ticks}
           tickFormatter={(v: number) => formatMoneyCompact(v)}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
@@ -101,6 +104,7 @@ export function VenueComparisonChart({ data }: { data: VenuePerformanceRow[] }) 
     sales: Number(row.sales),
     profit: Number(row.profit),
   }));
+  const axis = niceAxis(chartData.flatMap((d) => [d.sales, d.profit]));
 
   return (
     <ChartContainer config={venueConfig} className="aspect-auto h-64 w-full">
@@ -110,6 +114,8 @@ export function VenueComparisonChart({ data }: { data: VenuePerformanceRow[] }) 
           type="number"
           tickLine={false}
           axisLine={false}
+          domain={axis.domain}
+          ticks={axis.ticks}
           tickFormatter={(v: number) => formatMoneyCompact(v)}
         />
         <YAxis
@@ -188,7 +194,7 @@ export function WeekdayChart({ data }: { data: WeekdayBreakdownRow[] }) {
   // Hafta Pazartesi'den başlasın (Türkiye kullanımı).
   const order = [1, 2, 3, 4, 5, 6, 0];
   const chartData = order.map((dow) => ({
-    day: WEEKDAY_LABELS[dow].slice(0, 3),
+    day: WEEKDAY_SHORT_LABELS[dow],
     count: counts.get(dow) ?? 0,
   }));
 

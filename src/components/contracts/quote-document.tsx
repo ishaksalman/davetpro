@@ -109,7 +109,7 @@ export function QuoteDocument({
           </div>
           {quote.venue_name && (
             <div>
-              <dt>Salon</dt>
+              <dt>{sozluk.resourceField}</dt>
               <dd>{quote.venue_name}</dd>
             </div>
           )}

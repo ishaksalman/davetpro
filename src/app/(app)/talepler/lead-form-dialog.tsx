@@ -71,7 +71,7 @@ export function LeadFormDialog({
     full_name: customerName ?? "",
     phone: customerPhone ?? "",
     email: "",
-    organization_type: lead?.organization_type ?? "dugun",
+    organization_type: lead?.organization_type ?? sozluk.defaultEventType,
     source: lead?.source ?? "telefon",
     venue_id: lead?.venue_id ?? "none",
     package_id: lead?.package_id ?? "none",
@@ -307,14 +307,16 @@ export function LeadFormDialog({
           />
         </div>
 
-        <FormField form={form} name="guest_count" label="Tahmini kişi sayısı">
-          <Input
-            id="guest_count"
-            inputMode="numeric"
-            placeholder="450"
-            {...form.register("guest_count")}
-          />
-        </FormField>
+        {sozluk.usesGuestCount && (
+          <FormField form={form} name="guest_count" label="Tahmini kişi sayısı">
+            <Input
+              id="guest_count"
+              inputMode="numeric"
+              placeholder="450"
+              {...form.register("guest_count")}
+            />
+          </FormField>
+        )}
 
         <FormField form={form} name="package_id" label="İlgilendiği paket">
           <Select

@@ -157,9 +157,11 @@ export default async function LeadDetailPage({
                     ? formatTimeRange(lead.start_time, lead.end_time)
                     : "—"}
                 </Detail>
-                <Detail label="Kişi sayısı">
-                  {lead.guest_count ? `${formatNumber(lead.guest_count)} kişi` : "—"}
-                </Detail>
+                {sozluk.usesGuestCount && (
+                  <Detail label="Kişi sayısı">
+                    {lead.guest_count ? `${formatNumber(lead.guest_count)} kişi` : "—"}
+                  </Detail>
+                )}
                 <Detail label="Paket">{lead.package?.name ?? "Belirsiz"}</Detail>
                 <Detail label="Sorumlu">{lead.assignee_name ?? "Atanmadı"}</Detail>
               </dl>

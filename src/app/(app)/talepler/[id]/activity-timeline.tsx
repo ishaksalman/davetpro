@@ -23,6 +23,7 @@ import {
 import { LEAD_ACTIVITY_LABELS } from "@/lib/constants";
 import { formatDateTime } from "@/lib/format";
 import { useSubmitGuard } from "@/hooks/use-submit-guard";
+import { useVertical } from "@/components/layout/vertical-provider";
 import type { LeadActivity, LeadActivityType, Profile } from "@/lib/database.types";
 import { addLeadActivity } from "../actions";
 
@@ -65,6 +66,7 @@ export function ActivityTimeline({
   const [type, setType] = useState<ManualType>("telefon");
   const [note, setNote] = useState("");
   const [pending, startTransition] = useTransition();
+  const sozluk = useVertical();
   const guard = useSubmitGuard();
 
   const people = new Map(members.map((m) => [m.id, m.full_name] as const));
@@ -120,7 +122,7 @@ export function ActivityTimeline({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={2}
-          placeholder="Müşteri 450 kişilik Gold Paket fiyatı istedi…"
+          placeholder={sozluk.activityPlaceholder}
         />
         <Button type="submit" size="sm" disabled={pending}>
           Görüşmeyi kaydet

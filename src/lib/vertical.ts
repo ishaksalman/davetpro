@@ -82,6 +82,20 @@ export type Vertical = {
    */
   eventTypeLabel: string;
   /**
+   * Tür seçilmeden kaydedilirse yazılacak değer.
+   *
+   * NEDEN AYRI: formlar eskiden her işte "dugun" ile açılıyordu. Fotoğrafçıda
+   * "dugun" seçenekler arasında yok; kutu boş görünüyor ama kayıt "Düğün"
+   * olarak düşüyordu.
+   */
+  defaultEventType: OrganizationType;
+  /** Rezervasyon / talep not alanındaki örnek metin. */
+  notesPlaceholder: string;
+  /** Gider açıklaması için örnek metin. */
+  expenseNotePlaceholder: string;
+  /** Talep görüşme notu için örnek metin. */
+  activityPlaceholder: string;
+  /**
    * Ek hizmet bölümünde tek tıkla eklenen öneriler.
    * Tutarlar yalnızca başlangıç değeri; kullanıcı değiştiriyor.
    */
@@ -151,6 +165,10 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     usesPerGuestPricing: true,
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
     eventTypeLabel: "Organizasyon türü",
+    defaultEventType: "dugun",
+    notesPlaceholder: "Menü tercihi, dekorasyon isteği, özel talepler…",
+    expenseNotePlaceholder: "Örn. 400 kişilik menü ödemesi",
+    activityPlaceholder: "Müşteri 450 kişilik Gold Paket fiyatı istedi…",
     packageServices: [
       "Yemek",
       "İçecek",
@@ -207,6 +225,10 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
       "diger",
     ],
     eventTypeLabel: "Tür",
+    defaultEventType: "dugun_nisan",
+    notesPlaceholder: "Çekim konsepti, istenen kareler, buluşma noktası, özel talepler…",
+    expenseNotePlaceholder: "Örn. albüm baskısı, ekipman kirası, ulaşım",
+    activityPlaceholder: "Müşteri düğün paketinin fiyatını ve teslim süresini sordu…",
     packageServices: [
       "2 saat fotoğraf çekimi",
       "1 adet albüm",
@@ -251,6 +273,10 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
     resourceDescPlaceholder: "Kapalı, 300 kişilik kendi salonumuz",
     eventTypes: ["dugun", "nisan", "kina", "soz", "sunnet", "davet", "kurumsal", "diger"],
     eventTypeLabel: "Organizasyon türü",
+    defaultEventType: "dugun",
+    notesPlaceholder: "Menü tercihi, dekorasyon isteği, özel talepler…",
+    expenseNotePlaceholder: "Örn. 400 kişilik menü ödemesi",
+    activityPlaceholder: "Müşteri 450 kişilik Gold Paket fiyatı istedi…",
     packageServices: [
       "Yemek",
       "İçecek",
@@ -284,6 +310,11 @@ export const VERTICALS: Record<BusinessType, Vertical> = {
 
 export function vertical(type: BusinessType | undefined | null): Vertical {
   return VERTICALS[type ?? "salon"] ?? VERTICALS.salon;
+}
+
+/** "Tüm salonlar" / "Tüm platolar" / "Tüm mekânlar" — filtre ve seçim etiketi. */
+export function tumKaynaklar(v: Vertical): string {
+  return `Tüm ${v.resource.plural.toLocaleLowerCase("tr-TR")}`;
 }
 
 /** Seçim ekranında gösterilecek sıra. */

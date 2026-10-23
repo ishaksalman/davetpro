@@ -130,7 +130,7 @@ export function ReservationFormDialog({
           ? activeVenues[0].id
           : ""),
     package_id: reservation?.package_id ?? "none",
-    organization_type: reservation?.organization_type ?? "dugun",
+    organization_type: reservation?.organization_type ?? sozluk.defaultEventType,
     // Durum formda seçilmiyor: satış hattı Talepler'de, rezervasyon
     // kesinleşmiş işi temsil ediyor. Sonraki geçişler (tamamlandı / iptal)
     // detay sayfasındaki durum menüsünden yapılıyor.
@@ -816,7 +816,7 @@ export function ReservationFormDialog({
         <Textarea
           id="notes"
           rows={3}
-          placeholder="Menü tercihi, dekorasyon isteği, özel talepler…"
+          placeholder={sozluk.notesPlaceholder}
           {...form.register("notes")}
         />
       </FormField>
