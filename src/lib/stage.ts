@@ -91,7 +91,12 @@ export const STAGE_FLOW: Stage[] = [
 export function reservationStage(
   status: ReservationStatus,
   delivery: DeliveryStatus | null,
+  ended = false,
 ): Stage {
   if (status === "iptal_edildi") return "iptal_edildi";
-  return delivery ?? "olusturuldu";
+  // Çekim tarihi geçmişse ve kimse aşama işaretlememişse iş "çekim yapıldı"
+  // sayılır. Veritabanına YAZILMIYOR: ertelenen ya da yapılmayan bir çekimde
+  // kullanıcı menüden "Oluşturuldu"ya dönebilsin; zamanlanmış bir iş de gerekmiyor.
+  if (delivery) return delivery;
+  return ended ? "cekim_yapildi" : "olusturuldu";
 }

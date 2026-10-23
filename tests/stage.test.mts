@@ -84,3 +84,24 @@ test("fotoğrafçıda her aşama filtrede karşılık buluyor", () => {
     assert.ok(secenekler.includes(reservationStage(st, d)), `${st}/${d}`);
   }
 });
+
+test("tarihi geçmiş ve aşamasız iş çekim yapıldı sayılır", () => {
+  assert.equal(reservationStage("kesinlesti", null, true), "cekim_yapildi");
+  assert.equal(reservationStage("kesinlesti", null, false), "olusturuldu");
+});
+
+test("türetme iptali ve işaretlenmiş aşamayı ezmez", () => {
+  assert.equal(reservationStage("iptal_edildi", null, true), "iptal_edildi");
+  assert.equal(reservationStage("kesinlesti", "baskida", true), "baskida");
+});
+
+test("etkinlik bitti mi: gün ve saat, işletme saatine göre", async () => {
+  const { isShootOver } = await import("../src/lib/time.ts");
+  const an = new Date("2026-10-23T12:00:00Z"); // İstanbul 15:00
+  assert.equal(isShootOver("2026-10-22", "23:00", "19:00", an), true);
+  assert.equal(isShootOver("2026-10-24", "10:00", "08:00", an), false);
+  assert.equal(isShootOver("2026-10-23", "14:00", "12:00", an), true);
+  assert.equal(isShootOver("2026-10-23", "16:00", "12:00", an), false);
+  // Gece yarısını aşan iş bugün içinde bitmiş sayılmaz.
+  assert.equal(isShootOver("2026-10-23", "01:00", "22:00", an), false);
+});

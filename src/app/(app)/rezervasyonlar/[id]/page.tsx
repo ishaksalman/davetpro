@@ -147,6 +147,9 @@ export default async function ReservationDetailPage({
                 reservationId={reservation.id}
                 status={reservation.status}
                 deliveryStatus={reservation.delivery_status}
+                eventDate={reservation.event_date}
+                startTime={reservation.start_time}
+                endTime={reservation.end_time}
               />
             ) : (
               <ReservationStatusMenu
@@ -181,7 +184,13 @@ export default async function ReservationDetailPage({
                 <h2 className="font-medium">
                   {buyukHarf(sozluk.event.singular)}
                 </h2>
-                <StageBadge status={reservation.status} deliveryStatus={reservation.delivery_status} />
+                <StageBadge
+                  status={reservation.status}
+                  deliveryStatus={reservation.delivery_status}
+                  eventDate={reservation.event_date}
+                  startTime={reservation.start_time}
+                  endTime={reservation.end_time}
+                />
               </header>
               <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5 sm:grid-cols-3">
                 <Detail label="Tür">

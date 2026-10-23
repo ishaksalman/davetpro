@@ -1,6 +1,7 @@
 "use client";
 
 import { STAGES, reservationStage } from "@/lib/stage";
+import { isShootOver } from "@/lib/time";
 import { useVertical } from "@/components/layout/vertical-provider";
 import {
   RESERVATION_STATUS_LABELS,
@@ -22,15 +23,28 @@ import { cn } from "@/lib/utils";
 export function StageBadge({
   status,
   deliveryStatus,
+  eventDate,
+  startTime,
+  endTime,
   className,
 }: {
   status: ReservationStatus;
   deliveryStatus: DeliveryStatus | null;
+  /** Verilirse tarihi geçmiş işler "Çekim yapıldı" görünür. */
+  eventDate?: string;
+  startTime?: string;
+  endTime?: string;
   className?: string;
 }) {
   const sozluk = useVertical();
   const { label, style } = sozluk.usesDelivery
-    ? STAGES[reservationStage(status, deliveryStatus)]
+    ? STAGES[
+        reservationStage(
+          status,
+          deliveryStatus,
+          Boolean(eventDate && endTime && isShootOver(eventDate, endTime, startTime)),
+        )
+      ]
     : {
         label: RESERVATION_STATUS_LABELS[status],
         style: RESERVATION_STATUS_STYLES[status],

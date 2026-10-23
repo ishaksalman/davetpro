@@ -91,3 +91,14 @@ export function CloseFilled({ fill, className }: Props) {
     </Svg>
   );
 }
+
+/** Teslimat: kapaklı koli. */
+export function PackageFilled({ fill, className }: Props) {
+  return (
+    <Svg className={className}>
+      <path d="M4.5 7.5 12 3.5l7.5 4v9L12 20.5l-7.5-4z" fill={fill} />
+      <path d="M4.5 7.5 12 11.5l7.5-4" fill="none" stroke={CUT} strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M12 11.5v9" stroke={CUT} strokeWidth="1.4" />
+    </Svg>
+  );
+}

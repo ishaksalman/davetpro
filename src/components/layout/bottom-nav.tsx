@@ -9,12 +9,14 @@ import {
   CalendarFilled,
   CloseFilled,
   MenuFilled,
+  PackageFilled,
   PanelFilled,
   StoreFilled,
   UsersFilled,
 } from "./filled-nav-icons";
 import { MobileMenu, type MobileMenuAccount } from "./mobile-menu";
-import { BOTTOM_NAV_ITEMS } from "./nav-items";
+import { bottomNavItems } from "./nav-items";
+import { useVertical } from "./vertical-provider";
 
 /**
  * Mobilde alttan sabit, yüzen gezinme çubuğu.
@@ -24,6 +26,7 @@ import { BOTTOM_NAV_ITEMS } from "./nav-items";
  */
 export function BottomNav({ account }: { account: MobileMenuAccount }) {
   const pathname = usePathname();
+  const items = bottomNavItems(useVertical().usesDelivery);
   /*
    * Menü hangi sayfada açıldıysa o sayfaya bağlı: gezinince kendiliğinden
    * kapanıyor. Rotayı izleyip efektte kapatmaya gerek kalmıyor.
@@ -35,7 +38,7 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
   // Çubukta olmayan bir sayfadaysak (ör. Gelirler) Menü etkin görünüyor.
-  const onMenuPage = !BOTTOM_NAV_ITEMS.some((i) => isActive(i.href));
+  const onMenuPage = !items.some((i) => isActive(i.href));
 
   return (
     <>
@@ -51,7 +54,7 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
         className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 md:hidden"
       >
         <ul className="flex h-16 rounded-[1.75rem] bg-card shadow-[0_4px_18px_rgb(0_0_0/0.12)] ring-1 ring-foreground/5 dark:shadow-[0_4px_18px_rgb(0_0_0/0.45)]">
-          {BOTTOM_NAV_ITEMS.map((item) => {
+          {items.map((item) => {
             const active = isActive(item.href);
             return (
               <li key={item.href} className="flex-1">
@@ -104,6 +107,7 @@ const FILLED: Record<string, FilledIcon> = {
   "/takvim": CalendarFilled,
   "/rezervasyonlar": StoreFilled,
   "/musteriler": UsersFilled,
+  "/teslimat": PackageFilled,
 };
 
 /**

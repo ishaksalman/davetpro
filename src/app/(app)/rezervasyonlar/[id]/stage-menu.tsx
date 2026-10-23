@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { STAGES, STAGE_FLOW, reservationStage, type Stage } from "@/lib/stage";
+import { isShootOver } from "@/lib/time";
 import type { DeliveryStatus, ReservationStatus } from "@/lib/database.types";
 import { updateReservationStage } from "../actions";
 
@@ -28,13 +29,23 @@ export function StageMenu({
   reservationId,
   status,
   deliveryStatus,
+  eventDate,
+  startTime,
+  endTime,
 }: {
   reservationId: string;
   status: ReservationStatus;
   deliveryStatus: DeliveryStatus | null;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
 }) {
   const [pending, startTransition] = useTransition();
-  const current = reservationStage(status, deliveryStatus);
+  const current = reservationStage(
+    status,
+    deliveryStatus,
+    isShootOver(eventDate, endTime, startTime),
+  );
   const iptalli = current === "iptal_edildi";
 
   function change(next: Stage) {

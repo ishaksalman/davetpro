@@ -13,7 +13,7 @@ import type { SubscriptionInfo } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/(auth)/actions";
 import { ChangePasswordDialog } from "./change-password-dialog";
-import { BOTTOM_NAV_ITEMS, NAV_GROUPS, visibleNavItems, type NavItem } from "./nav-items";
+import { bottomNavItems, NAV_GROUPS, visibleNavItems, type NavItem } from "./nav-items";
 import { useVertical } from "./vertical-provider";
 
 /** Grup başına simge rengi — karoları göz gezdirirken ayırmak için. */
@@ -76,13 +76,14 @@ export function MobileMenu({
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
+  const altSekmeler = bottomNavItems(sozluk.usesDelivery);
   const groups = NAV_GROUPS.map((group) => ({
     label: group.label,
     items: visibleNavItems(group.items, {
       showFinance: account.showFinance,
       usesDelivery: sozluk.usesDelivery,
       usesTeams: sozluk.usesTeams,
-    }).filter((i) => !BOTTOM_NAV_ITEMS.some((b) => b.href === i.href)),
+    }).filter((i) => !altSekmeler.some((b) => b.href === i.href)),
   })).filter((g) => g.items.length > 0);
   const abonelikGoster = subscription && account.canManageBilling;
 

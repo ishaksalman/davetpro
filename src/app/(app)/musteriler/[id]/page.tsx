@@ -146,6 +146,9 @@ export default async function CustomerDetailPage({
                           <StageBadge
                             status={reservation.status}
                             deliveryStatus={reservation.delivery_status}
+                            eventDate={reservation.event_date}
+                            startTime={reservation.start_time}
+                            endTime={reservation.end_time}
                             className="mt-1.5"
                           />
                         </div>

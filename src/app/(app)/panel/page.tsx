@@ -460,6 +460,9 @@ function EventRow({
         <StageBadge
           status={reservation.status}
           deliveryStatus={reservation.delivery_status}
+          eventDate={reservation.event_date}
+          startTime={reservation.start_time}
+          endTime={reservation.end_time}
         />
       </Link>
     </li>

@@ -6,12 +6,14 @@ import { DELIVERY_STATUS_LABELS, DELIVERY_STATUS_STYLES, DELIVERY_STATUS_FLOW } 
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { ReservationRow } from "@/lib/queries";
+import type { DeliveryStatus } from "@/lib/database.types";
 import { DeliveryMenu } from "../rezervasyonlar/[id]/delivery-menu";
 import { DueDateButton } from "./due-date-button";
 import { DeliveryLinkButton } from "./delivery-link-button";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
 import { useVertical } from "@/components/layout/vertical-provider";
 import { deliveryMessage } from "@/lib/reservation-notice";
+import { isShootOver } from "@/lib/time";
 
 /** İki yyyy-MM-dd arasındaki gün farkı (a - b). Saat dilimine bağımlı değil. */
 function dayDiff(a: string, b: string): number {
@@ -54,12 +56,18 @@ export function DeliveryBoard({
       return a - b;
     });
 
+  // Aşaması işaretlenmemiş ama tarihi geçmiş iş "çekim yapıldı" sayılır
+  // (bkz. reservationStage). Gerçekten aşamasız kalan: bugünün henüz
+  // bitmemiş çekimi.
+  const asama = (r: ReservationRow): DeliveryStatus | null =>
+    r.delivery_status ?? (isShootOver(r.event_date, r.end_time, r.start_time) ? "cekim_yapildi" : null);
+
   const gruplar = [
-    { key: null, label: "Aşama belirlenmedi", rows: sirala(rows.filter((r) => !r.delivery_status)) },
+    { key: null, label: "Henüz çekilmedi", rows: sirala(rows.filter((r) => !asama(r))) },
     ...DELIVERY_STATUS_FLOW.filter((d) => d !== "teslim_edildi").map((d) => ({
       key: d,
       label: DELIVERY_STATUS_LABELS[d],
-      rows: sirala(rows.filter((r) => r.delivery_status === d)),
+      rows: sirala(rows.filter((r) => asama(r) === d)),
     })),
   ].filter((g) => g.rows.length > 0);
 
@@ -119,12 +127,12 @@ export function DeliveryBoard({
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      {row.delivery_status && (
+                      {asama(row) && (
                         <Badge
                           variant="outline"
-                          className={DELIVERY_STATUS_STYLES[row.delivery_status]}
+                          className={DELIVERY_STATUS_STYLES[asama(row)!]}
                         >
-                          {DELIVERY_STATUS_LABELS[row.delivery_status]}
+                          {DELIVERY_STATUS_LABELS[asama(row)!]}
                         </Badge>
                       )}
                       <DueDateButton
@@ -168,7 +176,7 @@ export function DeliveryBoard({
                     )}
                   </div>
 
-                  <DeliveryMenu reservationId={row.id} status={row.delivery_status} />
+                  <DeliveryMenu reservationId={row.id} status={asama(row)} />
                 </div>
               );
             })}

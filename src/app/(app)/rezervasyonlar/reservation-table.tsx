@@ -52,7 +52,7 @@ import type {
 } from "@/lib/database.types";
 import { cn } from "@/lib/utils";
 import type { ReservationRow } from "@/lib/queries";
-import { todayISO } from "@/lib/time";
+import { isShootOver, todayISO } from "@/lib/time";
 import { deleteReservation } from "./actions";
 import { ReservationFormDialog } from "./reservation-form-dialog";
 
@@ -94,7 +94,11 @@ export function ReservationTable({
       reservations.filter((r) => {
         if (status !== "all") {
           const gecerli = sozluk.usesDelivery
-            ? reservationStage(r.status, r.delivery_status)
+            ? reservationStage(
+                r.status,
+                r.delivery_status,
+                isShootOver(r.event_date, r.end_time, r.start_time),
+              )
             : r.status;
           if (gecerli !== status) return false;
         }
@@ -198,6 +202,9 @@ export function ReservationTable({
           <StageBadge
             status={row.original.status}
             deliveryStatus={row.original.delivery_status}
+            eventDate={row.original.event_date}
+            startTime={row.original.start_time}
+            endTime={row.original.end_time}
           />
         ),
       },

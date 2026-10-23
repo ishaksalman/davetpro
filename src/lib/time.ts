@@ -30,3 +30,32 @@ export function todayISO(now: Date = new Date()): string {
 export function today(now: Date = new Date()): Date {
   return parseISO(todayISO(now));
 }
+
+const hourMinute = new Intl.DateTimeFormat("en-GB", {
+  timeZone: APP_TIME_ZONE,
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+/**
+ * Etkinlik bitti mi? (işletme saatine göre)
+ *
+ * Geçmiş bir günse evet; bugünse bitiş saati geçtiyse evet. Bitişi
+ * başlangıçtan önce görünen kayıtlar (gece yarısını aşan işler) bugün
+ * içinde "bitmedi" sayılıyor: ertesi güne taşan bir işi akşam
+ * "çekim yapıldı" göstermek yanlış olurdu.
+ */
+export function isShootOver(
+  eventDate: string,
+  endTime: string,
+  startTime?: string,
+  now: Date = new Date(),
+): boolean {
+  const bugun = todayISO(now);
+  if (eventDate < bugun) return true;
+  if (eventDate > bugun) return false;
+  const bitis = endTime.slice(0, 5);
+  if (startTime && bitis <= startTime.slice(0, 5)) return false;
+  return bitis <= hourMinute.format(now);
+}

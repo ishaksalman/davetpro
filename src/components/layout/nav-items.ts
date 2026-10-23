@@ -35,9 +35,9 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { href: "/panel", label: "Dashboard", icon: LayoutDashboard },
       { href: "/takvim", label: "Takvim", icon: CalendarDays },
       { href: "/rezervasyonlar", label: "Rezervasyonlar", icon: Store },
+      { href: "/teslimat", label: "Teslimat", icon: PackageCheck, deliveryOnly: true, description: "Baskı ve teslim takibi" },
       { href: "/musteriler", label: "Müşteriler", icon: Users },
       { href: "/talepler", label: "Talepler", icon: MessagesSquare, description: "Görüşmeler ve teklifler" },
-      { href: "/teslimat", label: "Teslimat", icon: PackageCheck, deliveryOnly: true, description: "Baskı ve teslim takibi" },
     ],
   },
   {
@@ -76,9 +76,21 @@ export function visibleNavItems(
  * Mobil alt çubuktaki sekmeler. Mobilde kenar çubuğu bunları tekrar
  * listelemiyor; iki menü bu tek listeden besleniyor ki birbirinden kopmasın.
  */
-export const BOTTOM_NAV_ITEMS: NavItem[] = [
+const BOTTOM_BASE: NavItem[] = [
   { href: "/panel", label: "Panel", icon: LayoutDashboard },
   { href: "/takvim", label: "Takvim", icon: CalendarDays },
   { href: "/rezervasyonlar", label: "Rezervasyon", icon: Store },
-  { href: "/musteriler", label: "Müşteriler", icon: Users },
 ];
+
+/**
+ * Dördüncü sekme işe göre: fotoğrafçıda Teslimat (günlük işi çekim sonrası
+ * takip), salonda Müşteriler. Dışarıda kalan, tam ekran menüde görünüyor.
+ */
+export function bottomNavItems(usesDelivery: boolean): NavItem[] {
+  return [
+    ...BOTTOM_BASE,
+    usesDelivery
+      ? { href: "/teslimat", label: "Teslimat", icon: PackageCheck }
+      : { href: "/musteriler", label: "Müşteriler", icon: Users },
+  ];
+}
