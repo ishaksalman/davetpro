@@ -155,6 +155,40 @@ export async function setDeliveryDueDate(
   return { ok: true };
 }
 
+/**
+ * Teslim bağlantısı (dış galeri). null → kaldırılır.
+ * Yalnızca https: veritabanı da aynı kuralı CHECK ile zorluyor.
+ */
+export async function setDeliveryLink(
+  id: string,
+  link: string | null,
+): Promise<ActionResult> {
+  await requireSession();
+
+  let temiz: string | null = null;
+  if (link !== null && link.trim() !== "") {
+    try {
+      const url = new URL(link.trim());
+      if (url.protocol !== "https:") throw new Error("şema");
+      temiz = url.toString();
+    } catch {
+      return { ok: false, error: "Geçerli bir https:// bağlantısı girin." };
+    }
+    if (temiz.length > 2000) return { ok: false, error: "Bağlantı çok uzun." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("reservations")
+    .update({ delivery_link: temiz })
+    .eq("id", id);
+  if (error) return actionError(error);
+
+  revalidatePath("/teslimat");
+  revalidatePath(`/rezervasyonlar/${id}`);
+  return { ok: true };
+}
+
 export async function deleteReservation(id: string): Promise<ActionResult> {
   await requireSession();
 

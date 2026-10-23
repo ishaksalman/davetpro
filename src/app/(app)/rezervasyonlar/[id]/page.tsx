@@ -26,7 +26,8 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Money } from "@/components/shared/money";
 import { StageBadge } from "@/components/shared/stage-badge";
 import { WhatsAppButton } from "@/components/shared/whatsapp-button";
-import { reservationNoticeMessage } from "@/lib/reservation-notice";
+import { customerMessages } from "@/lib/reservation-notice";
+import { WhatsAppMenu } from "@/components/shared/whatsapp-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -622,20 +623,17 @@ export default async function ReservationDetailPage({
                 </div>
 
                 {/* Otomatik gönderilmiyor: hazır mesajla WhatsApp açılıyor,
-                    göndermeye salon sahibi karar veriyor. */}
-                <WhatsAppButton
+                    göndermeye işletme sahibi karar veriyor. */}
+                <WhatsAppMenu
                   phone={customer.phone}
-                  size="sm"
-                  // Yalnızca bu düğme: duruyorken açık yeşil zemin, üzerine
-                  // gelince tam WhatsApp yeşili. Listelerdeki simge düğmeleri
-                  // varsayılan görünümünde kalıyor.
-                  className="mt-3 w-full justify-center bg-[#25D366]/10 hover:bg-[#25D366] hover:text-white"
-                  label="Müşteriyi bilgilendir"
-                  message={reservationNoticeMessage({
+                  className="mt-3 w-full justify-center bg-[#25D366]/10"
+                  label="Müşteriye mesaj gönder"
+                  messages={customerMessages({
                     reservation,
                     customerName: customer.full_name,
                     businessName: business.name,
                     showFinance,
+                    sozluk,
                   })}
                 />
               </section>

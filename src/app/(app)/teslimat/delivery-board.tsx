@@ -8,6 +8,10 @@ import { formatDate, formatMoney } from "@/lib/format";
 import type { ReservationRow } from "@/lib/queries";
 import { DeliveryMenu } from "../rezervasyonlar/[id]/delivery-menu";
 import { DueDateButton } from "./due-date-button";
+import { DeliveryLinkButton } from "./delivery-link-button";
+import { WhatsAppButton } from "@/components/shared/whatsapp-button";
+import { useVertical } from "@/components/layout/vertical-provider";
+import { deliveryMessage } from "@/lib/reservation-notice";
 
 /** İki yyyy-MM-dd arasındaki gün farkı (a - b). Saat dilimine bağımlı değil. */
 function dayDiff(a: string, b: string): number {
@@ -29,11 +33,14 @@ export function DeliveryBoard({
   rows,
   bugun,
   showFinance,
+  businessName,
 }: {
   rows: ReservationRow[];
   bugun: string;
   showFinance: boolean;
+  businessName: string;
 }) {
+  const sozluk = useVertical();
   const kalan = (r: ReservationRow) =>
     r.delivery_due_date ? dayDiff(r.delivery_due_date, bugun) : null;
 
@@ -127,6 +134,29 @@ export function DeliveryBoard({
                         overdue={gecikti}
                         daysLeft={gun}
                       />
+                      <DeliveryLinkButton
+                        reservationId={row.id}
+                        value={row.delivery_link ?? null}
+                      />
+                      {/* Bağlantı varsa müşteriye tek tıkla gönderilir; gönderme
+                          kararı işletmede, otomatik gitmiyor. */}
+                      {row.delivery_link && row.customer && (
+                        <WhatsAppButton
+                          phone={row.customer.phone}
+                          size="sm"
+                          label="Müşteriye gönder"
+                          className="h-7 px-2 text-xs"
+                          message={
+                            deliveryMessage({
+                              reservation: row,
+                              customerName: row.customer.full_name,
+                              businessName,
+                              showFinance,
+                              sozluk,
+                            }) ?? undefined
+                          }
+                        />
+                      )}
                     </div>
                     {/* Bakiye varken teslim: sözleşmede "kalan ödeme tamamlanmadan
                         teslim yapılmayabilir" yazıyor; kullanıcı görsün. */}

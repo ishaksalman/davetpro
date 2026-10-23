@@ -56,7 +56,7 @@ export default async function DeliveryPage() {
             }
           />
         ) : (
-          <DeliveryBoard rows={aktif} bugun={todayISO()} showFinance={canSeeFinance(profile)} />
+          <DeliveryBoard rows={aktif} bugun={todayISO()} businessName={business.name} showFinance={canSeeFinance(profile)} />
         )}
       </PageBody>
     </>

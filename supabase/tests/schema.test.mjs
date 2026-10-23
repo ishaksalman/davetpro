@@ -1345,6 +1345,19 @@ await step('teslim hedef tarihi yazılıp silinebiliyor', async () => {
   if (b.d !== null) throw new Error(JSON.stringify(b))
 })
 
+await step('teslim bağlantısı https ile kaydediliyor', async () => {
+  await db.query(`update reservations set delivery_link = 'https://drive.google.com/x' where id = $1`, [TR])
+  const a = (await db.query(`select delivery_link l from reservations where id = $1`, [TR])).rows[0]
+  if (a.l !== 'https://drive.google.com/x') throw new Error(JSON.stringify(a))
+  await db.query(`update reservations set delivery_link = null where id = $1`, [TR])
+})
+
+await expectFail('javascript: bağlantısı reddediliyor', () =>
+  db.query(`update reservations set delivery_link = 'javascript:alert(1)' where id = $1`, [TR]))
+
+await expectFail('http (şifresiz) bağlantı reddediliyor', () =>
+  db.query(`update reservations set delivery_link = 'http://ornek.com' where id = $1`, [TR]))
+
 await expectFail('tanımsız aşama kabul edilmiyor', () =>
   db.query(`update reservations set delivery_status = 'albumde' where id = $1`, [TR]))
 

@@ -171,6 +171,8 @@ export type Reservation = Timestamps & {
   delivered_at: string | null;
   /** Söz verilen teslim tarihi (yyyy-MM-dd). Opsiyonel. */
   delivery_due_date: string | null;
+  /** Teslim edilen işin dış galeri bağlantısı (https). Opsiyonel. */
+  delivery_link: string | null;
   notes: string | null;
   created_by: string | null;
   starts_at: string;
