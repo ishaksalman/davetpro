@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
@@ -31,6 +31,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { VoidDialog } from "@/components/shared/void-dialog";
 import { Notice } from "@/components/shared/notice";
 import { ContractDocument } from "@/components/contracts/contract-document";
+import { DocumentFrame } from "@/components/contracts/document-frame";
 import { CONTRACT_STATUS_LABELS } from "@/lib/constants";
 import { formatDate, formatDateTime, whatsAppLink } from "@/lib/format";
 import type { Business, Contract, ContractSnapshot, Customer } from "@/lib/database.types";
@@ -44,25 +45,29 @@ import {
   ReservationFormDialog,
   type EditableReservation,
 } from "../../reservation-form-dialog";
-import type { Lookups } from "@/lib/queries";
+import type { Lookups, ReservationRow } from "@/lib/queries";
+import { contractNoticeMessage } from "@/lib/reservation-notice";
+import { WhatsAppIcon } from "@/components/shared/whatsapp-icon";
 
 export function ContractWorkspace({
   reservationId,
   reservation,
+  shareUrl,
   lookups,
   business,
   canEditBusiness,
   customer,
   customerName,
   customerPhone,
-  eventDate,
   contract,
   templateBody,
   draftSnapshot,
   draftContent,
 }: {
   reservationId: string;
-  reservation: EditableReservation;
+  reservation: ReservationRow;
+  /** Herkese açık sözleşme bağlantısı (/s/<kod>); sözleşme yoksa boş. */
+  shareUrl: string;
   lookups: Lookups;
   business: Business;
   /** İşletme bilgisini yalnızca sahip/yönetici düzenleyebiliyor. */
@@ -70,7 +75,6 @@ export function ContractWorkspace({
   customer: Customer;
   customerName: string;
   customerPhone: string;
-  eventDate: string;
   contract: Contract | null;
   templateBody: string;
   draftSnapshot: ContractSnapshot;
@@ -81,6 +85,7 @@ export function ContractWorkspace({
   const [body, setBody] = useState(templateBody);
   const [pending, startTransition] = useTransition();
   const guard = useSubmitGuard();
+  const sozluk = useVertical();
 
   const printHref = `/rezervasyonlar/${reservationId}/sozlesme/yazdir`;
 
@@ -190,6 +195,17 @@ export function ContractWorkspace({
   // --- Kayıtlı sözleşme var ---------------------------------------------
   const snapshot = contract.snapshot;
   const cancelled = contract.status === "iptal";
+  const notice = contractNoticeMessage(
+    {
+      reservation,
+      customerName,
+      businessName: business.name,
+      showFinance: true,
+      sozluk,
+    },
+    shareUrl,
+  );
+  const notifyHref = whatsAppLink(customerPhone, notice);
 
   return (
     <div className="space-y-5">
@@ -222,6 +238,32 @@ export function ContractWorkspace({
 
         </div>
 
+        {/* Müşteriye bilgi: rezervasyon bilgisi + sözleşme bağlantısı. Otomatik
+            gönderilmiyor; WhatsApp hazır mesajla açılıyor, gönderen işletme. */}
+        {!cancelled && (
+          // ghost: varsayılan varyant (btn-gradient-border) kendi zeminini
+          // çizip WhatsApp yeşilini eziyordu.
+          <Button
+            variant="ghost"
+            asChild={Boolean(notifyHref)}
+            disabled={!notifyHref}
+            title={notifyHref ? undefined : "Müşterinin telefon numarası yok"}
+            className="mt-4 w-full bg-[#15803D] font-semibold text-white hover:bg-[#166534] hover:text-white sm:w-auto"
+          >
+            {notifyHref ? (
+              <a href={notifyHref} target="_blank" rel="noopener noreferrer">
+                <WhatsAppIcon />
+                Müşteriyi bilgilendir
+              </a>
+            ) : (
+              <span>
+                <WhatsAppIcon />
+                Müşteriyi bilgilendir
+              </span>
+            )}
+          </Button>
+        )}
+
         {/* Belge işlemleri: dar ekranda tek satırda üç eşit düğme. */}
         <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
           <Button variant="outline" asChild>
@@ -237,10 +279,9 @@ export function ContractWorkspace({
             </a>
           </Button>
           <ShareButton
-            contractNumber={contract.contract_number}
-            customerName={customerName}
-            customerPhone={customerPhone}
-            eventDate={eventDate}
+            title={`Sözleşme ${contract.contract_number}`}
+            message={notice}
+            url={shareUrl}
           />
         </div>
 
@@ -361,104 +402,29 @@ export function ContractWorkspace({
   );
 }
 
-/** A4'ün ekrandaki genişliği (210 mm, CSS'te 96 dpi). */
-const SHEET_WIDTH_PX = (210 / 25.4) * 96;
 
 /**
- * A4 sayfayı ekranda kağıt gibi göstermek için gri zemin + gölge.
- *
- * Dar ekranda sayfa orantılı küçültülüp genişliğe sığdırılıyor: belgenin
- * yerleşimi değişmiyor (önizleme ile çıktı aynı kalsın), yalnızca ölçeği.
- *
- * transform: scale — `zoom` değil: iOS Safari zoom'u genişliğe uygulayıp
- * yazı boyutuna uygulamıyordu; metin dar sütuna sıkışıp her kelimede
- * kırılıyordu. transform yerleşimi küçültmediği için dış kutunun boyu
- * ölçekle elle ayarlanıyor. Yazdırma/PDF ayrı sayfada, buna dokunulmuyor.
+ * Telefonun paylaşım menüsü (Web Share API): aynı bilgilendirme mesajı
+ * başka bir uygulamaya da gönderilebilsin. Menü yoksa bağlantı panoya
+ * kopyalanıyor; WhatsApp için ayrı, belirgin düğme var.
  */
-function DocumentFrame({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const [height, setHeight] = useState<number | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    const sheet = sheetRef.current;
-    if (!el || !sheet) return;
-    const observer = new ResizeObserver(() => {
-      const style = getComputedStyle(el);
-      const available =
-        el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-      setScale(Math.min(1, available / SHEET_WIDTH_PX));
-      // transform yerleşimi etkilemediği için ölçülen yükseklik ölçeksiz.
-      setHeight(sheet.offsetHeight);
-    });
-    observer.observe(el);
-    observer.observe(sheet);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={ref} className="overflow-hidden rounded-xl bg-muted/50 p-3 sm:p-8">
-      <div
-        className="mx-auto"
-        style={{
-          width: SHEET_WIDTH_PX * scale,
-          height: height === null ? undefined : height * scale,
-        }}
-      >
-        <div
-          ref={sheetRef}
-          className="shadow-lg"
-          style={{
-            width: SHEET_WIDTH_PX,
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
-          }}
-        >
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Web Share API varsa yerel paylaşım penceresi açılır, yoksa WhatsApp'a
- * hazır mesaj bırakılır. Dosya eklentisi gönderilmiyor — kullanıcıya bunun
- * açıkça söylenmesi, olmayan bir entegrasyonu ima etmekten iyi.
- */
-function ShareButton({
-  contractNumber,
-  customerName,
-  customerPhone,
-  eventDate,
-}: {
-  contractNumber: string;
-  customerName: string;
-  customerPhone: string;
-  eventDate: string;
-}) {
-  const sozluk = useVertical();
-  const message = `Merhaba ${customerName}, ${formatDate(eventDate)} tarihli ${sozluk.event.possessive} için hazırladığımız ${contractNumber} numaralı sözleşmeyi paylaşıyorum.`;
-
+function ShareButton({ title, message, url }: { title: string; message: string; url: string }) {
   async function share() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: `Sözleşme ${contractNumber}`, text: message });
+        // Bağlantı metnin içinde: url ayrıca verilirse bazı uygulamalar iki
+        // kez ekliyor.
+        await navigator.share({ title, text: message });
         return;
       } catch (error) {
-        // Kullanıcı vazgeçtiyse sessizce çık; başka hatada WhatsApp'a düş.
         if (error instanceof DOMException && error.name === "AbortError") return;
       }
     }
-
-    const href = whatsAppLink(customerPhone, message);
-    if (href) {
-      window.open(href, "_blank", "noopener,noreferrer");
-      toast.info("Sözleşme dosyasını sohbete kendiniz eklemeniz gerekir.");
-    } else {
-      toast.error("Müşterinin telefon numarası bulunamadı.");
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Sözleşme bağlantısı kopyalandı.");
+    } catch {
+      toast.error("Bağlantı kopyalanamadı.");
     }
   }
 

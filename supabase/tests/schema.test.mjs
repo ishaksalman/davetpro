@@ -1398,5 +1398,43 @@ await expectFail('tek karakterlik ad reddediliyor', () =>
   db.query(`insert into customers (full_name, phone, contract_name)
             values ('Test','05006660003','A')`))
 
+console.log('\n\x1b[1m20) Sözleşme paylaşım bağlantısı\x1b[0m')
+
+await as(U.ownerA)
+let paylasimKodu
+await step('sözleşmeye 32 karakterlik paylaşım kodu atanıyor', async () => {
+  const rez = (await db.query(`select id from reservations where status <> 'iptal_edildi' order by created_at limit 1`)).rows[0].id
+  const c = (await db.query(`select (create_contract($1, 'Sözleşme metni', '{"a":1}'::jsonb)).id`, [rez])).rows[0]
+  paylasimKodu = (await db.query(`select share_token from contracts where id = $1`, [c.id])).rows[0].share_token
+  if (!/^[0-9a-f]{32}$/.test(paylasimKodu)) throw new Error(`beklenmeyen kod: ${paylasimKodu}`)
+})
+
+await asSuper()
+await db.exec('set role anon')
+await step('giriş yapmadan kodla sözleşme okunuyor', async () => {
+  const r = await db.query(`select contract_number, version from contract_by_share_token($1)`, [paylasimKodu])
+  if (r.rows.length !== 1) throw new Error(`${r.rows.length} satır döndü`)
+})
+await step('yanlış ve kısa kod hiçbir şey döndürmüyor', async () => {
+  const yanlis = await db.query(`select 1 from contract_by_share_token($1)`, ['0'.repeat(32)])
+  const kisa = await db.query(`select 1 from contract_by_share_token($1)`, [paylasimKodu.slice(0, 8)])
+  if (yanlis.rows.length || kisa.rows.length) throw new Error('kod olmadan veri döndü')
+})
+await expectFail('anonim kullanıcı sözleşme tablosunu okuyamıyor', async () => {
+  const r = await db.query(`select id from contracts`)
+  if (r.rows.length === 0) throw new Error('permission denied (satır görünmüyor)')
+})
+
+await as(U.ownerA)
+await step('yeni sürümden sonra eski bağlantı güncel sürümü gösteriyor', async () => {
+  const rez = (await db.query(`select reservation_id from contracts where share_token = $1`, [paylasimKodu])).rows[0].reservation_id
+  await db.query(`select create_contract($1, 'Sözleşme metni v2', '{"a":2}'::jsonb)`, [rez])
+  await asSuper()
+  await db.exec('set role anon')
+  const r = await db.query(`select version, content from contract_by_share_token($1)`, [paylasimKodu])
+  if (r.rows[0]?.content !== 'Sözleşme metni v2') throw new Error(JSON.stringify(r.rows[0]))
+  await asSuper()
+})
+
 console.log(`\n\x1b[1mSonuç:\x1b[0m \x1b[32m${pass} geçti\x1b[0m, ${fail ? `\x1b[31m${fail} başarısız\x1b[0m` : '0 başarısız'}\n`)
 process.exit(fail ? 1 : 0)

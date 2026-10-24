@@ -4,6 +4,7 @@ import { canSeeFinance, isAdmin, requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups, getReservationById } from "@/lib/queries";
 import { todayISO } from "@/lib/time";
+import { env } from "@/lib/env";
 import {
   buildContractSnapshot,
   contractVariableValues,
@@ -109,13 +110,15 @@ export default async function ContractPage({
         <ContractWorkspace
           reservationId={id}
           reservation={reservation}
+          shareUrl={
+            contractResult.data ? `${env.appUrl}/s/${contractResult.data.share_token}` : ""
+          }
           lookups={lookups}
           business={business}
           canEditBusiness={isAdmin(profile)}
           customer={customer}
           customerName={customer.full_name}
           customerPhone={customer.phone}
-          eventDate={reservation.event_date}
           contract={contractResult.data ?? null}
           templateBody={templateBody}
           draftSnapshot={draftSnapshot}

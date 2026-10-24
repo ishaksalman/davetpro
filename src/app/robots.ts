@@ -22,6 +22,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: [
         "/panel",
+        "/s/",
         "/abonelik",
         "/takvim",
         "/talepler",

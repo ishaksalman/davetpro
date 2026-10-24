@@ -19,6 +19,8 @@ const OPEN_ROUTES = [
   "/fiyatlar",
   "/fotografci-programi",
   "/blog",
+  // Müşterinin WhatsApp'tan açtığı sözleşme bağlantısı (giriş yok, kodla).
+  "/s/",
 ];
 
 /** Oturumu tazeler ve korumalı rotalara erişimi denetler. */

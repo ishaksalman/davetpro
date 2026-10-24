@@ -353,7 +353,15 @@ export type Contract = Timestamps & {
   cancelled_at: string | null;
   cancelled_by: string | null;
   cancel_reason: string | null;
+  /** Müşteriye giden herkese açık bağlantının kodu (/s/<kod>). */
+  share_token: string;
 };
+
+/** contract_by_share_token — müşterinin bağlantıyla gördüğü sözleşme. */
+export type SharedContract = Pick<
+  Contract,
+  "contract_number" | "version" | "status" | "snapshot" | "content" | "created_at" | "signed_at"
+>;
 
 export type ContractSnapshot = {
   business: {

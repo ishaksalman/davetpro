@@ -16,6 +16,11 @@ import {
   missingCustomerFields,
   sozlesmeAdi,
 } from "../src/lib/contracts.ts";
+import {
+  contractNoticeMessage,
+  reservationNoticeMessage,
+} from "../src/lib/reservation-notice.ts";
+import { VERTICALS } from "../src/lib/vertical.ts";
 
 const musteri = {
   id: "c1",
@@ -121,4 +126,29 @@ test("eksik işletme bilgisi: adres, telefon, yetkili her zaman; vergi şablon i
     missingBusinessFields({ address: "Yalova", phone: "0532", authorized_person: "İshak" }, ""),
     [],
   );
+});
+
+test("sözleşme mesajı: rezervasyon bilgisi aynen, altında bağlantı, en sonda imza", () => {
+  const input = {
+    reservation: {
+      ...(rezervasyon as object),
+      net_amount: 110000,
+      collected_amount: 20000,
+      balance_amount: 90000,
+      due_date: null,
+    } as never,
+    customerName: "Ayşe & Ahmet",
+    businessName: "Gül Düğün Salonu",
+    showFinance: true,
+    sozluk: VERTICALS.salon,
+  };
+  const url = "https://www.davetpro.com/s/0123456789abcdef0123456789abcdef";
+  const satirlar = contractNoticeMessage(input, url).split("\n");
+  const bilgi = reservationNoticeMessage(input).split("\n");
+
+  // İmza hariç rezervasyon bilgisi birebir aynı.
+  assert.deepEqual(satirlar.slice(0, bilgi.length - 1), bilgi.slice(0, -1));
+  assert.equal(satirlar.at(-1), "Gül Düğün Salonu");
+  assert.equal(satirlar.at(-3), url);
+  assert.ok(satirlar.includes("Kalan: ₺90.000"));
 });

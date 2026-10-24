@@ -31,14 +31,8 @@ function tur(reservation: ReservationRow): string {
   return ORGANIZATION_TYPE_LABELS[reservation.organization_type].toLocaleLowerCase("tr");
 }
 
-/** Rezervasyon onayı: oluşturulduğunda müşteriye bilgi. */
-export function reservationNoticeMessage({
-  reservation,
-  customerName,
-  businessName,
-  showFinance,
-  sozluk,
-}: Input): string {
+/** Rezervasyon bilgisinin gövdesi (imzasız): onay ve sözleşme mesajı ortak. */
+function noticeLines({ reservation, customerName, showFinance, sozluk }: Input): string[] {
   const satirlar: string[] = [
     `Merhaba ${customerName},`,
     "",
@@ -72,9 +66,27 @@ export function reservationNoticeMessage({
       satirlar.push(`Kalan: ${formatMoney(reservation.balance_amount)}${sonOdeme}`);
     }
   }
+  return satirlar;
+}
 
-  satirlar.push("", businessName);
-  return satirlar.join("\n");
+/** Rezervasyon onayı: oluşturulduğunda müşteriye bilgi. */
+export function reservationNoticeMessage(input: Input): string {
+  return [...noticeLines(input), "", input.businessName].join("\n");
+}
+
+/**
+ * Sözleşme oluşunca müşteriye bilgi: rezervasyon bilgisinin aynısı, altında
+ * sözleşmenin bağlantısı (/s/<kod>, giriş gerektirmiyor).
+ */
+export function contractNoticeMessage(input: Input, contractUrl: string): string {
+  return [
+    ...noticeLines(input),
+    "",
+    "Sözleşmenizi aşağıdaki bağlantıdan görüntüleyebilirsiniz:",
+    contractUrl,
+    "",
+    input.businessName,
+  ].join("\n");
 }
 
 /** Gün öncesi hatırlatma: tarih, saat ve yer. */

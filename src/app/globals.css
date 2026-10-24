@@ -711,6 +711,19 @@
     background: #fff;
   }
 
+  /* Ekrandaki sığdırma ölçeği baskıya taşınmasın: A4 kendi boyutunda. */
+  .document-frame,
+  .document-frame-box,
+  .document-frame-sheet {
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
   /* Belgeyi ne içeren ne de belgenin parçası olan her şey çıktıdan düşer:
      kenar çubuğu, sayfa başlığı, düğmeler. `display:none` kullanıldığı için
      gizlenen kutular yer kaplamıyor — belge sayfanın tepesinden başlıyor. */
