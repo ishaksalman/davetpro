@@ -14,6 +14,9 @@ export const config = {
     /*
      * Statik dosyalar ve görseller hariç tüm rotalar.
      *
+     * `api/mobile` DIŞARIDA: mobil uygulama çerez değil Bearer jetonu gönderiyor;
+     * kimlik doğrulamayı uç noktanın kendisi yapıyor (src/lib/mobile-auth.ts).
+     *
      * `api/integrations` DIŞARIDA: bu uç noktalar oturumla değil HMAC imzasıyla
      * kimlik doğruluyor (DavetMekanı entegrasyonu). Matcher'a girerlerse
      * oturumsuz istek /giris'e yönlendirilir ve çağıran HTML alır.
@@ -24,6 +27,6 @@ export const config = {
      * alıp boş çıkıyordu. Üçü de uzantısız rota olduğu için alttaki dosya
      * uzantısı kuralına takılmıyorlar.
      */
-    "/((?!api/integrations|robots.txt|sitemap.xml|opengraph-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/integrations|api/mobile|robots.txt|sitemap.xml|opengraph-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
