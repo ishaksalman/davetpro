@@ -1,19 +1,18 @@
 import type { MetadataRoute } from "next";
 import { env } from "@/lib/env";
+import { KORUNAN_YOLLAR, MISAFIR_YOLLARI } from "@/lib/routes";
 
 /**
- * Yalnızca tanıtım sayfası dizine girsin.
+ * Yalnızca tanıtım sayfaları dizine girsin.
  *
  * Uygulama yolları oturum gerektirdiği için tarayıcıya zaten giriş ekranını
  * gösteriyor; yine de açıkça dışarıda bırakmak, giriş sayfasının kopyalarının
- * arama sonuçlarına düşmesini engelliyor.
+ * arama sonuçlarına düşmesini engelliyor. Liste proxy ile ortak
+ * (lib/routes.ts); tests/robots.test.mts dosya sistemindeki yollarla
+ * karşılaştırıp eksik kalanı yakalıyor.
  *
  * Not: bu yolun proxy matcher'ından çıkarılması gerekiyor, aksi hâlde
  * oturumsuz istek /giris'e yönlendiriliyor ve robot 307 alıyor.
- *
- * Liste elle tutuluyor ve yeni ekran eklendiğinde kaçıyor (nitekim /ekipler,
- * /yonetim ve /abonelik kaçmıştı). tests/robots.test.mts dosya sistemindeki
- * yollarla karşılaştırıp bunu yakalıyor.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -21,27 +20,11 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       disallow: [
-        "/panel",
-        "/s/",
-        "/abonelik",
-        "/takvim",
-        "/talepler",
-        "/teslimat",
-        "/rezervasyonlar",
-        "/musteriler",
-        "/gelirler",
-        "/giderler",
-        "/raporlar",
-        "/paketler",
-        "/salonlar",
-        "/ekipler",
-        "/ayarlar",
-        "/yonetim",
-        "/isletme-kur",
-        "/giris",
-        "/kayit",
-        "/sifre-sifirla",
+        ...KORUNAN_YOLLAR,
+        ...MISAFIR_YOLLARI,
         "/sifre-yenile",
+        // Müşterinin WhatsApp'tan açtığı sözleşme bağlantısı.
+        "/s/",
         "/auth/",
         "/api/",
       ],

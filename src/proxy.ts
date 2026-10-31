@@ -25,8 +25,9 @@ export const config = {
      * oldukları için /giris'e yönlendiriliyorlardı. Arama motoru kural dosyası
      * yerine 307 alıyor, bağlantı önizlemesi de görsel yerine yönlendirme
      * alıp boş çıkıyordu. Üçü de uzantısız rota olduğu için alttaki dosya
-     * uzantısı kuralına takılmıyorlar.
+     * uzantısı kuralına takılmıyorlar. manifest.webmanifest ve llms.txt de
+     * aynı sebeple (uzantıları aşağıdaki listede yok).
      */
-    "/((?!api/integrations|api/mobile|robots.txt|sitemap.xml|opengraph-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api/integrations|api/mobile|robots.txt|sitemap.xml|manifest.webmanifest|llms.txt|opengraph-image|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

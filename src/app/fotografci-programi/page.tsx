@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { PillLink, SiteHeader } from "@/components/marketing/site-header";
@@ -12,61 +11,90 @@ import {
 } from "@/lib/constants";
 import { VERTICALS } from "@/lib/vertical";
 import { TRIAL_DAYS } from "@/lib/subscription";
+import { Faq } from "@/components/marketing/faq";
+import { JsonLd } from "@/components/seo/json-ld";
+import { sayfaMetadata, yolVerisi, type Soru } from "@/lib/seo";
 
 /*
- * Fotoğrafçı/stüdyo iniş sayfası.
+ * Fotoğrafçı/stüdyo iniş sayfası — "fotoğrafçı programı", "fotoğraf stüdyosu
+ * programı", "fotoğrafçı müşteri takip programı" aramaları için.
  *
- * NEDEN AYRI SAYFA: anasayfa "Salonunuzun tüm işi" diyor. Ürünün yarısı
+ * NEDEN AYRI SAYFA: anasayfa "Salonunuzun tüm işi" diyor. Ürünün bir kısmı
  * fotoğrafçıya ait ama site bunu hiç söylemiyordu; ticari niyetle arayan
  * stüdyo sahibi salon diliyle karşılaşıp gidiyordu.
  *
  * Metindeki her iddia üründe var. Aşama adları ve çekim türleri sabit
  * yazılmıyor, sözlükten ve enum'dan geliyor — ürün değişince sayfa da
- * değişsin, iki yer ayrışmasın.
+ * değişsin, iki yer ayrışmasın. (Plato çakışma kuralı 3ff4786'da kalktı;
+ * sayfa bir süre onu anlatmaya devam etmişti.)
  */
-export const metadata: Metadata = {
-  title: "Fotoğrafçılar için iş takip programı",
-  description:
-    "Fotoğraf stüdyoları için çekim takvimi, plato çakışma kontrolü, ekip ataması ve teslim takibi. Çekimden albüm teslimine tek panelde. 30 gün ücretsiz deneyin.",
-  alternates: { canonical: "/fotografci-programi" },
-  openGraph: {
-    title: "Fotoğrafçılar için iş takip programı · DavetPro",
-    description:
-      "Çekim takvimi, plato çakışma kontrolü, ekip ataması ve teslim takibi. Çekimden albüm teslimine tek panelde.",
-    url: "/fotografci-programi",
-  },
-};
+export const metadata = sayfaMetadata({
+  baslik: "Fotoğrafçı Programı · Çekim ve Teslim Takibi",
+  aciklama:
+    "Fotoğrafçılar ve stüdyolar için çekim takvimi, ekip ataması, albüm ve dijital teslim takibi, kapora takibi ve telif maddeli sözleşme. 30 gün ücretsiz deneyin.",
+  yol: "/fotografci-programi",
+  paylasimBasligi: "Fotoğrafçı programı · Çekimden albüm teslimine tek panelde",
+});
 
 const OZELLIKLER = [
   {
-    baslik: "Aynı platoda aynı saate ikinci çekim açılmaz",
+    baslik: "Çekim takvimi ve ekip ataması",
     metin:
-      "Çakışma veritabanı düzeyinde engelleniyor — uyarı değil, kesin engel. Üstelik iki çekim arasında en az 1 saat boşluk zorunlu. Plato dışı işler için “Diğer” alanı var; orada bu kural işlemiyor, çünkü aynı anda iki ayrı adreste çekim olabilir.",
+      "Tüm çekimler tek takvimde, her ekip kendi renginde. Hangi çekime hangi ekibin gittiği kayıtlı; atama zorunlu değil, iş alındığında ekip henüz belli değilse sonradan yapılır.",
   },
   {
-    baslik: "Ekip ataması",
+    baslik: "Teslim panosu ve hedef tarih",
     metin:
-      "Hangi çekime hangi ekibin gittiği kayıtlı. Atama zorunlu değil, sonradan da yapılabilir — iş alındığında ekip henüz belli olmayabiliyor.",
+      "Çekimi yapılmış her iş bir aşamada duruyor. Her işe teslim hedef tarihi verilebiliyor; geciken işler ayrıca sayılıyor ve listenin üstüne çıkıyor. Teslim edilen iş panodan düşüyor.",
   },
   {
-    baslik: "Çekimden teslime akış",
+    baslik: "Galeri bağlantısını müşteriye gönderin",
     metin:
-      "Her iş nerede kaldıysa orada duruyor. Teslim edilen iş listeden düşüyor, kalanlar bekliyor.",
+      "Drive, Pixieset, WeTransfer… Teslim bağlantısını işe kaydedin, müşteriye WhatsApp'tan tek dokunuşla gönderin. Bağlantı kayıtta kalıyor, “linki tekrar atar mısınız” mesajına aramadan cevap verirsiniz.",
   },
   {
     baslik: "Telif maddeli sözleşme",
     metin:
-      "Fotoğraf ve video hizmet sözleşmesi hazır geliyor; kullanım ve telif hakları maddesi dahil. Kendi metninizi yazarsanız o korunuyor.",
+      "Fotoğraf ve video hizmet sözleşmesi hazır geliyor; teslim süresi, ham dosyaların saklanması, kullanım ve telif hakları maddeleri dahil. Kendi metninizi yazarsanız o korunuyor. Sözleşmeyi müşteriye bağlantıyla da gönderebilirsiniz.",
   },
   {
     baslik: "Paket ve ek hizmetler",
     metin:
-      "Paketi seçin, tutar kendiliğinden çıksın. Dış çekim, drone, albüm, video klip gibi kalemler tek tıkla eklenir.",
+      "Paketi seçin, tutar kendiliğinden çıksın. Dış çekim, drone, albüm, video klip, save the date gibi kalemler tek tıkla eklenir; sözleşmede ve teklifte ayrı satır olarak görünür.",
   },
   {
-    baslik: "Çekim bazlı kârlılık",
+    baslik: "Kapora, kalan ödeme ve kârlılık",
     metin:
-      "Her işin geliri ve gideri ayrı hesaplanıyor. Hangi çekimin kazandırdığı görünüyor; kârlılık ile nakit akışı birbirine karışmıyor.",
+      "Kapora ve kalan ödeme her çekimde ayrı izleniyor; teslim panosunda kalan bakiye de görünüyor. Her işin geliri ve gideri ayrı hesaplanıyor — albüm baskısı, asistan, ulaşım. Hangi çekimin kazandırdığı görünüyor.",
+  },
+];
+
+const SORULAR: Soru[] = [
+  {
+    soru: "Fotoğrafçı programı ne işe yarar?",
+    cevap:
+      "Çekim takvimini, müşteri kayıtlarını, kapora ve kalan ödemeleri, sözleşmeyi ve teslim sürecini tek yerde toplar. Defter, WhatsApp yazışmaları ve Excel arasında dağılan bilgi tek ekranda görünür: hangi gün kimin çekimi var, hangi albüm baskıda, kimden ne kadar alacak kaldı.",
+  },
+  {
+    soru: "Albüm ve dijital teslimleri nasıl takip ediyorum?",
+    cevap: `Çekimi yapılan iş teslim panosuna düşer ve aşamalardan geçer: ${DELIVERY_STATUS_FLOW.map(
+      (a) => DELIVERY_STATUS_LABELS[a].toLocaleLowerCase("tr-TR"),
+    ).join(", ")}. Her işe hedef tarih verebilirsiniz; geciken işler ayrıca gösterilir.`,
+  },
+  {
+    soru: "Aynı gün birden fazla çekim alabilir miyim?",
+    cevap:
+      "Evet. Fotoğrafçıda çekimler müşterinin mekânında, dışarıda ya da başka şehirde olduğu için çakışma yasağı uygulanmaz. Hangi ekibin hangi çekime gittiğini atayarak günü planlarsınız; ekipler takvimde kendi renginde görünür.",
+  },
+  {
+    soru: "Sözleşmede telif ve kullanım hakkı nasıl yazılıyor?",
+    cevap:
+      "Hazır gelen sözleşmede eser sahipliğinin fotoğrafçıda kaldığı, müşterinin kişisel kullanım hakkı, ticari kullanımın yazılı izne bağlı olduğu ve portfolyo kullanımı için müşteri onayı maddeleri var. Metni dilediğiniz gibi değiştirebilirsiniz.",
+  },
+  {
+    soru: "Stüdyo çekimleri ve vesikalık da takip edilebilir mi?",
+    cevap:
+      "Evet. Düğün ve nişanın yanında dış çekim, vesikalık, portre, stüdyo, ürün ve video/etkinlik işleri aynı takvimde; raporlarda hangi tür işi daha çok yaptığınız ayrı ayrı görünür.",
   },
 ];
 
@@ -75,6 +103,12 @@ export default function FotografciPage() {
 
   return (
     <div className="mk-scope min-h-svh">
+      <JsonLd
+        data={yolVerisi([
+          { ad: "DavetPro", yol: "/" },
+          { ad: "Fotoğrafçı programı", yol: "/fotografci-programi" },
+        ])}
+      />
       <SiteHeader />
 
       <main>
@@ -83,14 +117,15 @@ export default function FotografciPage() {
           <div className="mx-auto max-w-[1180px] px-5 sm:px-6">
             <Reveal className="mx-auto max-w-[46rem] text-center">
               <p className="text-[0.8125rem] font-semibold tracking-[0.14em] text-mk-muted uppercase">
-                Fotoğrafçılar için
+                Fotoğrafçı programı
               </p>
               <h1 className="mk-title mt-4 text-[clamp(2rem,4vw,3rem)] text-mk-ink">
                 Çekimden albüm teslimine tek panelde.
               </h1>
               <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">
-                Stüdyonuzun takvimi, ekipleri, tahsilatları ve teslim takibi bir
-                arada. Hangi işin nerede kaldığını aramakla vakit kaybetmeyin.
+                Fotoğrafçılar ve fotoğraf stüdyoları için çekim takvimi, ekip
+                ataması, kapora takibi ve albüm teslimi bir arada. Hangi işin
+                nerede kaldığını aramakla vakit kaybetmeyin.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <PillLink href="/kayit">
@@ -196,6 +231,11 @@ export default function FotografciPage() {
             </ul>
           </div>
         </section>
+
+        <Faq
+          sorular={SORULAR}
+          aciklama="Fotoğrafçı ve stüdyo programı hakkında en çok sorulanlar."
+        />
 
         {/* Kapanış */}
         <section className="bg-white py-16 lg:py-24">

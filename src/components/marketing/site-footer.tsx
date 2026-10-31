@@ -3,22 +3,29 @@ import { Mail, Phone } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { CONTACT_EMAIL, CONTACT_WHATSAPP } from "@/lib/contact";
 
+/*
+ * Altbilgi her tanıtım sayfasında var; buradaki bağlantılar sitenin iç
+ * bağlantı iskeleti. Önceden "Kullanım" sütunundaki dört bağlantının dördü
+ * de aynı çapaya gidiyordu, fotoğrafçı ve rehber sayfalarına hiç bağlantı
+ * yoktu.
+ */
 const COLUMNS = [
   {
     title: "Ürün",
     links: [
-      { label: "Özellikler", href: "/#ozellikler" },
-      { label: "Nasıl çalışır", href: "/#nasil-calisir" },
+      { label: "Düğün salonu programı", href: "/" },
+      { label: "Organizasyon programı", href: "/organizasyon-programi" },
+      { label: "Fotoğrafçı programı", href: "/fotografci-programi" },
       { label: "Fiyatlar", href: "/fiyatlar" },
-        ],
+    ],
   },
   {
-    title: "Kullanım",
+    title: "Kaynaklar",
     links: [
-      { label: "Takvim ve rezervasyon", href: "/#nasil-calisir" },
-      { label: "Tahsilat takibi", href: "/#nasil-calisir" },
-      { label: "Gelir–gider", href: "/#nasil-calisir" },
-      { label: "Raporlar", href: "/#nasil-calisir" },
+      { label: "Düğün salonu sözleşmesi örneği", href: "/dugun-salonu-sozlesme-ornegi" },
+      { label: "Fotoğrafçı sözleşmesi örneği", href: "/fotografci-sozlesme-ornegi" },
+      { label: "Kapora ne kadar alınmalı?", href: "/blog/kapora-ne-kadar-alinmali" },
+      { label: "Tüm rehberler", href: "/blog" },
     ],
   },
   {
@@ -40,8 +47,8 @@ export function SiteFooter() {
           <div className="max-w-[22rem]">
             <Logo className="text-mk-ink" />
             <p className="mt-5 text-[0.9375rem] leading-relaxed text-mk-body">
-              Düğün salonları ve organizasyon mekanları için rezervasyon,
-              tahsilat ve kârlılık yönetimi.
+              Düğün salonları, organizasyon firmaları ve fotoğrafçılar için
+              rezervasyon, kapora, sözleşme ve kârlılık yönetimi.
             </p>
 
             <div className="mt-6 flex flex-col gap-2.5">

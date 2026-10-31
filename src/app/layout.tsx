@@ -12,9 +12,14 @@ const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
 });
 
-const BASLIK = "DavetPro · Düğün Salonu Yönetim Sistemi";
+/*
+ * Başlık arama terimiyle başlıyor: Türkiye'de bu yazılım "program" diye
+ * aranıyor ("düğün salonu programı", "salon takip programı"); marka henüz
+ * bilinmediği için başa konursa en değerli yer boşa gidiyor.
+ */
+const BASLIK = "Düğün Salonu Programı · Rezervasyon ve Kapora Takibi | DavetPro";
 const ACIKLAMA =
-  "Düğün salonları ve organizasyon mekanları için rezervasyon, tahsilat ve gelir-gider yönetimi.";
+  "Düğün salonları, organizasyon firmaları ve fotoğrafçılar için rezervasyon takvimi, kapora ve tahsilat takibi, sözleşme ve kârlılık raporu. 30 gün ücretsiz.";
 
 export const metadata: Metadata = {
   // Göreli adresleri mutlak hâle getiriyor. Tanımlı olmadan Open Graph görsel
@@ -28,15 +33,20 @@ export const metadata: Metadata = {
   // hydration hatası verip ağacı baştan çiziyordu. Gereken yerde bağlantı
   // zaten açıkça (href="tel:…") veriliyor.
   formatDetection: { telephone: false },
-  // Bağlantı çoğunlukla WhatsApp ve Instagram üzerinden paylaşılıyor;
-  // önizleme olmadan sadece adres görünüyor.
+  // Arama sonucunda büyük görsel ve uzun özet gösterilebilsin.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
+  // Sayfaların çoğu kendi paylaşım bilgisini lib/seo.ts ile veriyor; bu
+  // yalnızca vermeyenler (giriş, kayıt) için yedek.
   openGraph: {
     type: "website",
     locale: "tr_TR",
     siteName: "DavetPro",
     title: BASLIK,
     description: ACIKLAMA,
-    url: "/",
   },
   twitter: {
     card: "summary_large_image",

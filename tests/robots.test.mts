@@ -13,7 +13,14 @@ import path from "node:path";
 const KOK = path.join(import.meta.dirname, "..", "src", "app");
 
 /** Tanıtım sayfaları — bunlar BİLEREK taranabilir. */
-const ACIK = new Set(["fiyatlar", "fotografci-programi", "blog"]);
+const ACIK = new Set([
+  "fiyatlar",
+  "fotografci-programi",
+  "organizasyon-programi",
+  "dugun-salonu-sozlesme-ornegi",
+  "fotografci-sozlesme-ornegi",
+  "blog",
+]);
 
 function altYollar(grup: string): string[] {
   const d = path.join(KOK, grup);
@@ -25,7 +32,10 @@ function altYollar(grup: string): string[] {
 }
 
 test("oturum gerektiren her yol robots.txt'de engelli", () => {
-  const kaynak = fs.readFileSync(path.join(KOK, "robots.ts"), "utf8");
+  // Liste robots.ts ile lib/routes.ts arasında bölünmüş; ikisi birlikte okunuyor.
+  const kaynak =
+    fs.readFileSync(path.join(KOK, "robots.ts"), "utf8") +
+    fs.readFileSync(path.join(KOK, "..", "lib", "routes.ts"), "utf8");
   const engelli = new Set(
     [...kaynak.matchAll(/"(\/[a-z0-9-]+)\/?"/g)].map((m) => m[1]),
   );
@@ -40,6 +50,8 @@ test("oturum gerektiren her yol robots.txt'de engelli", () => {
           e.isDirectory() &&
           !e.name.startsWith("(") &&
           !e.name.startsWith("[") &&
+          // Dosya rotaları (llms.txt) sayfa değil; taranması isteniyor.
+          !e.name.includes(".") &&
           e.name !== "api",
       )
       .map((e) => e.name),
@@ -51,4 +63,20 @@ test("oturum gerektiren her yol robots.txt'de engelli", () => {
     [],
     `robots.ts'e eklenmemiş yollar: ${kacan.map((y) => "/" + y).join(", ")}`,
   );
+});
+
+test("her tanıtım sayfası sitemap'te", () => {
+  const kaynak = fs.readFileSync(path.join(KOK, "sitemap.ts"), "utf8");
+  const eksik = [...ACIK].filter((y) => !kaynak.includes(`"/${y}"`));
+  assert.deepEqual(eksik, [], `sitemap.ts'e eklenmemiş sayfalar: ${eksik.join(", ")}`);
+});
+
+test("tanıtım sayfaları proxy'de oturum istemiyor", async () => {
+  const { KORUNAN_YOLLAR, onekUyar } = await import("../src/lib/routes.ts");
+  const korunan = [...ACIK].filter((y) => onekUyar(`/${y}`, KORUNAN_YOLLAR));
+  assert.deepEqual(korunan, [], `giriş isteyen tanıtım sayfası: ${korunan.join(", ")}`);
+  // Segment sınırı: "/panelx" gibi bir yol korumalı sayılmamalı, "/panel/x" sayılmalı.
+  assert.equal(onekUyar("/panelx", KORUNAN_YOLLAR), false);
+  assert.equal(onekUyar("/panel/x", KORUNAN_YOLLAR), true);
+  assert.equal(onekUyar("/olmayan-sayfa", KORUNAN_YOLLAR), false);
 });

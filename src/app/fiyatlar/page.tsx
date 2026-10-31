@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import { PillLink, SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { WhatsAppFloat } from "@/components/marketing/whatsapp-float";
 import { Reveal } from "@/components/marketing/reveal";
 import { formatMoney } from "@/lib/format";
-import { CONTACT_WHATSAPP } from "@/lib/contact";
+import { CONTACT_EMAIL, CONTACT_WHATSAPP } from "@/lib/contact";
 import {
   BILLING_TERMS,
   FREE_MONTHS_YEARLY,
@@ -14,6 +13,8 @@ import {
   TRIAL_DAYS,
 } from "@/lib/subscription";
 import { cn } from "@/lib/utils";
+import { JsonLd } from "@/components/seo/json-ld";
+import { sayfaMetadata, sssVerisi, yazilimVerisi, yolVerisi, type Soru } from "@/lib/seo";
 
 /*
  * Ayrı sayfa, anasayfadaki fiyat bölümünün kopyası DEĞİL. Oradaki bölüm
@@ -21,20 +22,15 @@ import { cn } from "@/lib/utils";
  * "davetpro fiyat" diye arayan kişinin indiği sayfa; asıl içerik aşağıdaki
  * açıklamalar. İki URL aynı metni taşısaydı birbiriyle yarışırlardı.
  */
-export const metadata: Metadata = {
-  title: "Fiyatlar",
-  description:
-    "DavetPro fiyatları: tek paket, salon ve kullanıcı sınırı yok. 6 aylık ve 12 aylık abonelik, 30 gün ücretsiz deneme. Ödeme, iptal ve deneme sonrası ne olduğu hakkında her şey.",
-  alternates: { canonical: "/fiyatlar" },
-  openGraph: {
-    title: "DavetPro fiyatları",
-    description:
-      "Tek paket, her şey dahil. 6 ve 12 aylık abonelik, 30 gün ücretsiz deneme.",
-    url: "/fiyatlar",
-  },
-};
+export const metadata = sayfaMetadata({
+  baslik: "Fiyatlar · Düğün Salonu Programı",
+  aciklama:
+    "DavetPro fiyatları: tek paket, salon ve kullanıcı sınırı yok. 6 ve 12 aylık abonelik, 30 gün ücretsiz deneme, kart istenmez. Ödeme ve iptal hakkında her şey.",
+  yol: "/fiyatlar",
+  paylasimBasligi: "DavetPro fiyatları · Tek paket, her şey dahil",
+});
 
-const SORULAR = [
+const SORULAR: Soru[] = [
   {
     soru: `${TRIAL_DAYS} günlük deneme bitince ne oluyor?`,
     cevap:
@@ -75,6 +71,16 @@ const SORULAR = [
 export default function FiyatlarPage() {
   return (
     <div className="mk-scope min-h-svh">
+      <JsonLd
+        data={[
+          yazilimVerisi(),
+          sssVerisi(SORULAR),
+          yolVerisi([
+            { ad: "DavetPro", yol: "/" },
+            { ad: "Fiyatlar", yol: "/fiyatlar" },
+          ]),
+        ]}
+      />
       <SiteHeader />
 
       <main>
@@ -82,7 +88,7 @@ export default function FiyatlarPage() {
           <div className="mx-auto max-w-[1180px] px-5 sm:px-6">
             <Reveal className="mx-auto max-w-[42rem] text-center">
               <p className="text-[0.8125rem] font-semibold tracking-[0.14em] text-mk-muted uppercase">
-                Fiyatlar
+                Düğün salonu programı fiyatları
               </p>
               <h1 className="mk-title mt-4 text-[clamp(2rem,4vw,3rem)] text-mk-ink">
                 Tek paket, her şey dahil.
@@ -218,7 +224,7 @@ export default function FiyatlarPage() {
                     {TRIAL_DAYS} gün ücretsiz deneyin
                   </PillLink>
                   <a
-                    href="mailto:merhaba@davetpro.com"
+                    href={`mailto:${CONTACT_EMAIL}`}
                     className="inline-flex items-center rounded-full border border-mk-line px-5 py-2.5 text-[0.9375rem] font-medium text-mk-ink transition-colors hover:bg-mk-soft"
                   >
                     Bize ulaşın

@@ -25,12 +25,17 @@ export function Hero() {
               <span className="rounded-full bg-mk-accent px-2.5 py-1 text-[0.6875rem] font-semibold text-mk-accent-ink">
                 Yeni
               </span>
-              Sözleşme ve teklif çıktısı hazır
+              Sözleşmeyi müşteriye WhatsApp&apos;tan bağlantıyla gönderin
             </span>
           </FadeIn>
 
           <FadeIn delay={60}>
+            {/* Üst satır h1'in parçası: sayfanın ana arama terimi ("düğün
+                salonu programı") başlıkta geçsin, büyük söz de olduğu gibi kalsın. */}
             <h1 className="mk-display mt-7 text-[clamp(2.5rem,6.4vw,4.75rem)] text-white">
+              <span className="mb-4 block text-[0.9375rem] font-semibold tracking-[0.14em] text-white/55 uppercase">
+                Düğün salonu ve organizasyon programı
+              </span>
               Salonunuzun tüm işi{" "}
               <span className="mk-gradient-text">tek bir panelde</span>.
             </h1>
@@ -38,8 +43,9 @@ export function Hero() {
 
           <FadeIn delay={120}>
             <p className="mx-auto mt-6 max-w-[34rem] text-[1.0625rem] leading-relaxed text-white/60">
-              Düğün, nişan, kına ve kurumsal organizasyonlar için rezervasyon,
-              tahsilat ve kârlılık takibi. Excel&apos;e ve deftere gerek kalmadan.
+              Düğün, nişan, kına ve kurumsal organizasyonlar için rezervasyon
+              takvimi, kapora ve tahsilat takibi, sözleşme ve kârlılık raporu.
+              Excel&apos;e ve deftere gerek kalmadan.
             </p>
           </FadeIn>
 

@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
+import { sayfaMetadata, yolVerisi } from "@/lib/seo";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import { SiteHeader } from "@/components/marketing/site-header";
@@ -9,23 +10,25 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { KITLE_ETIKET, yayindakiYazilar } from "@/lib/blog";
 import { formatDate } from "@/lib/format";
 
-export const metadata: Metadata = {
-  title: "Rehber",
-  description:
-    "Düğün salonu ve fotoğraf stüdyosu işletmek üzerine rehberler: rezervasyon, kapora, sözleşme, kârlılık ve teslim süreçleri.",
-  alternates: { canonical: "/blog" },
-  openGraph: {
-    title: "Rehber · DavetPro",
-    description: "Düğün salonu ve fotoğraf stüdyosu işletmek üzerine rehberler.",
-    url: "/blog",
-  },
-};
+export const metadata = sayfaMetadata({
+  baslik: "Rehber · Düğün Salonu ve Fotoğrafçı İşletme Yazıları",
+  aciklama:
+    "Düğün salonu, organizasyon firması ve fotoğraf stüdyosu işletmek üzerine rehberler: rezervasyon, kapora, sözleşme, fiyat teklifi, kârlılık ve teslim süreçleri.",
+  yol: "/blog",
+  paylasimBasligi: "DavetPro Rehber · İşin kendisi üzerine yazılar",
+});
 
 export default function BlogPage() {
   const yazilar = yayindakiYazilar();
 
   return (
     <div className="mk-scope min-h-svh">
+      <JsonLd
+        data={yolVerisi([
+          { ad: "DavetPro", yol: "/" },
+          { ad: "Rehber", yol: "/blog" },
+        ])}
+      />
       <SiteHeader />
 
       <main>

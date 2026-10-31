@@ -1,18 +1,18 @@
 import { ImageResponse } from "next/og";
+import { ogFontlari } from "@/lib/og-font";
 
 /**
  * Bağlantı paylaşıldığında görünen önizleme görseli (1200×630).
  *
  * Statik dosya yerine üretiliyor: marka renkleri ve metin tek yerde kalıyor,
  * ayrıca tasarım değişince görseli elle yeniden dışa aktarmak gerekmiyor.
- * Sistem yazı tipi kullanılıyor — özel font eklemek her istekte dosya indirmek
- * demek ve önizleme için kazancı yok.
+ * Yazı tipi gömülü Manrope (lib/og-font.ts): varsayılan font "ı" içermiyordu.
  */
-export const alt = "DavetPro · Düğün Salonu Yönetim Sistemi";
+export const alt = "DavetPro · Düğün salonu, organizasyon ve fotoğrafçı programı";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+export default async function Image() {
   return new ImageResponse(
     (
       <div
@@ -25,6 +25,7 @@ export default function Image() {
           padding: "0 96px",
           background: "#0B1220",
           color: "#ffffff",
+          fontFamily: "Manrope",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -64,10 +65,10 @@ export default function Image() {
             display: "flex",
           }}
         >
-          Rezervasyon, tahsilat, gider ve sözleşme — düğün salonları için.
+          Rezervasyon, kapora, sözleşme ve kârlılık — salonlar, organizasyon firmaları ve fotoğrafçılar için.
         </div>
       </div>
     ),
-    size,
+    { ...size, fonts: await ogFontlari() },
   );
 }

@@ -3,26 +3,28 @@ import { env } from "@/lib/env";
 import { yayindakiYazilar } from "@/lib/blog";
 
 /**
- * Dizine girmesi istenen tanıtım sayfaları. Uygulamanın geri kalanı oturum
- * arkasında; oraya bağlantı vermek arama motoruna giriş ekranını göstermekten
- * başka işe yaramaz.
- */
-/**
  * Dizine girecek tanıtım yolları. Yeni sayfa eklenince buraya da yazılmalı;
  * tests/robots.test.mts eksik kalanı yakalıyor.
+ *
+ * NEDEN ELLE TARİH: önceden her sayfanın lastModified'i derleme anıydı. Her
+ * dağıtımda tüm sayfalar "değişti" görünüyordu; Google bu yüzden alanı
+ * güvenilmez sayıp tamamen yok sayıyor. Tarih, sayfanın içeriği gerçekten
+ * değiştiğinde güncellenmeli.
  */
-const YOLLAR: { yol: string; oncelik: number }[] = [
-  { yol: "", oncelik: 1 },
-  { yol: "/fiyatlar", oncelik: 0.8 },
-  { yol: "/fotografci-programi", oncelik: 0.9 },
-  { yol: "/blog", oncelik: 0.7 },
+const YOLLAR: { yol: string; oncelik: number; guncellendi: string }[] = [
+  { yol: "", oncelik: 1, guncellendi: "2026-11-01" },
+  { yol: "/fiyatlar", oncelik: 0.8, guncellendi: "2026-11-01" },
+  { yol: "/organizasyon-programi", oncelik: 0.9, guncellendi: "2026-11-01" },
+  { yol: "/fotografci-programi", oncelik: 0.9, guncellendi: "2026-11-01" },
+  { yol: "/dugun-salonu-sozlesme-ornegi", oncelik: 0.8, guncellendi: "2026-11-01" },
+  { yol: "/fotografci-sozlesme-ornegi", oncelik: 0.7, guncellendi: "2026-11-01" },
+  { yol: "/blog", oncelik: 0.7, guncellendi: "2026-11-01" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const simdi = new Date();
-  const sabitler = YOLLAR.map(({ yol, oncelik }) => ({
+  const sabitler = YOLLAR.map(({ yol, oncelik, guncellendi }) => ({
     url: `${env.appUrl}${yol}`,
-    lastModified: simdi,
+    lastModified: new Date(guncellendi),
     changeFrequency: "monthly" as const,
     priority: oncelik,
   }));
@@ -33,6 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(y.guncellendi ?? y.tarih),
     changeFrequency: "yearly" as const,
     priority: 0.6,
+    images: [`${env.appUrl}/blog/${y.slug}/opengraph-image`],
   }));
 
   return [...sabitler, ...yazilar];

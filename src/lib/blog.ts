@@ -91,6 +91,33 @@ const YAZILAR: Kayit[] = [
     kitle: "ikisi",
     icerik: () => import("@/content/blog/excel-ile-dugun-salonu-takibi.mdx"),
   },
+  {
+    slug: "dugun-salonu-programi-secimi",
+    baslik: "Düğün salonu programı seçerken sorulacak 8 soru",
+    ozet:
+      "Çakışma engeli, silinemeyen tahsilat, personelden gizlenen fiyatlar, sözleşme çıktısı ve organizasyon bazlı kâr. Demo sırasında kendiniz deneyebileceğiniz bir kontrol listesiyle.",
+    tarih: "2026-11-01",
+    kitle: "salon",
+    icerik: () => import("@/content/blog/dugun-salonu-programi-secimi.mdx"),
+  },
+  {
+    slug: "dugun-salonu-fiyati-nasil-belirlenir",
+    baslik: "Düğün salonu fiyatı nasıl belirlenir?",
+    ozet:
+      "Maliyet tabanı, kişi başı ve paket fiyat, yoğun ve düşük tarih farkı, indirim sınırı. Fiyatı geçen sezonun biraz üstü diye değil, hesapla kurmanın yolu.",
+    tarih: "2026-11-01",
+    kitle: "salon",
+    icerik: () => import("@/content/blog/dugun-salonu-fiyati-nasil-belirlenir.mdx"),
+  },
+  {
+    slug: "fotografci-teslim-takibi",
+    baslik: "Fotoğrafçılar için teslim takibi: albüm neden gecikir?",
+    ozet:
+      "Gecikme çekimde değil, çekimden sonra başlar. Seçim, düzenleme ve baskı aşamaları, hedef tarih, teslim bağlantısı ve kalan ödeme için kısa bir kontrol listesi.",
+    tarih: "2026-11-01",
+    kitle: "fotografci",
+    icerik: () => import("@/content/blog/fotografci-teslim-takibi.mdx"),
+  },
 ];
 
 /** Yayındakiler, yeniden eskiye. */
@@ -114,3 +141,47 @@ export const KITLE_ETIKET: Record<Yazi["kitle"], string> = {
   fotografci: "Fotoğrafçı",
   ikisi: "Genel",
 };
+
+/**
+ * Yazı sonundaki ürün bağlantısı — kitlenin kendi sayfasına. Fotoğrafçı
+ * yazısını okuyan kişiyi salon anasayfasına göndermek onu kaybettiriyordu.
+ */
+export const KITLE_URUN: Record<
+  Yazi["kitle"],
+  { baslik: string; metin: string; href: string; bag: string }
+> = {
+  salon: {
+    baslik: "Rezervasyon, kapora ve sözleşme tek panelde",
+    metin: "DavetPro düğün salonları ve organizasyon firmaları için.",
+    href: "/",
+    bag: "Düğün salonu programını inceleyin",
+  },
+  fotografci: {
+    baslik: "Çekimden albüm teslimine tek panelde",
+    metin: "DavetPro fotoğrafçılar ve stüdyolar için.",
+    href: "/fotografci-programi",
+    bag: "Fotoğrafçı programını inceleyin",
+  },
+  ikisi: {
+    baslik: "Defteri ve Excel'i bırakın",
+    metin: "DavetPro salonlar, organizasyon firmaları ve fotoğrafçılar için.",
+    href: "/",
+    bag: "DavetPro'yu inceleyin",
+  },
+};
+
+/**
+ * Yazı sonundaki "ilgili yazılar": önce aynı kitle, sonra genel yazılar,
+ * en son diğerleri. Yazılar arası bağlantı, yeni yazının dizine girmesini
+ * ve eskilerin güç kazanmasını hızlandırıyor.
+ */
+export function ilgiliYazilar(slug: string, adet: number): Yazi[] {
+  const yazi = YAZILAR.find((y) => y.slug === slug);
+  if (!yazi) return [];
+  const puan = (y: Yazi) =>
+    y.kitle === yazi.kitle ? 0 : y.kitle === "ikisi" || yazi.kitle === "ikisi" ? 1 : 2;
+  return yayindakiYazilar()
+    .filter((y) => y.slug !== slug)
+    .sort((a, b) => puan(a) - puan(b))
+    .slice(0, adet);
+}

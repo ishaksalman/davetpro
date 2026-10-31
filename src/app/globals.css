@@ -549,6 +549,25 @@
   line-height: 1.55;
 }
 
+/* Tanıtım sitesindeki sözleşme örneği (/dugun-salonu-sozlesme-ornegi):
+   .contract-sheet'i yalnızca baskı kuralları için taşıyor. Ekranda sabit A4
+   genişliği telefonda sayfayı 800 px'e genişletiyordu; burada akışkan. */
+@media screen {
+  .contract-sheet.sample-sheet {
+    width: auto;
+    min-height: 0;
+    padding: 1.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--mk-ink);
+  }
+}
+@media screen and (min-width: 640px) {
+  .contract-sheet.sample-sheet {
+    padding: 3rem;
+  }
+}
+
 .contract-header {
   display: flex;
   /* Hizalama üst kenardan: logo yüksekliği dosyadan dosyaya değişiyor,

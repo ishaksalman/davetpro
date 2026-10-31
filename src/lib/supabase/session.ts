@@ -1,27 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
-
-/** Oturum açmış kullanıcının işi olmayan sayfalar — panele yönlendirilir. */
-const GUEST_ONLY_ROUTES = ["/giris", "/kayit", "/sifre-sifirla"];
-
-/**
- * Oturumlu da oturumsuz da erişilebilen sayfalar.
- * /sifre-yenile bilerek burada: sıfırlama bağlantısı geçici bir oturum açar,
- * kullanıcı panele atılırsa yeni şifresini belirleyemez.
- *
- * /fiyatlar herkese açık bir tanıtım sayfası; burada olmazsa oturumsuz
- * ziyaretçi giriş ekranına yönlendirilir ve arama motoru sayfayı hiç göremez.
- */
-const OPEN_ROUTES = [
-  "/auth",
-  "/sifre-yenile",
-  "/fiyatlar",
-  "/fotografci-programi",
-  "/blog",
-  // Müşterinin WhatsApp'tan açtığı sözleşme bağlantısı (giriş yok, kodla).
-  "/s/",
-];
+import { KORUNAN_YOLLAR, MISAFIR_YOLLARI, onekUyar } from "@/lib/routes";
 
 /** Oturumu tazeler ve korumalı rotalara erişimi denetler. */
 export async function updateSession(request: NextRequest) {
@@ -58,20 +38,22 @@ export async function updateSession(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
-  // "/" tanıtım sayfası: oturumsuz erişilebilir, oturumluysa sayfanın kendisi
-  // panele yönlendirir. startsWith ile eşleştirilemez — her yolu yakalardı.
-  const isOpen =
-    pathname === "/" || OPEN_ROUTES.some((route) => pathname.startsWith(route));
-  const isGuestOnly = GUEST_ONLY_ROUTES.some((route) => pathname.startsWith(route));
+  // Yalnızca uygulama yolları oturum istiyor (bkz. lib/routes.ts). Tanıtım
+  // sayfaları, sözleşme bağlantısı ve var olmayan adresler serbest geçiyor;
+  // olmayan adres Next'in 404 sayfasına düşüyor, girişe değil.
+  const isProtected = onekUyar(pathname, KORUNAN_YOLLAR);
+  const isGuestOnly = onekUyar(pathname, MISAFIR_YOLLARI);
 
-  if (!hasUser && !isOpen && !isGuestOnly) {
+  if (!hasUser && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/giris";
     url.searchParams.set("devam", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (hasUser && isGuestOnly) {
+  // Anasayfa da burada: sayfanın kendisi oturuma bakmayınca statik
+  // üretilip CDN'den sunuluyor (ilk bayt süresi arama sıralamasında sayılıyor).
+  if (hasUser && (isGuestOnly || pathname === "/")) {
     const url = request.nextUrl.clone();
     url.pathname = "/panel";
     url.search = "";
