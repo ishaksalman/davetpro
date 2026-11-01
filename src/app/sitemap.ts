@@ -19,6 +19,8 @@ const YOLLAR: { yol: string; oncelik: number; guncellendi: string }[] = [
   { yol: "/dugun-salonu-sozlesme-ornegi", oncelik: 0.8, guncellendi: "2026-11-01" },
   { yol: "/fotografci-sozlesme-ornegi", oncelik: 0.7, guncellendi: "2026-11-01" },
   { yol: "/blog", oncelik: 0.7, guncellendi: "2026-11-01" },
+  { yol: "/gizlilik", oncelik: 0.3, guncellendi: "2026-11-01" },
+  { yol: "/kullanim-kosullari", oncelik: 0.3, guncellendi: "2026-11-01" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

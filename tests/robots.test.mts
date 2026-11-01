@@ -20,6 +20,8 @@ const ACIK = new Set([
   "dugun-salonu-sozlesme-ornegi",
   "fotografci-sozlesme-ornegi",
   "blog",
+  "gizlilik",
+  "kullanim-kosullari",
 ]);
 
 function altYollar(grup: string): string[] {

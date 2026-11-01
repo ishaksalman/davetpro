@@ -92,12 +92,15 @@ export function SiteFooter() {
         </div>
 
         <div className="border-t border-mk-line py-7">
-          {/* Yasal sayfalar (gizlilik, KVKK, kullanım koşulları) henüz yok.
-              Var olmayan yola bağlantı vermek ziyaretçiyi proxy üzerinden
-              giriş ekranına düşürürdü; sayfalar eklendiğinde buraya gelir. */}
-          <p className="text-[0.8125rem] text-mk-muted">
-            © {new Date().getFullYear()} DavetPro. Tüm hakları saklıdır.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+            <p className="text-[0.8125rem] text-mk-muted">
+              © {new Date().getFullYear()} DavetPro. Tüm hakları saklıdır.
+            </p>
+            <nav aria-label="Yasal" className="flex gap-5 text-[0.8125rem] text-mk-muted">
+              <Link href="/gizlilik" className="transition-colors hover:text-mk-ink">Gizlilik Politikası</Link>
+              <Link href="/kullanim-kosullari" className="transition-colors hover:text-mk-ink">Kullanım Koşulları</Link>
+            </nav>
+          </div>
         </div>
       </div>
     </footer>
