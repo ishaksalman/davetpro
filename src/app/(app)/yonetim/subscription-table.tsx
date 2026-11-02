@@ -6,7 +6,8 @@ import { Building2 } from "lucide-react";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/lib/format";
+import { WhatsAppButton } from "@/components/shared/whatsapp-button";
+import { formatDate, formatPhone } from "@/lib/format";
 import { subscriptionInfo, type SubscriptionState } from "@/lib/subscription";
 import type { AdminBusinessRow } from "@/lib/database.types";
 import { ExtendAccessDialog } from "./extend-access-dialog";
@@ -52,6 +53,29 @@ export function SubscriptionTable({ rows }: { rows: AdminBusinessRow[] }) {
             </div>
           </div>
         ),
+      },
+      {
+        accessorKey: "business_phone",
+        header: "Telefon",
+        enableSorting: false,
+        cell: ({ row }) => {
+          const tel = row.original.business_phone;
+          if (!tel) return <span className="text-sm text-muted-foreground">—</span>;
+          return (
+            <div className="flex items-center gap-1">
+              <a
+                href={`tel:${tel.replace(/[^\d+]/g, "")}`}
+                className="tabular text-sm whitespace-nowrap hover:underline"
+              >
+                {formatPhone(tel)}
+              </a>
+              <WhatsAppButton
+                phone={tel}
+                message={`Merhaba ${row.original.owner_name ?? row.original.business_name},`}
+              />
+            </div>
+          );
+        },
       },
       {
         id: "durum",

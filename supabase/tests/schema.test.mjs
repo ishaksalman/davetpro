@@ -670,6 +670,19 @@ await step('admin_businesses tüm işletmeleri sahibiyle listeliyor', async () =
   if (r.rows.some((x) => !x.owner_email)) throw new Error('sahip e-postası boş')
 })
 
+await step('admin_businesses işletme telefonunu veriyor', async () => {
+  await asSuper()
+  const bid = (await db.query(`select id from businesses order by created_at limit 1`)).rows[0].id
+  await db.query(`update businesses set phone = '0532 111 22 33' where id = $1`, [bid])
+  await as(U_ADMIN)
+  const r = await db.query(
+    `select business_phone from admin_businesses() where business_id = $1`, [bid])
+  await asSuper()
+  if (r.rows[0]?.business_phone !== '0532 111 22 33') {
+    throw new Error(`telefon: ${r.rows[0]?.business_phone}`)
+  }
+})
+
 // Bu davranış elle uzatmanın en kolay yanlış yapılan yeri: süresi geçmiş bir
 // hesapta access_until + gün hâlâ geçmişte kalır.
 await step('süresi dolmuş hesapta eklenen gün BUGÜNDEN başlıyor', async () => {

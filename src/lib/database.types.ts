@@ -613,6 +613,8 @@ export type AdminBusinessRow = {
   business_id: string;
   business_name: string;
   city: string | null;
+  /** `businesses.phone` — kayıtta sorulmuyor, Ayarlar'dan girilmemişse null. */
+  business_phone: string | null;
   owner_email: string | null;
   owner_name: string | null;
   created_at: string;
