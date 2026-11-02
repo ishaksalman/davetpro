@@ -40,6 +40,8 @@ type DataTableProps<TData> = {
   onRowClick?: (row: TData) => void;
   /** Satırın altını çizen ek sınıflar (ör. iptal edilmiş kaydı soluklaştırma). */
   rowClassName?: (row: TData) => string | undefined;
+  /** Sıkışık satırlar: çok kayıtlı, tek satırlık hücreli listeler için. */
+  dense?: boolean;
 };
 
 export function DataTable<TData>({
@@ -52,6 +54,7 @@ export function DataTable<TData>({
   pageSize = 25,
   onRowClick,
   rowClassName,
+  dense = false,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -125,7 +128,10 @@ export function DataTable<TData>({
                         // top-16: yapışkan sayfa başlığının (min-h-16) hemen altı.
                         // Alt çizgi inset gölge ile veriliyor ki hücreyle
                         // birlikte hareket etsin.
-                        className="sticky top-0 z-10 h-11 bg-card text-xs font-medium tracking-wide text-muted-foreground uppercase shadow-[inset_0_-1px_0_var(--border)]"
+                        className={cn(
+                          "sticky top-0 z-10 bg-card text-xs font-medium tracking-wide text-muted-foreground uppercase shadow-[inset_0_-1px_0_var(--border)]",
+                          dense ? "h-9" : "h-11",
+                        )}
                       >
                         {header.isPlaceholder ? null : sortable ? (
                           <button
@@ -179,7 +185,7 @@ export function DataTable<TData>({
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3">
+                      <TableCell key={cell.id} className={dense ? "py-1.5" : "py-3"}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}

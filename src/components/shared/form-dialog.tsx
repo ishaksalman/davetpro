@@ -54,7 +54,7 @@ export type TriggerButton = {
   label: string;
   icon?: "plus" | "pencil";
   variant?: "default" | "outline";
-  size?: "default" | "sm";
+  size?: "default" | "sm" | "xs";
   /** Dar ekranda yalnızca ikon görünsün (sayfa başlıklarında yer kazandırır). */
   labelHiddenOnMobile?: boolean;
 };
