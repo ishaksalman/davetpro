@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "db:apply": "node scripts/db-apply.mjs",
     "test:db": "node supabase/tests/schema.test.mjs",
     "test:schemas": "node --test tests/schemas.test.mts",
     "test": "npm run test:schemas && npm run test:errors && npm run test:trend && npm run test:stage && npm run test:vertical && npm run test:messages && npm run test:robots && npm run test:seo && npm run test:blog && npm run test:db && npm run test:salon && npm run test:account && npm run test:invites",

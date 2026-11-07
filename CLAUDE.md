@@ -29,6 +29,9 @@ Mimari kararların gerekçeleri için önce `README.md` oku.
 2. `src/lib/database.types.ts` içindeki tipi güncelle.
 3. `npm run test:db` çalıştır — testler PGlite üzerinde gerçek PostgreSQL kullanır.
 4. Yeni davranış için `supabase/tests/schema.test.mjs` içine test ekle.
+5. Canlıya alırken önce `npm run db:apply -- <numara>` ile migration'ı uygula,
+   sonra push'la (Vercel `main`'den otomatik deploy ediyor; kod yeni şemayı
+   migration'dan önce görmemeli).
 
 ## Sunucu eylemi deseni
 
