@@ -39,10 +39,11 @@ const YAZILAR: Kayit[] = [
   },
   {
     slug: "dugun-salonu-sozlesmesi",
-    baslik: "Düğün salonu sözleşmesinde neler bulunmalı?",
+    baslik: "Düğün salonu sözleşmesi: neler bulunmalı, kapora ve iptal nasıl yazılır?",
     ozet:
-      "Taraflardan iptal koşullarına, sözleşmede eksik kaldığında sonradan tartışma çıkaran yedi başlık. Hazır bir kontrol listesi gibi okuyun.",
+      "Taraflardan mücbir sebebe on başlık, \"kapora iade edilmez\" maddesinin neden yetmediği, kademeli iptal tablosu ve sık yapılan beş hata. Kontrol listesiyle.",
     tarih: "2026-09-30",
+    guncellendi: "2026-11-07",
     kitle: "salon",
     icerik: () => import("@/content/blog/dugun-salonu-sozlesmesi.mdx"),
   },
