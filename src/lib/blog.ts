@@ -93,10 +93,11 @@ const YAZILAR: Kayit[] = [
   },
   {
     slug: "dugun-salonu-programi-secimi",
-    baslik: "Düğün salonu programı seçerken sorulacak 8 soru",
+    baslik: "Düğün salonu programı nasıl seçilir? Sorulacak 10 soru",
     ozet:
-      "Çakışma engeli, silinemeyen tahsilat, personelden gizlenen fiyatlar, sözleşme çıktısı ve organizasyon bazlı kâr. Demo sırasında kendiniz deneyebileceğiniz bir kontrol listesiyle.",
+      "Masaüstü, Excel ve bulut programların karşılaştırması; çakışma engeli, silinemeyen tahsilat, opsiyonlu tarih ve organizasyon bazlı kâr. Demo kontrol listesi ve bir haftalık geçiş planıyla.",
     tarih: "2026-11-01",
+    guncellendi: "2026-11-07",
     kitle: "salon",
     icerik: () => import("@/content/blog/dugun-salonu-programi-secimi.mdx"),
   },
