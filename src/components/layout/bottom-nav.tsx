@@ -24,7 +24,7 @@ export function BottomNav({ account }: { account: MobileMenuAccount }) {
    */
   const [menuAt, setMenuAt] = useState<string | null>(null);
   const menuOpen = menuAt === pathname;
-  const closeMenu = useCallback(() => setMenuAt(null), []);
+  const closeMenu = useCallback(() => setMenuAt(null), [setMenuAt]);
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
