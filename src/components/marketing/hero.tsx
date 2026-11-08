@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { CirclePlay } from "lucide-react";
 import { AppMockup } from "@/components/marketing/app-mockup";
+import { HeroVideo } from "@/components/marketing/hero-video";
 import { PillLink } from "@/components/marketing/site-header";
 import { FadeIn } from "@/components/marketing/reveal";
 import { ScrollScale } from "@/components/marketing/scroll-scale";
@@ -52,15 +51,7 @@ export function Hero() {
           <FadeIn delay={180}>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
               <PillLink href="/kayit">{TRIAL_DAYS} gün ücretsiz deneyin</PillLink>
-              <Link
-                href="#nasil-calisir"
-                className="group inline-flex items-center gap-2 text-[0.9375rem] font-medium text-white"
-              >
-                <CirclePlay className="size-5 text-white/45 transition-colors group-hover:text-white" />
-                <span className="underline-offset-4 group-hover:underline">
-                  Nasıl çalıştığını görün
-                </span>
-              </Link>
+              <HeroVideo />
             </div>
           </FadeIn>
 
