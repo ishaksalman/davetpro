@@ -24,7 +24,7 @@ const COLUMNS = [
     links: [
       { label: "Düğün salonu sözleşmesi örneği", href: "/dugun-salonu-sozlesme-ornegi" },
       { label: "Fotoğrafçı sözleşmesi örneği", href: "/fotografci-sozlesme-ornegi" },
-      { label: "Kapora ne kadar alınmalı?", href: "/blog/kapora-ne-kadar-alinmali" },
+      { label: "Kapora makbuzu örneği", href: "/blog/kapora-ne-kadar-alinmali" },
       { label: "Tüm rehberler", href: "/blog" },
     ],
   },

@@ -223,7 +223,7 @@ export default function OrganizasyonPage() {
             <ul className="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2">
               {[
                 { href: "/blog/organizasyon-fiyat-teklifi", ad: "Organizasyon fiyat teklifinde neler olmalı?" },
-                { href: "/blog/kapora-ne-kadar-alinmali", ad: "Kapora ne kadar alınmalı, sözleşmede nasıl yazılır?" },
+                { href: "/blog/kapora-ne-kadar-alinmali", ad: "Kapora nasıl yazılır? Makbuz örneği" },
                 { href: "/dugun-salonu-sozlesme-ornegi", ad: "Organizasyon hizmet sözleşmesi örneği" },
                 { href: "/blog/dugun-salonu-karlilik-hesabi", ad: "Organizasyonda kârlılık nasıl hesaplanır?" },
               ].map((l) => (

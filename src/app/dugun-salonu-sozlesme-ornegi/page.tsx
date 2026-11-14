@@ -3,9 +3,9 @@ import { sayfaMetadata } from "@/lib/seo";
 import { SOZLESME_SABLONU } from "@/lib/sozlesme-ornegi";
 
 export const metadata = sayfaMetadata({
-  baslik: "Düğün Salonu Sözleşmesi Örneği (Yazdırılabilir)",
+  baslik: "Düğün Salonu Sözleşmesi Örneği (Word ve PDF İndir)",
   aciklama:
-    "Düğün salonu sözleşmesi örneği: kapora, kalan ödeme, iptal, tarih değişikliği ve zarar maddeleriyle 16 madde. Ücretsiz okuyun, yazdırın ve doldurun.",
+    "Hazır düğün salonu sözleşmesi örneği: kapora, kalan ödeme, iptal ve tarih değişikliği dahil 16 madde. Ücretsiz Word olarak indirin, düzenleyin veya PDF yazdırın.",
   yol: "/dugun-salonu-sozlesme-ornegi",
   paylasimBasligi: "Düğün salonu sözleşmesi örneği · DavetPro",
 });
@@ -53,6 +53,11 @@ export default function Page() {
       ]}
       sorular={[
         {
+          soru: "Düğün salonu sözleşmesini Word veya PDF olarak indirebilir miyim?",
+          cevap:
+            "Evet. \"Word olarak indir\" düğmesi düzenlenebilir .docx dosyasını indirir; doldurulacak alanlar sarı ile işaretlidir. PDF için \"Yazdır / PDF\" düğmesine basıp yazıcı olarak \"PDF olarak kaydet\"i seçin. Üyelik gerekmez.",
+        },
+        {
           soru: "Düğün salonu sözleşmesinde hangi maddeler olmalı?",
           cevap:
             "En az şunlar: taraflar, organizasyon tarihi ve saat aralığı, salon ve davetli sayısı, paket ve dahil hizmetler, toplam bedel ve indirim, alınan kapora, kalan ödeme ve tarihi, iptal ve kapora iadesi, tarih değişikliği, mücbir sebepler, mekâna verilen zararlar ve yetkili merci.",
@@ -75,7 +80,7 @@ export default function Page() {
       ]}
       ilgili={[
         { href: "/blog/dugun-salonu-sozlesmesi", ad: "Düğün salonu sözleşmesinde neler bulunmalı?" },
-        { href: "/blog/kapora-ne-kadar-alinmali", ad: "Kapora ne kadar alınmalı, sözleşmede nasıl yazılır?" },
+        { href: "/blog/kapora-ne-kadar-alinmali", ad: "Kapora nasıl yazılır? Makbuz örneği" },
         { href: "/fotografci-sozlesme-ornegi", ad: "Fotoğrafçı sözleşmesi örneği" },
         { href: "/", ad: "Düğün salonu programı DavetPro" },
       ]}

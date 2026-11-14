@@ -3,9 +3,9 @@ import { sayfaMetadata } from "@/lib/seo";
 import { FOTOGRAF_ETIKETLERI, SOZLESME_SABLONU } from "@/lib/sozlesme-ornegi";
 
 export const metadata = sayfaMetadata({
-  baslik: "Fotoğrafçı Sözleşmesi Örneği · Telif ve Teslim Maddeli",
+  baslik: "Fotoğrafçı Sözleşmesi Örneği (Word İndir) · Telif ve Teslim Maddeli",
   aciklama:
-    "Düğün fotoğrafçısı ve video için sözleşme örneği: teslim süresi, kapora, telif ve kullanım hakkı, portfolyo izni, ham dosya saklama. Ücretsiz okuyun, yazdırın.",
+    "Düğün fotoğrafçısı ve video için sözleşme örneği: teslim süresi, kapora, telif ve kullanım hakkı, portfolyo izni, ham dosya saklama. Ücretsiz Word olarak indirin veya yazdırın.",
   yol: "/fotografci-sozlesme-ornegi",
   paylasimBasligi: "Fotoğrafçı sözleşmesi örneği · DavetPro",
 });
@@ -54,6 +54,11 @@ export default function Page() {
       ]}
       sorular={[
         {
+          soru: "Fotoğrafçı sözleşmesini Word olarak indirebilir miyim?",
+          cevap:
+            "Evet. \"Word olarak indir\" düğmesi düzenlenebilir .docx dosyasını indirir; doldurulacak alanlar sarı ile işaretlidir. PDF için \"Yazdır / PDF\" düğmesini kullanın. Üyelik gerekmez.",
+        },
+        {
           soru: "Fotoğrafçı sözleşmesinde hangi maddeler olmalı?",
           cevap:
             "Taraflar, çekim tarihi ve saatleri, paket ve ek hizmetler, toplam bedel, kapora ve kalan ödeme, teslim süresi ve biçimi, telif ve kullanım hakları, iptal ve tarih değişikliği, mücbir sebepler, ham dosya saklama ve yetkili merci.",
@@ -78,7 +83,7 @@ export default function Page() {
         { href: "/blog/fotografci-sozlesmesi-telif", ad: "Fotoğrafçı sözleşmesinde telif ve kullanım hakkı" },
         { href: "/fotografci-programi", ad: "Fotoğrafçı programı: çekim ve teslim takibi" },
         { href: "/dugun-salonu-sozlesme-ornegi", ad: "Düğün salonu sözleşmesi örneği" },
-        { href: "/blog/kapora-ne-kadar-alinmali", ad: "Kapora ne kadar alınmalı?" },
+        { href: "/blog/kapora-ne-kadar-alinmali", ad: "Kapora nasıl yazılır? Makbuz örneği" },
       ]}
     />
   );

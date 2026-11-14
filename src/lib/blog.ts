@@ -39,20 +39,21 @@ const YAZILAR: Kayit[] = [
   },
   {
     slug: "dugun-salonu-sozlesmesi",
-    baslik: "Düğün salonu sözleşmesi: neler bulunmalı, kapora ve iptal nasıl yazılır?",
+    baslik: "Düğün salonu sözleşmesinde olması gereken 10 madde (kapora ve iptal dahil)",
     ozet:
       "Taraflardan mücbir sebebe on başlık, \"kapora iade edilmez\" maddesinin neden yetmediği, kademeli iptal tablosu ve sık yapılan beş hata. Kontrol listesiyle.",
     tarih: "2026-09-30",
-    guncellendi: "2026-11-07",
+    guncellendi: "2026-11-14",
     kitle: "salon",
     icerik: () => import("@/content/blog/dugun-salonu-sozlesmesi.mdx"),
   },
   {
     slug: "kapora-ne-kadar-alinmali",
-    baslik: "Kapora ne kadar alınmalı, sözleşmede nasıl yazılır?",
+    baslik: "Kapora nasıl yazılır? Makbuz örneği ve ne kadar alınmalı",
     ozet:
-      "Yaygın aralık, tarihe kalan süreye göre ayarlama ve asıl belirleyici olan iade koşulu. Kalan ödemenin tarihini yazmamanın bedeli de var.",
+      "Kapora makbuzunda olması gereken sekiz alan ve doldurulmuş örnek metin, yaygın kapora oranı, sözleşmedeki iade maddesi ve kalan ödemenin tarihi.",
     tarih: "2026-10-01",
+    guncellendi: "2026-11-14",
     kitle: "salon",
     icerik: () => import("@/content/blog/kapora-ne-kadar-alinmali.mdx"),
   },

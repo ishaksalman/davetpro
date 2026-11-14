@@ -63,3 +63,21 @@ test("ayrıştırma madde sayısını ve yer tutucuları koruyor", () => {
     .filter((p) => p.tur === "metin" && p.metin.includes("{{"));
   assert.deepEqual(ham, []);
 });
+
+test("Word indirmesi geçerli bir .docx ve şablonun tüm maddelerini içeriyor", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const os = await import("node:os");
+  const { sozlesmeDocx } = await import("../src/lib/docx.ts");
+
+  for (const [ad, sablon] of Object.entries(SOZLESME_SABLONU)) {
+    const dosya = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "docx-")), `${ad}.docx`);
+    fs.writeFileSync(dosya, sozlesmeDocx(sablon));
+    // unzip -t: yerel başlık, CRC ve merkez dizin tutarlı mı?
+    execFileSync("unzip", ["-tq", dosya]);
+    const xml = execFileSync("unzip", ["-p", dosya, "word/document.xml"]).toString("utf8");
+    for (const m of sablonuAyristir(sablon).maddeler) {
+      assert.ok(xml.includes(m.baslik), `${ad}: "${m.baslik}" Word dosyasında yok`);
+    }
+    assert.ok(!xml.includes("{{"), `${ad}: işlenmemiş yer tutucu kaldı`);
+  }
+});

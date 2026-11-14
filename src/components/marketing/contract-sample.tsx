@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FileDown } from "lucide-react";
 import { PrintButton } from "@/app/s/[token]/print-button";
 import { Faq } from "@/components/marketing/faq";
 import { PillLink, SiteHeader } from "@/components/marketing/site-header";
@@ -6,6 +7,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { WhatsAppFloat } from "@/components/marketing/whatsapp-float";
 import { Reveal } from "@/components/marketing/reveal";
 import { JsonLd } from "@/components/seo/json-ld";
+import { buttonVariants } from "@/components/ui/button";
 import { yolVerisi, type Soru } from "@/lib/seo";
 import { sablonuAyristir } from "@/lib/sozlesme-ornegi";
 import { TRIAL_DAYS } from "@/lib/subscription";
@@ -68,6 +70,15 @@ export function ContractSample({
               <p className="mt-5 text-[1.0625rem] leading-relaxed text-mk-body">{giris}</p>
               <div className="no-print mt-8 flex flex-wrap items-center justify-center gap-3">
                 <PillLink href="/kayit">Bilgilerle dolu hâlini oluşturun</PillLink>
+                {/* Düz <a>: dosya rotası, istemci yönlendirmesine girmemeli. */}
+                <a
+                  href={`${yol}/word`}
+                  download
+                  className={buttonVariants({ size: "sm", variant: "outline" })}
+                >
+                  <FileDown />
+                  Word olarak indir
+                </a>
                 <PrintButton />
               </div>
             </Reveal>
