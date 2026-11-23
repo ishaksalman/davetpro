@@ -26,6 +26,11 @@ her yerde sorunsuz görünüyor.
 ## Değişkenler
 
 - `{{ .ConfirmationURL }}` — tıklanacak bağlantı (zorunlu)
+- `{{ .TokenHash }}` — `dogrulama.html` ve `sifre-sifirlama.html` bağlantıyı
+  `{{ .SiteURL }}/auth/callback?token_hash=...&type=...` olarak kendisi kuruyor.
+  `ConfirmationURL` Supabase'in `/verify` adresinden geçip `redirectTo`'ya
+  gidiyor; adres Redirect URLs listesine uymazsa sessizce Site URL'e (`/`)
+  düşüyor ve oturumu açık kullanıcı şifre formu yerine panele atılıyordu.
 - `{{ .Email }}` — alıcının e-posta adresi
 
 ## Önemli: gönderen adresi

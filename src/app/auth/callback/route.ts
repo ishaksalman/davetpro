@@ -32,8 +32,12 @@ export async function GET(request: NextRequest) {
   const nextParam = searchParams.get("next") ?? "/panel";
 
   // Açık yönlendirme (open redirect) olmasın: yalnızca uygulama içi yollar.
-  const next =
+  const guvenliNext =
     nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/panel";
+  // Şifre sıfırlama bağlantısı HER ZAMAN yeni şifre formuna iner. E-posta
+  // şablonu doğrudan buraya bağlandığı için `next` taşımıyor; varsayılan
+  // /panel'e düşseydik kullanıcı şifresini değiştiremeden panele girerdi.
+  const next = type === "recovery" ? "/sifre-yenile" : guvenliNext;
 
   const supabase = await createClient();
 
