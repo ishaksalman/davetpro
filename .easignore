@@ -1,0 +1,22 @@
+# EAS Build paketinden çıkarılanlar (mobil uygulama yalnızca mobile/ ve src/lib'i kullanır)
+# Baştaki "/" kalıbı yalnızca depo köküne bağlar (mobile/src/lib/supabase gibi yolları etkilemez).
+node_modules
+/.next
+/out
+/build
+/coverage
+.DS_Store
+*.pem
+
+# Mobilin ihtiyacı olmayan büyük/ilgisiz kök klasörler
+/tanitim
+/public
+/design
+/docs
+/supabase
+/tests
+/siparis-animasyonu.html
+/*.mp4
+/*.mov
+/*.MOV
+/*.mp3

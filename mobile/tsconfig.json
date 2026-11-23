@@ -1,0 +1,18 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["jest", "node"],
+    "paths": {
+      "~/*": ["./src/*"],
+      "@/lib/*": ["../src/lib/*"],
+      "zod": ["./node_modules/zod"],
+      "date-fns": ["./node_modules/date-fns"],
+      "date-fns/*": ["./node_modules/date-fns/*"]
+    }
+  },
+  "include": ["src/**/*", "__tests__/**/*", ".expo/types/**/*.ts", "expo-env.d.ts", "../src/lib/**/*.ts"],
+  "exclude": ["node_modules", "../src/lib/supabase", "../src/lib/auth.ts", "../src/lib/queries.ts", "../src/lib/leads.ts", "../src/lib/blog.ts", "../src/lib/availability-actions.ts", "../src/lib/integrations", "../src/lib/env.ts", "../src/lib/contracts.ts", "../src/lib/reservation-notice.ts", "../src/lib/date-range.ts", "../src/lib/relative-date.ts"]
+}
