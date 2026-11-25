@@ -19,7 +19,7 @@ export default function SubscriptionScreen() {
       <View style={{ flex: 1, justifyContent: "center", padding: 16, gap: 16 }}>
         <Text variant="titleLarge">Erişim süresi doldu</Text>
         <Text variant="body" color="textSecondary">
-          {s.business.name} için erişim süresi {sub ? formatDate(sub.accessUntil) : ""} tarihinde sona erdi. Verileriniz saklanmaya devam eder; hesap durumunuzu DavetPro web panelinden görüntüleyebilirsiniz.
+          {s.business.name} için erişim süresi {sub ? formatDate(sub.accessUntil) : ""} tarihinde sona erdi. Verileriniz saklanmaya devam eder. Hesap sahibi ile iletişime geçin.
         </Text>
         <Button label="Yeniden kontrol et" variant="secondary" onPress={reload} />
         <Button label="Çıkış yap" variant="ghost" onPress={signOut} />
