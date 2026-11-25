@@ -7,7 +7,7 @@ import { useAppSession, useSessionContext } from "~/lib/auth/session";
 import { useDashboard } from "~/lib/data/dashboard";
 import { useRefetchOnFocus } from "~/lib/hooks";
 import { Avatar } from "~/ui/Badge";
-import { Banner, CardSkeleton, EmptyState, ErrorState, Skeleton } from "~/ui/Feedback";
+import { CardSkeleton, EmptyState, ErrorState, Skeleton } from "~/ui/Feedback";
 import { Icon } from "~/ui/Icon";
 import { ListGroup, ListRow, SectionHeader } from "~/ui/List";
 import { Screen, ScrollScreen } from "~/ui/Screen";
@@ -43,14 +43,6 @@ export default function HomeScreen() {
             <Avatar name={s.profile.full_name} />
           </Pressable>
         </View>
-
-        {sub?.isWarning && sub.state !== "sona_erdi" ? (
-          <Banner
-            tone="warning"
-            title={sub.daysLeft === 0 ? "Erişim süreniz bugün bitiyor" : `Erişim süreniz ${sub.daysLeft} gün içinde bitiyor`}
-            body={`${formatDate(sub.accessUntil)} tarihinden sonra uygulamayı kullanamazsınız. Uzatmak için Daha → Hesap.`}
-          />
-        ) : null}
 
         <StartGuide />
 

@@ -4,12 +4,12 @@ import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import { env } from "~/lib/env";
 import { USER_ROLE_LABELS } from "@/lib/constants";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { VERTICALS } from "@/lib/vertical";
 import { useAppSession, useSessionContext } from "~/lib/auth/session";
 import { Avatar, StatusBadge } from "~/ui/Badge";
 import { Button } from "~/ui/Button";
-import { Banner, ConfirmDialog } from "~/ui/Feedback";
+import { ConfirmDialog } from "~/ui/Feedback";
 import { ListGroup, ListRow, SectionHeader } from "~/ui/List";
 import { InlineHeader, Screen, ScrollScreen } from "~/ui/Screen";
 import { Text } from "~/ui/Text";
@@ -55,17 +55,10 @@ export default function AccountScreen() {
 
         {sub ? (
           <View style={{ gap: 10 }}>
-            <SectionHeader title="Abonelik" />
+            <SectionHeader title="Hesap erişimi" />
             <ListGroup>
-              <ListRow
-                icon="calendar-clock"
-                title="Erişim bitişi"
-                subtitle={`${formatDate(sub.accessUntil)} · ${sub.state === "deneme" ? "Deneme süresi" : sub.state === "abone" ? "Abone" : "Süre doldu"}`}
-                right={<StatusBadge label={sub.state === "sona_erdi" ? "Süre doldu" : `${formatNumber(sub.daysLeft)} gün kaldı`} tone={sub.state === "sona_erdi" ? "danger" : sub.isWarning ? "warning" : "success"} size="S" />}
-              />
-              <ListRow icon="receipt" title="Referans kodu" value={sub.referenceCode} />
+              <ListRow icon="calendar-clock" title="Erişim bitişi" value={formatDate(sub.accessUntil)} />
             </ListGroup>
-            {sub.isWarning ? <Banner tone="warning" title={sub.state === "sona_erdi" ? "Erişim süresi doldu" : `Erişim süreniz ${sub.daysLeft} gün içinde bitiyor`} body="Hesap durumunuz için destek ekibimizle iletişime geçin." /> : null}
           </View>
         ) : null}
 
