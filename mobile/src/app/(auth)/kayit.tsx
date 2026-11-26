@@ -12,7 +12,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BUSINESS_TYPES } from "@/lib/vertical";
 import type { BusinessType } from "@/lib/database.types";
 import { useTheme } from "~/design/theme";
-import { radius } from "~/design/tokens";
 import { signUpWithEmail } from "~/lib/auth/sign-up";
 import { passwordStrength } from "~/lib/domain/password-strength";
 import { useOnline, useSubmitGuard } from "~/lib/hooks";
@@ -20,7 +19,6 @@ import { BusinessTypeCard } from "~/features/onboarding/business-type-card";
 import { savePendingBusinessType, readPendingBusinessType } from "~/lib/onboarding";
 import { Banner } from "~/ui/Feedback";
 import { Button, IconButton } from "~/ui/Button";
-import { Icon } from "~/ui/Icon";
 import { TextField } from "~/ui/Inputs";
 import { Text } from "~/ui/Text";
 
@@ -108,13 +106,6 @@ export default function SignUpScreen() {
           <>
             <View style={{ gap: 10 }}>
               <Text variant="display" accessibilityRole="header">Hesabını oluştur.</Text>
-            </View>
-            <View style={{ flexDirection: "row", gap: 12, padding: 14, borderRadius: radius.xl, backgroundColor: colors.feedbackInfoSubtle, alignItems: "flex-start" }}>
-              <Icon name="check" size={18} color="feedbackInfo" strokeWidth={2.6} />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text variant="subheadSemibold">30 gün ücretsiz</Text>
-                <Text variant="footnote" color="textSecondary">Kart bilgisi istemiyoruz. Deneme bitince otomatik tahsilat olmaz.</Text>
-              </View>
             </View>
             {!online ? <Banner tone="offline" title="Çevrimdışısınız" body="Hesap oluşturmak için internet bağlantısı gerekli." /> : null}
             {formError ? <Banner reveal tone="danger" title="Hesap oluşturulamadı" body={formError} /> : null}

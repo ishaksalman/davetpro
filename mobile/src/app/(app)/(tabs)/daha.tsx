@@ -47,7 +47,7 @@ export default function MoreScreen() {
         <View style={{ gap: 10 }}>
           <SectionHeader title="Hesap" />
           <ListGroup>
-            <ListRow icon="user" title="Hesabım" subtitle="Profil, abonelik, şifre" onPress={() => router.push("/hesap")} />
+            <ListRow icon="user" title="Hesabım" subtitle="Profil ve şifre" onPress={() => router.push("/hesap")} />
           </ListGroup>
         </View>
 

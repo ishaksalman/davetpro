@@ -21,7 +21,7 @@ export default function SettingsMenu() {
           <ListRow icon="briefcase" title="İşletme" subtitle={s.business.name} onPress={() => router.push("/ayarlar/isletme")} />
           <ListRow icon="users" title="Kullanıcılar" subtitle={members.data ? `${members.data.length} kullanıcı` : "Roller ve yetkiler, davet"} onPress={() => router.push("/ayarlar/kullanicilar")} />
           {canFinance ? <ListRow icon="receipt" title="Gider kategorileri" subtitle={cats.data ? `${cats.data.length} kategori` : "Gider türleri"} onPress={() => router.push("/ayarlar/kategoriler")} /> : null}
-          <ListRow icon="lock" title="Hesap ve abonelik" subtitle="E-posta, şifre, erişim süresi" onPress={() => router.push("/hesap")} />
+          <ListRow icon="lock" title="Hesabım" subtitle="E-posta, şifre, erişim süresi" onPress={() => router.push("/hesap")} />
         </ListGroup>
       </ScrollScreen>
     </Screen>
